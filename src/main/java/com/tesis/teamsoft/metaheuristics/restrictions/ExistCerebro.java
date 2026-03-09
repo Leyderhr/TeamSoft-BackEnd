@@ -55,7 +55,7 @@ public class ExistCerebro extends Constrain {
                     PersonEntity worker = aux.get(k);
 
                     if (worker.getPersonTest() != null) {
-                        if (worker.getPersonTest().getC_E() != 'I' && worker.getPersonTest().getC_E() != 'E') { // si tiene rol cerebro
+                        if (worker.getPersonTest().getCE() != 'I' && worker.getPersonTest().getCE() != 'E') { // si tiene rol cerebro
                             personCount++; //cuento uno
                         }
                         if (personCount >= min) { //si esta cubierta la cantidad definida por el usuario
@@ -85,7 +85,7 @@ public class ExistCerebro extends Constrain {
             PersonEntity worker = codification.getSearchArea().get(i);
             PersonTestEntity workerTest = worker.getPersonTest(); //obtener caracteristicas psicologicas
 
-            if (workerTest.getC_E() != 'I' && workerTest.getC_E() != 'E') {
+            if (workerTest.getCE() != 'I' && workerTest.getCE() != 'E') {
                 candidatos.add(worker);
             }
 
@@ -102,7 +102,7 @@ public class ExistCerebro extends Constrain {
                 int k = 0;
                 while (k < rw.getWorkers().size()) {
                     PersonEntity worker = rw.getWorkers().get(k);
-                    if (!(worker.getPersonTest().getC_E() != 'I' && worker.getPersonTest().getC_E() != 'E')) { // si tiene rol cerebro
+                    if (!(worker.getPersonTest().getCE() != 'I' && worker.getPersonTest().getCE() != 'E')) { // si tiene rol cerebro
                         rw.getWorkers().set(k, candidatos.remove(c));
                         c++;
                     }

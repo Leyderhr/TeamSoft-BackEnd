@@ -1,5 +1,6 @@
 package com.tesis.teamsoft.persistence.entity;
 
+import com.tesis.teamsoft.persistence.entity.auxiliar.Status;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -7,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Check;
 
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -21,6 +23,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "person")
+@Check(constraints = "birth_date <= in_date")
 public class PersonEntity implements Serializable {
 
     @Id
@@ -54,7 +57,7 @@ public class PersonEntity implements Serializable {
     private String phone;
 
     @NotNull(message = "Sex is required")
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "char(1) check (sex in ('M','F', 'O'))")
     private Character sex;
 
     @NotNull(message = "Email is required")
@@ -68,17 +71,16 @@ public class PersonEntity implements Serializable {
     private Date inDate;
 
     @NotNull(message = "Workload is required")
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "float check (workload >= 0)")
     private Float workload;
 
     @NotNull(message = "Experience is required")
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "int check (experience >= 0)")
     private Integer experience;
 
-    @NotNull(message = "Status is required")
-    @Size(max = 1024, message = "Status cannot exceed 1024 characters")
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 1024)
-    private String status;
+    private Status status;
 
     @Column(name = "birth_date")
     @Temporal(TemporalType.DATE)
@@ -141,8 +143,8 @@ public class PersonEntity implements Serializable {
         int age = 0;
         if (birthDate != null) {
             LocalDate firstDate;
-            if (birthDate instanceof java.sql.Date) {
-                firstDate = ((java.sql.Date) birthDate).toLocalDate();
+            if (birthDate instanceof java.sql.Date sqlDate) {
+                firstDate = sqlDate.toLocalDate();
             } else {
                 firstDate = birthDate.toInstant()
                         .atZone(ZoneId.systemDefault())

@@ -5,6 +5,7 @@ import com.tesis.teamsoft.persistence.entity.UserRoleEntity;
 import com.tesis.teamsoft.persistence.repository.IUserRepository;
 import com.tesis.teamsoft.persistence.repository.IUserRoleRepository;
 import com.tesis.teamsoft.presentation.dto.UserDTO;
+import com.tesis.teamsoft.presentation.dto.UserRoleDTO;
 import com.tesis.teamsoft.service.interfaces.IUserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -316,8 +317,8 @@ public class UserServiceImpl implements IUserService {
         UserDTO.UserResponseDTO responseDTO = modelMapper.map(user, UserDTO.UserResponseDTO.class);
 
         // Convertir roles a DTOs
-        Set<UserDTO.RoleResponseDTO> roleDTOs = user.getRoles().stream()
-                .map(role -> modelMapper.map(role, UserDTO.RoleResponseDTO.class))
+        Set<UserRoleDTO.UserRoleResponseDTO> roleDTOs = user.getRoles().stream()
+                .map(role -> modelMapper.map(role, UserRoleDTO.UserRoleResponseDTO.class))
                 .collect(Collectors.toSet());
 
         responseDTO.setRoles(roleDTOs);

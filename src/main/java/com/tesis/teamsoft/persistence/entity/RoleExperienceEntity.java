@@ -23,7 +23,7 @@ public class RoleExperienceEntity implements Serializable {
     private Long id;
 
     @NotNull(message = "Indexes value is required")
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "float check (indexes >= 0)")
     private float indexes;
 
     @NotNull(message = "Role is required")

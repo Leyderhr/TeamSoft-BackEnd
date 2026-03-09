@@ -1,5 +1,6 @@
 package com.tesis.teamsoft.service.implementation;
 
+import com.tesis.teamsoft.persistence.entity.auxiliar.Status;
 import com.tesis.teamsoft.persistence.repository.*;
 import com.tesis.teamsoft.presentation.dto.*;
 import com.tesis.teamsoft.service.interfaces.ITeamFormationStepThreeService;
@@ -33,6 +34,7 @@ import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import com.tesis.teamsoft.config.AlgorithmConfig;
 
 @Service
 public class TeamFormationStepThreeImpl implements ITeamFormationStepThreeService {
@@ -289,7 +291,7 @@ public class TeamFormationStepThreeImpl implements ITeamFormationStepThreeServic
                 for (PersonEntity person : roleWorker.getWorkers()) {
                     // Crear y guardar la asignación
                     AssignedRoleEntity assignedRole = new AssignedRoleEntity();
-                    assignedRole.setStatus("ACTIVE"); // o el status que corresponda
+                    assignedRole.setStatus(Status.ACTIVE); // o el status que corresponda
                     assignedRole.setObservation("Assigned by team formation algorithm");
                     assignedRole.setBeginDate(currentDate);
                     assignedRole.setCycles(lastCycle);
@@ -310,7 +312,7 @@ public class TeamFormationStepThreeImpl implements ITeamFormationStepThreeServic
         List<TeamProposalDTO> teamsProposal = new ArrayList<>();
 
         if (!teamProposal.isEmpty()) {
-            String format = "0.####";//ResourceBundle.getBundle("/algorithmConf").getString("decimalFormat");
+            String format = AlgorithmConfig.getString("decimalFormat", "0.####");
             DecimalFormat df = new DecimalFormat(format);
             ArrayList<ObjetiveFunction> objectiveFunctions = new ArrayList<>(ObjetiveFunctionUtil.getObjectiveFunctions(parameters));
             TeamProposalDTO team;
@@ -578,7 +580,7 @@ public class TeamFormationStepThreeImpl implements ITeamFormationStepThreeServic
         List<PersonEntity> source = personRepository.findAll();
 
         for (PersonEntity item : source) { //para cada persona
-            if (item.getStatus() != null && item.getStatus().equalsIgnoreCase("ACTIVE")) { //si esta activa
+            if (item.getStatus() != null && item.getStatus().equals("ACTIVE")) { //si esta activa
                 int i = 0;
                 while (i < groups.size()) // para cada grupo
                 {
@@ -705,8 +707,8 @@ public class TeamFormationStepThreeImpl implements ITeamFormationStepThreeServic
     }
 
     public List<State> applyHillClimbing(ProjectRoleState initialSolution, TeamFormationProblem problem) throws IllegalArgumentException, SecurityException, ClassNotFoundException, InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException, IOException {
-        int EXECUTIONS = 1;//Integer.parseInt(ResourceBundle.getBundle("/algorithmConf").getString("executions"));
-        int iterations = 100;//Integer.parseInt(ResourceBundle.getBundle("/algorithmConf").getString("iterations"));
+        int EXECUTIONS = AlgorithmConfig.getInt("executions", 1);
+        int iterations = AlgorithmConfig.getInt("iterations", 100);
         List<State> sol = null;
         if (initialSolution != null) {
             sol = new ArrayList<>();
@@ -745,8 +747,8 @@ public class TeamFormationStepThreeImpl implements ITeamFormationStepThreeServic
      * @throws java.io.IOException
      */
     public List<State> applyHillClimbingRestart(ProjectRoleState initialSolution, TeamFormationProblem problem) throws IllegalArgumentException, SecurityException, ClassNotFoundException, InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException, IOException {
-        int EXECUTIONS = Integer.parseInt(ResourceBundle.getBundle("/algorithmConf").getString("executions"));
-        int iterations = Integer.parseInt(ResourceBundle.getBundle("/algorithmConf").getString("iterations"));
+        int EXECUTIONS = AlgorithmConfig.getInt("executions", 1);
+        int iterations = AlgorithmConfig.getInt("iterations", 100);
         List<State> sol = null;
         if (initialSolution != null) {
             sol = new ArrayList<>();
@@ -755,7 +757,7 @@ public class TeamFormationStepThreeImpl implements ITeamFormationStepThreeServic
                 configStrategy(problem);
                 Strategy.getStrategy().saveListBestStates = true;
                 Strategy.getStrategy().saveListStates = true;
-                HillClimbingRestart.count = Integer.parseInt(ResourceBundle.getBundle("/algorithmConf").getString("HillClimbingRestartCount"));
+                HillClimbingRestart.count = AlgorithmConfig.getInt("HillClimbingRestartCount", 10);
 
                 Strategy.getStrategy().executeStrategy(iterations, 1, GeneratorType.HillClimbingRestart);
                 State bestState = Strategy.getStrategy().getBestState();
@@ -787,8 +789,8 @@ public class TeamFormationStepThreeImpl implements ITeamFormationStepThreeServic
      * @throws java.io.IOException
      */
     public List<State> applyRandomSearch(ProjectRoleState initialSolution, TeamFormationProblem problem) throws IllegalArgumentException, SecurityException, ClassNotFoundException, InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException, IOException {
-        int EXECUTIONS = Integer.parseInt(ResourceBundle.getBundle("/algorithmConf").getString("executions"));
-        int iterations = Integer.parseInt(ResourceBundle.getBundle("/algorithmConf").getString("iterations"));
+        int EXECUTIONS = AlgorithmConfig.getInt("executions", 1);
+        int iterations = AlgorithmConfig.getInt("iterations", 100);
         List<State> sol = null;
         if (initialSolution != null) {
             sol = new ArrayList<>();
@@ -825,8 +827,8 @@ public class TeamFormationStepThreeImpl implements ITeamFormationStepThreeServic
      * @throws java.io.IOException
      */
     public List<State> applyTabuSearch(ProjectRoleState initialSolution, TeamFormationProblem problem) throws IllegalArgumentException, SecurityException, ClassNotFoundException, InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException, IOException {
-        int EXECUTIONS = Integer.parseInt(ResourceBundle.getBundle("/algorithmConf").getString("executions"));
-        int iterations = Integer.parseInt(ResourceBundle.getBundle("/algorithmConf").getString("iterations"));
+        int EXECUTIONS = AlgorithmConfig.getInt("executions", 1);
+        int iterations = AlgorithmConfig.getInt("iterations", 100);
         List<State> sol = null;
         if (initialSolution != null) {
             sol = new ArrayList<>();
@@ -835,7 +837,7 @@ public class TeamFormationStepThreeImpl implements ITeamFormationStepThreeServic
                 configStrategy(problem);
                 Strategy.getStrategy().saveListBestStates = true;
                 Strategy.getStrategy().saveListStates = true;
-                TabuSolutions.maxelements = Integer.parseInt(ResourceBundle.getBundle("/algorithmConf").getString("TabuSolutionsMaxelements"));
+                TabuSolutions.maxelements = AlgorithmConfig.getInt("TabuSolutionsMaxelements", 10);
 
                 Strategy.getStrategy().executeStrategy(iterations, 1, GeneratorType.TabuSearch);
                 State bestState = Strategy.getStrategy().getBestState();
@@ -868,8 +870,8 @@ public class TeamFormationStepThreeImpl implements ITeamFormationStepThreeServic
         List<State> sol = null;
         if (initialSolution != null) {
 
-            int iterations = Integer.parseInt(ResourceBundle.getBundle("/algorithmConf").getString("iterations"));
-            int executions = Integer.parseInt(ResourceBundle.getBundle("/algorithmConf").getString("executions"));
+            int iterations = AlgorithmConfig.getInt("iterations", 100);
+            int executions = AlgorithmConfig.getInt("executions", 1);
             for (int i = 0; i < executions; i++) {
                 //RS,RE,RL,EE,GA,BT,BA,ECR,EDA,EC,LU
                 configurePA(iterations, false, false, false, false, false, true, true, true, false, true, false);
@@ -893,8 +895,8 @@ public class TeamFormationStepThreeImpl implements ITeamFormationStepThreeServic
     //NSGAII
 
     private List<State> applyNSGAII(ProjectRoleState initialSolution, TeamFormationProblem problem) {
-        int ITERATIONS = Integer.parseInt(ResourceBundle.getBundle("/algorithmConf").getString("iterations"));
-        int EXECUTIONS = Integer.parseInt(ResourceBundle.getBundle("/algorithmConf").getString("executions"));
+        int ITERATIONS = AlgorithmConfig.getInt("iterations", 100);
+        int EXECUTIONS = AlgorithmConfig.getInt("executions", 1);
         List<State> sol = null;
         if (initialSolution != null) {
             sol = new ArrayList<>();
@@ -903,14 +905,14 @@ public class TeamFormationStepThreeImpl implements ITeamFormationStepThreeServic
                 //Configurar el algoritmo dentro del BiCIAM
                 Strategy.getStrategy().setStopexecute(new StopExecute());
                 Strategy.getStrategy().setUpdateparameter(new UpdateParameter());
-                NSGAII.countRef = Integer.parseInt(ResourceBundle.getBundle("/algorithmConf").getString("CountRef")); //Cantidad de individuos
+                NSGAII.countRef = AlgorithmConfig.getInt("CountRef", 100);
                 NSGAII.selectionType = SelectionType.TournamentSelection;
 
                 NSGAII.crossoverType = CrossoverType.GenericCrossover;
                 NSGAII.mutationType = MutationType.GenericMutation;
                 Strategy.getStrategy().calculateTime = true;
-                NSGAII.PM = Float.parseFloat(ResourceBundle.getBundle("/algorithmConf").getString("PM"));
-                NSGAII.PC = Float.parseFloat(ResourceBundle.getBundle("/algorithmConf").getString("PC"));
+                NSGAII.PM = AlgorithmConfig.getFloat("PM", 0.9f);
+                NSGAII.PC = AlgorithmConfig.getFloat("PC", 0.5f);
 
                 try {
                     Strategy.getStrategy().executeStrategy(ITERATIONS, 1, GeneratorType.RandomSearch);
@@ -942,8 +944,8 @@ public class TeamFormationStepThreeImpl implements ITeamFormationStepThreeServic
     //MCMOSA
     public List<State> applyMCMOSA(ProjectRoleState initialSolution, TeamFormationProblem problem) {
 
-        int EXECUTIONS = Integer.parseInt(ResourceBundle.getBundle("/algorithmConf").getString("executions"));
-        int iterations = Integer.parseInt(ResourceBundle.getBundle("/algorithmConf").getString("iterations"));
+        int EXECUTIONS = AlgorithmConfig.getInt("executions", 1);
+        int iterations = AlgorithmConfig.getInt("iterations", 100);
         List<State> sol = null;
         if (initialSolution != null) {
             sol = new ArrayList<>();
@@ -957,7 +959,7 @@ public class TeamFormationStepThreeImpl implements ITeamFormationStepThreeServic
                 MultiCaseSimulatedAnnealing.alpha = 0.9;
                 MultiCaseSimulatedAnnealing.tfinal = 0.0;
                 MultiCaseSimulatedAnnealing.tinitial = 20.0;
-                String format = ResourceBundle.getBundle("/algorithmConf").getString("decimalFormat");
+                String format = AlgorithmConfig.getString("decimalFormat", "0.####");
                 DecimalFormat df = new DecimalFormat(format);
 
                 try {
@@ -991,8 +993,8 @@ public class TeamFormationStepThreeImpl implements ITeamFormationStepThreeServic
     //UMOSA
     public List<State> applyUMOSA(ProjectRoleState initialSolution, TeamFormationProblem problem) {
 
-        int EXECUTIONS = Integer.parseInt(ResourceBundle.getBundle("/algorithmConf").getString("executions"));
-        int iterations = Integer.parseInt(ResourceBundle.getBundle("/algorithmConf").getString("iterations"));
+        int EXECUTIONS = AlgorithmConfig.getInt("executions", 1);
+        int iterations = AlgorithmConfig.getInt("iterations", 100);
         List<State> sol = null;
         if (initialSolution != null) {
             sol = new ArrayList<>();
@@ -1005,7 +1007,7 @@ public class TeamFormationStepThreeImpl implements ITeamFormationStepThreeServic
                 UMOSA.alpha = 0.9;
                 UMOSA.tfinal = 0.0;
                 UMOSA.tinitial = 20.0;
-                String format = ResourceBundle.getBundle("/algorithmConf").getString("decimalFormat");
+                String format = AlgorithmConfig.getString("decimalFormat", "0.####");
                 DecimalFormat df = new DecimalFormat(format);
 
                 try {
@@ -1037,8 +1039,8 @@ public class TeamFormationStepThreeImpl implements ITeamFormationStepThreeServic
     //*Mogaaa
 
     public List<State> applyMOGA(ProjectRoleState initialSolution, TeamFormationProblem problem) throws IllegalArgumentException, SecurityException, ClassNotFoundException, InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException, IOException, NoSuchFieldException {
-        int ITERATIONS = Integer.parseInt(ResourceBundle.getBundle("/algorithmConf").getString("iterations"));
-        int EXECUTIONS = Integer.parseInt(ResourceBundle.getBundle("/algorithmConf").getString("executions"));
+        int ITERATIONS = AlgorithmConfig.getInt("iterations", 100);
+        int EXECUTIONS = AlgorithmConfig.getInt("executions", 1);
         List<State> sol = null;
         if (initialSolution != null) {
             sol = new ArrayList<>();
@@ -1047,14 +1049,14 @@ public class TeamFormationStepThreeImpl implements ITeamFormationStepThreeServic
                 //Configurar el algoritmo dentro del BiCIAM
                 Strategy.getStrategy().setStopexecute(new StopExecute());
                 Strategy.getStrategy().setUpdateparameter(new UpdateParameter());
-                MOGA.countRef = 100;//Integer.valueOf(ResourceBundle.getBundle("/algorithmConf").getString("CountRef")); //Cantidad de individuos
+                MOGA.countRef = 100;
                 MOGA.selectionType = SelectionType.TournamentSelection;
                 MOGA.crossoverType = CrossoverType.GenericCrossover;
                 MOGA.mutationType = MutationType.GenericMutation;
                 MOGA.replaceType = ReplaceType.GenerationalReplace;
                 Strategy.getStrategy().calculateTime = true;
-                MOGA.PM = Float.parseFloat(ResourceBundle.getBundle("/algorithmConf").getString("PM"));
-                MOGA.PC = Float.parseFloat(ResourceBundle.getBundle("/algorithmConf").getString("PC"));
+                MOGA.PM = AlgorithmConfig.getFloat("PM", 0.9f);
+                MOGA.PC = AlgorithmConfig.getFloat("PC", 0.5f);
                 try {
                     Strategy.getStrategy().executeStrategy(ITERATIONS, 1, GeneratorType.RandomSearch);
                 } catch (IllegalArgumentException | SecurityException | ClassNotFoundException | InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException ex) {
@@ -1084,8 +1086,8 @@ public class TeamFormationStepThreeImpl implements ITeamFormationStepThreeServic
 
     public List<State> applySimulatedAnnealing(ProjectRoleState initialSolution, TeamFormationProblem problem) throws IllegalArgumentException, SecurityException, ClassNotFoundException, InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException, IOException, NoSuchFieldException {
 
-        int EXECUTIONS = Integer.parseInt(ResourceBundle.getBundle("/algorithmConf").getString("executions"));
-        int iterations = Integer.parseInt(ResourceBundle.getBundle("/algorithmConf").getString("iterations"));
+        int EXECUTIONS = AlgorithmConfig.getInt("executions", 1);
+        int iterations = AlgorithmConfig.getInt("iterations", 100);
         List<State> sol = null;
         if (initialSolution != null) {
             sol = new ArrayList<>();
@@ -1180,7 +1182,7 @@ public class TeamFormationStepThreeImpl implements ITeamFormationStepThreeServic
         }
         if (BT) {
             TabuSearch ts = new TabuSearch();
-            TabuSolutions.maxelements = Integer.parseInt(ResourceBundle.getBundle("/algorithmConf").getString("TabuSolutionsMaxelements"));
+            TabuSolutions.maxelements = AlgorithmConfig.getInt("TabuSolutionsMaxelements", 10);
             gene.add(ts);
         }
         if (EC) {
@@ -1193,7 +1195,7 @@ public class TeamFormationStepThreeImpl implements ITeamFormationStepThreeServic
         }
         if (ECR) {
             HillClimbingRestart hcr = new HillClimbingRestart();
-            hcr.count = Integer.parseInt(ResourceBundle.getBundle("/algorithmConf").getString("HillClimbingRestartCount"));
+            hcr.count = AlgorithmConfig.getInt("HillClimbingRestartCount", 10);
             gene.add(hcr);
         }
         MultiGenerator.setListGenerators(gene);
@@ -1201,8 +1203,8 @@ public class TeamFormationStepThreeImpl implements ITeamFormationStepThreeServic
 
     public List<State> applyMultiobjectiveAlgorithmsBriefcase(ProjectRoleState initialSolution, TeamFormationProblem problem) throws IOException, IllegalArgumentException, ClassNotFoundException, NoSuchMethodException, IllegalAccessException, SecurityException, InstantiationException, InvocationTargetException, Exception {
         List<State> noDominadas = new ArrayList<State>();
-        int iterations = Integer.parseInt(ResourceBundle.getBundle("/algorithmConf").getString("iterations"));
-        int executions = Integer.parseInt(ResourceBundle.getBundle("/algorithmConf").getString("executions"));
+        int iterations = AlgorithmConfig.getInt("iterations", 100);
+        int executions = AlgorithmConfig.getInt("executions", 1);
         String fichero = "multiAlgorithmsBriefcase.txt";
         for (int i = 0; i < executions; i++) {
             //Configurar el algoritmo, dentro de BiCIAM
@@ -1304,8 +1306,8 @@ public class TeamFormationStepThreeImpl implements ITeamFormationStepThreeServic
 
     public List<State> GA(ProjectRoleState initialSolution, TeamFormationProblem problem) throws ClassNotFoundException, InvocationTargetException, InstantiationException, NoSuchMethodException, IllegalAccessException {
 
-        int ITERATIONS = Integer.parseInt(ResourceBundle.getBundle("/algorithmConf").getString("iterations"));
-        int EXECUTIONS = Integer.parseInt(ResourceBundle.getBundle("/algorithmConf").getString("executions"));
+        int ITERATIONS = AlgorithmConfig.getInt("iterations", 100);
+        int EXECUTIONS = AlgorithmConfig.getInt("executions", 1);
 
         List<State> sol = null;
         if (initialSolution != null) {
@@ -1321,14 +1323,14 @@ public class TeamFormationStepThreeImpl implements ITeamFormationStepThreeServic
 
                 //Configuracion del algoritmo genetico
                 //cantidad de individuos
-                GeneticAlgorithm.countRef = Integer.parseInt(ResourceBundle.getBundle("/algorithmConf").getString("CountRef"));
+                GeneticAlgorithm.countRef = AlgorithmConfig.getInt("CountRef", 100);
                 //Probabilidad de cruzamiento o combinacion
-                GeneticAlgorithm.PC = Float.parseFloat(ResourceBundle.getBundle("/algorithmConf").getString("PC"));
+                GeneticAlgorithm.PC = AlgorithmConfig.getFloat("PC", 0.5f);
                 //Probabilidad de mutacion
-                GeneticAlgorithm.PM = Float.parseFloat(ResourceBundle.getBundle("/algorithmConf").getString("PM"));
+                GeneticAlgorithm.PM = AlgorithmConfig.getFloat("PM", 0.9f);
 
                 GeneticAlgorithm.selectionType = SelectionType.TournamentSelection;
-                GeneticAlgorithm.truncation = Integer.parseInt(ResourceBundle.getBundle("/algorithmConf").getString("GeneticAlgorithmTruncation"));
+                GeneticAlgorithm.truncation = AlgorithmConfig.getInt("GeneticAlgorithmTruncation", 5);
                 GeneticAlgorithm.crossoverType = CrossoverType.GenericCrossover;
                 GeneticAlgorithm.mutationType = MutationType.GenericMutation;
                 GeneticAlgorithm.replaceType = ReplaceType.SteadyStateReplace;
@@ -1401,8 +1403,8 @@ public class TeamFormationStepThreeImpl implements ITeamFormationStepThreeServic
      */
     public List<State> applyMultiobjectiveStochasticHC(ProjectRoleState initialSolution, TeamFormationProblem problem) throws IOException {
 
-        int EXECUTIONS = Integer.parseInt(ResourceBundle.getBundle("/algorithmConf").getString("executions"));
-        int iterations = Integer.parseInt(ResourceBundle.getBundle("/algorithmConf").getString("iterations"));
+        int EXECUTIONS = AlgorithmConfig.getInt("executions", 1);
+        int iterations = AlgorithmConfig.getInt("iterations", 100);
         List<State> sol = null;
         if (initialSolution != null) {
             sol = new ArrayList<>();
@@ -1451,8 +1453,8 @@ public class TeamFormationStepThreeImpl implements ITeamFormationStepThreeServic
      */
     public List<State> applyMultiobjectiveHCRestart(ProjectRoleState initialSolution, TeamFormationProblem problem) throws IOException {
 
-        int EXECUTIONS = Integer.parseInt(ResourceBundle.getBundle("/algorithmConf").getString("executions"));
-        int iterations = Integer.parseInt(ResourceBundle.getBundle("/algorithmConf").getString("iterations"));
+        int EXECUTIONS = AlgorithmConfig.getInt("executions", 1);
+        int iterations = AlgorithmConfig.getInt("iterations", 100);
 
         List<State> sol = null;
         if (initialSolution != null) {
@@ -1463,7 +1465,7 @@ public class TeamFormationStepThreeImpl implements ITeamFormationStepThreeServic
                 Strategy.getStrategy().saveListBestStates = true;
                 Strategy.getStrategy().saveListStates = true;
                 Strategy.getStrategy().saveFreneParetoMonoObjetivo = true;
-                MultiobjectiveHillClimbingRestart.sizeNeighbors = Integer.parseInt(ResourceBundle.getBundle("/algorithmConf").getString("MultiobjectiveHCRestartSizeNeighbors"));
+                MultiobjectiveHillClimbingRestart.sizeNeighbors = AlgorithmConfig.getInt("MultiobjectiveHCRestartSizeNeighbors", 2);
 
                 try {
                     Strategy.getStrategy().executeStrategy(iterations, 1, GeneratorType.MultiobjectiveHillClimbingRestart);
@@ -1502,8 +1504,8 @@ public class TeamFormationStepThreeImpl implements ITeamFormationStepThreeServic
      * @throws java.io.IOException
      */
     public List<State> applyMultiobjectiveHCDistance(ProjectRoleState initialSolution, TeamFormationProblem problem) throws IOException {
-        int EXECUTIONS = Integer.parseInt(ResourceBundle.getBundle("/algorithmConf").getString("executions"));
-        int iterations = Integer.parseInt(ResourceBundle.getBundle("/algorithmConf").getString("iterations"));
+        int EXECUTIONS = AlgorithmConfig.getInt("executions", 1);
+        int iterations = AlgorithmConfig.getInt("iterations", 100);
         List<State> sol = null;
         if (initialSolution != null) {
             sol = new ArrayList<>();
@@ -1512,7 +1514,7 @@ public class TeamFormationStepThreeImpl implements ITeamFormationStepThreeServic
                 Strategy.getStrategy().saveListBestStates = true;
                 Strategy.getStrategy().saveListStates = true;
                 Strategy.getStrategy().saveFreneParetoMonoObjetivo = true;
-                MultiobjectiveHillClimbingDistance.sizeNeighbors = Integer.parseInt(ResourceBundle.getBundle("/algorithmConf").getString("MultiobjectiveHCDistanceSizeNeighbors"));
+                MultiobjectiveHillClimbingDistance.sizeNeighbors = AlgorithmConfig.getInt("MultiobjectiveHCDistanceSizeNeighbors", 2);
 
                 try {
                     Strategy.getStrategy().executeStrategy(iterations, 1, GeneratorType.MultiobjectiveHillClimbingDistance);
@@ -1543,8 +1545,8 @@ public class TeamFormationStepThreeImpl implements ITeamFormationStepThreeServic
     }
 
     public List<State> applyMultiobjectiveTabuSearch(ProjectRoleState initialSolution, TeamFormationProblem problem) throws IOException {
-        int EXECUTIONS = Integer.parseInt(ResourceBundle.getBundle("/algorithmConf").getString("executions"));
-        int iterations = Integer.parseInt(ResourceBundle.getBundle("/algorithmConf").getString("iterations"));
+        int EXECUTIONS = AlgorithmConfig.getInt("executions", 1);
+        int iterations = AlgorithmConfig.getInt("iterations", 100);
         List<State> sol = null;
         if (initialSolution != null) {
             sol = new ArrayList<>();
@@ -1553,8 +1555,8 @@ public class TeamFormationStepThreeImpl implements ITeamFormationStepThreeServic
                 Strategy.getStrategy().saveListBestStates = true;
                 Strategy.getStrategy().saveListStates = true;
                 Strategy.getStrategy().saveFreneParetoMonoObjetivo = true;
-                TabuSolutions.maxelements = Integer.parseInt(ResourceBundle.getBundle("/algorithmConf").getString("MultiobjectiveTabuSolutionsMaxelements"));
-                String format = ResourceBundle.getBundle("/algorithmConf").getString("decimalFormat");
+                TabuSolutions.maxelements = AlgorithmConfig.getInt("MultiobjectiveTabuSolutionsMaxelements", 10);
+                String format = AlgorithmConfig.getString("decimalFormat", "0.####");
                 DecimalFormat df = new DecimalFormat(format);
 
                 try {

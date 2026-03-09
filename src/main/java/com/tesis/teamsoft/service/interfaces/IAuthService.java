@@ -15,4 +15,6 @@ public interface IAuthService {
     void resetPassword(String token, String newPassword);
 
     void changePassword(String username, String currentPassword, String newPassword);
+
+    LoginDTO.RefreshTokenResponseDTO refreshToken(String refreshToken);
 }

@@ -34,9 +34,29 @@ public class LoginDTO {
     public static class LoginResponseDTO {
 
         private String token;
+        private String refreshToken;
         private String type;
         private String username;
         private Set<String> authorities;
+        private Long expiresIn;
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class RefreshTokenRequestDTO {
+        @NotBlank(message = "Refresh token is required")
+        private String refreshToken;
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class RefreshTokenResponseDTO {
+        private String accessToken;
+        private String refreshToken;
+        private String type;
         private Long expiresIn;
     }
 }

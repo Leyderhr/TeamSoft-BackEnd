@@ -76,52 +76,52 @@ public class MaximizeMbtiTypes extends ObjetiveFunction {
                     PersonTestEntity workerTest = worker.getPersonTest(); //obtener caracteristicas psicologicas
 
                     if (workerTest != null) {
-                        if (workerTest.getTipoMB().equalsIgnoreCase("ISTJ") && ISTJ == 0) {
+                        if (workerTest.getMbtiType().equalsIgnoreCase("ISTJ") && ISTJ == 0) {
                             ISTJ = 1;
                         }
-                        if (workerTest.getTipoMB().equalsIgnoreCase("ISFJ") && ISFJ == 0) {
+                        if (workerTest.getMbtiType().equalsIgnoreCase("ISFJ") && ISFJ == 0) {
                             ISFJ = 1;
                         }
-                        if (workerTest.getTipoMB().equalsIgnoreCase("INTJ") && INTJ == 0) {
+                        if (workerTest.getMbtiType().equalsIgnoreCase("INTJ") && INTJ == 0) {
                             INTJ = 1;
                         }
-                        if (workerTest.getTipoMB().equalsIgnoreCase("INFJ") && INFJ == 0) {
+                        if (workerTest.getMbtiType().equalsIgnoreCase("INFJ") && INFJ == 0) {
                             INFJ = 1;
                         }
-                        if (workerTest.getTipoMB().equalsIgnoreCase("ISTP") && ISTP == 0) {
+                        if (workerTest.getMbtiType().equalsIgnoreCase("ISTP") && ISTP == 0) {
                             ISTP = 1;
                         }
-                        if (workerTest.getTipoMB().equalsIgnoreCase("ISFP") && ISFP == 0) {
+                        if (workerTest.getMbtiType().equalsIgnoreCase("ISFP") && ISFP == 0) {
                             ISFP = 1;
                         }
-                        if (workerTest.getTipoMB().equalsIgnoreCase("INTP") && INTP == 0) {
+                        if (workerTest.getMbtiType().equalsIgnoreCase("INTP") && INTP == 0) {
                             INTP = 1;
                         }
-                        if (workerTest.getTipoMB().equalsIgnoreCase("INFP") && INFP == 0) {
+                        if (workerTest.getMbtiType().equalsIgnoreCase("INFP") && INFP == 0) {
                             INFP = 1;
                         }
-                        if (workerTest.getTipoMB().equalsIgnoreCase("ESTJ") && ESTJ == 0) {
+                        if (workerTest.getMbtiType().equalsIgnoreCase("ESTJ") && ESTJ == 0) {
                             ESTJ = 1;
                         }
-                        if (workerTest.getTipoMB().equalsIgnoreCase("ESFJ") && ESFJ == 0) {
+                        if (workerTest.getMbtiType().equalsIgnoreCase("ESFJ") && ESFJ == 0) {
                             ESFJ = 1;
                         }
-                        if (workerTest.getTipoMB().equalsIgnoreCase("ENTJ") && ENTJ == 0) {
+                        if (workerTest.getMbtiType().equalsIgnoreCase("ENTJ") && ENTJ == 0) {
                             ENTJ = 1;
                         }
-                        if (workerTest.getTipoMB().equalsIgnoreCase("ENFJ") && ENFJ == 0) {
+                        if (workerTest.getMbtiType().equalsIgnoreCase("ENFJ") && ENFJ == 0) {
                             ENFJ = 1;
                         }
-                        if (workerTest.getTipoMB().equalsIgnoreCase("ESTP") && ESTP == 0) {
+                        if (workerTest.getMbtiType().equalsIgnoreCase("ESTP") && ESTP == 0) {
                             ESTP = 1;
                         }
-                        if (workerTest.getTipoMB().equalsIgnoreCase("ESFP") && ESFP == 0) {
+                        if (workerTest.getMbtiType().equalsIgnoreCase("ESFP") && ESFP == 0) {
                             ESFP = 1;
                         }
-                        if (workerTest.getTipoMB().equalsIgnoreCase("ENTP") && ENTP == 0) {
+                        if (workerTest.getMbtiType().equalsIgnoreCase("ENTP") && ENTP == 0) {
                             ENTP = 1;
                         }
-                        if (workerTest.getTipoMB().equalsIgnoreCase("ENFP") && ENFP == 0) {
+                        if (workerTest.getMbtiType().equalsIgnoreCase("ENFP") && ENFP == 0) {
                             ENFP = 1;
                         }
                     }

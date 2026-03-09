@@ -1,5 +1,6 @@
 package com.tesis.teamsoft.service.implementation;
 
+import com.tesis.teamsoft.persistence.entity.RefreshTokenEntity;
 import com.tesis.teamsoft.persistence.entity.UserEntity;
 import com.tesis.teamsoft.persistence.repository.IUserRepository;
 import com.tesis.teamsoft.presentation.dto.LoginDTO;
@@ -36,11 +37,11 @@ public class AuthServiceImpl implements IAuthService {
     @Autowired
     private PasswordResetTokenServiceImpl passwordResetTokenService;
 
-//    @Autowired
-//    private IEmailService emailService;
-
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private RefreshTokenServiceImpl refreshTokenService;
 
     @Override
     public LoginDTO.LoginResponseDTO login(LoginDTO.LoginRequestDTO loginDTO) {
@@ -56,10 +57,15 @@ public class AuthServiceImpl implements IAuthService {
             SecurityContextHolder.getContext().setAuthentication(authentication);
             String jwt = jwtUtils.createToken(authentication);
 
+            RefreshTokenEntity refreshToken = refreshTokenService.createRefreshToken(
+                    authentication.getName()
+            );
+
             log.info("Login successful for user {}", loginDTO.getUsername());
 
             return LoginDTO.LoginResponseDTO.builder()
                     .token(jwt)
+                    .refreshToken(refreshToken.getToken())
                     .type("Bearer")
                     .username(authentication.getName())
                     .authorities(authentication.getAuthorities().stream()
@@ -75,10 +81,49 @@ public class AuthServiceImpl implements IAuthService {
     }
 
     @Override
+    @Transactional
     public void logout() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated()) {
+            String username = authentication.getName();
+            UserEntity user = userRepository.findByUsername(username)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+            refreshTokenService.deleteByUserId(user.getId());
+            log.info("All refresh tokens revoked for user: {}", username);
+        }
+        
         SecurityContextHolder.clearContext();
         log.info("Logout successful");
+    }
 
+    @Override
+    @Transactional
+    public LoginDTO.RefreshTokenResponseDTO refreshToken(String requestRefreshToken) {
+        try {
+            RefreshTokenEntity refreshToken = refreshTokenService.findByToken(requestRefreshToken);
+            
+            refreshToken = refreshTokenService.verifyExpiration(refreshToken);
+            
+            UserEntity user = refreshToken.getUser();
+            
+            String newAccessToken = jwtUtils.createToken(user.getUsername());
+            
+            refreshTokenService.revokeToken(requestRefreshToken);
+            RefreshTokenEntity newRefreshToken = refreshTokenService.createRefreshToken(user.getUsername());
+            
+            log.info("Token refreshed successfully for user: {}", user.getUsername());
+            
+            return LoginDTO.RefreshTokenResponseDTO.builder()
+                    .accessToken(newAccessToken)
+                    .refreshToken(newRefreshToken.getToken())
+                    .type("Bearer")
+                    .expiresIn(1800000L)
+                    .build();
+                    
+        } catch (Exception e) {
+            log.error("Error refreshing token: {}", e.getMessage());
+            throw new RuntimeException("Invalid or expired refresh token");
+        }
     }
 
     @Override

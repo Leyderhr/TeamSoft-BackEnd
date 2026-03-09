@@ -2,7 +2,6 @@ package com.tesis.teamsoft.persistence.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -25,7 +24,7 @@ public class CompetenceImportanceEntity implements Serializable {
     private Long id;
 
     @NotNull(message = "Level name is required")
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "bigint check (levels >= 0)")
     private long levels;
 
     @NotNull(message = "Significance is required")

@@ -105,15 +105,52 @@ GRANT ALL PRIVILEGES ON DATABASE "TeamSoft-DB" TO postgres;
 
 ### 3. Configurar Variables de Entorno
 
-Editar el archivo `src/main/resources/application.yml`:
+#### Opción 1: Usando archivo .env (Recomendado para desarrollo)
 
-```yaml
-spring:
-  datasource:
-    url: jdbc:postgresql://localhost:5432/TeamSoft-DB
-    username: postgres
-    password: tu_password_aqui
+1. Copiar el archivo de ejemplo:
+```bash
+cp .env.example .env
 ```
+
+2. Editar `.env` con tus valores:
+```bash
+nano .env  # o usar tu editor preferido
+```
+
+3. Configurar las variables requeridas:
+```properties
+# Variables CRÍTICAS (obligatorias)
+DB_PASSWORD=tu_password_aqui
+JWT_SECRET_KEY=tu_clave_secreta_jwt_minimo_32_caracteres
+
+# Variables opcionales (tienen valores por defecto)
+DB_URL=jdbc:postgresql://localhost:5434/TeamSoft-DB
+DB_USERNAME=postgres
+SERVER_PORT=8081
+```
+
+#### Opción 2: Variables de entorno del sistema
+```bash
+export DB_PASSWORD="tu_password"
+export JWT_SECRET_KEY="tu_clave_jwt"
+```
+
+#### Generar JWT Secret Key
+```bash
+# Opción 1: OpenSSL
+openssl rand -hex 32
+
+# Opción 2: Python
+python -c "import secrets; print(secrets.token_hex(32))"
+
+# Opción 3: Node.js
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+```
+
+**⚠️ IMPORTANTE:** 
+- El archivo `.env` contiene información sensible y NO debe subirse a Git
+- Usa `.env.example` como plantilla para nuevos entornos
+- En producción, usa variables de entorno del sistema o secrets management
 
 ### 4. Instalar Dependencias
 ```bash
@@ -195,12 +232,59 @@ mvn spring-boot:run -Dspring-boot.run.profiles=prod
 ```
 
 ### Variables de Entorno
+
+#### Variables Disponibles
+
+| Variable | Descripción | Valor por Defecto | Requerida |
+|----------|---------------|-------------------|----------|
+| `DB_URL` | URL de conexión PostgreSQL | `jdbc:postgresql://localhost:5434/TeamSoft-DB` | No |
+| `DB_USERNAME` | Usuario de base de datos | `postgres` | No |
+| `DB_PASSWORD` | Contraseña de base de datos | - | **SÍ** |
+| `DB_POOL_MAX_SIZE` | Tamaño máximo del pool | `20` | No |
+| `DB_POOL_MIN_IDLE` | Conexiones mínimas idle | `5` | No |
+| `JWT_SECRET_KEY` | Clave secreta para JWT | - | **SÍ** |
+| `JWT_EXPIRATION_MS` | Expiración Access Token | `1800000` (30 min) | No |
+| `JWT_REFRESH_EXPIRATION_MS` | Expiración Refresh Token | `604800000` (7 días) | No |
+| `SERVER_PORT` | Puerto del servidor | `8081` | No |
+| `HIBERNATE_DDL_AUTO` | Estrategia DDL Hibernate | `validate` | No |
+| `HIBERNATE_SHOW_SQL` | Mostrar SQL en logs | `false` | No |
+
+#### Configuración por Entorno
+
+**Desarrollo:**
 ```bash
-export DB_HOST=localhost
-export DB_PORT=5432
-export DB_NAME=TeamSoft-DB
-export DB_USER=postgres
-export DB_PASSWORD=tu_password
+export HIBERNATE_DDL_AUTO=update
+export HIBERNATE_SHOW_SQL=true
+```
+
+**Producción:**
+```bash
+export HIBERNATE_DDL_AUTO=validate
+export HIBERNATE_SHOW_SQL=false
+export DB_POOL_MAX_SIZE=50
+```
+
+#### Docker Compose
+```yaml
+environment:
+  - DB_PASSWORD=${DB_PASSWORD}
+  - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+  - HIBERNATE_DDL_AUTO=validate
+```
+
+#### Kubernetes Secrets
+```yaml
+env:
+  - name: DB_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: teamsoft-secrets
+        key: db-password
+  - name: JWT_SECRET_KEY
+    valueFrom:
+      secretKeyRef:
+        name: teamsoft-secrets
+        key: jwt-secret
 ```
 
 ## 🐳 Docker (Opcional)

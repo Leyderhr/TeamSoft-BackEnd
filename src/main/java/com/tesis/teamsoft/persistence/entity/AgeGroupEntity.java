@@ -18,6 +18,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "age_group")
+@Check(constraints = "max_age >= min_age")
 public class AgeGroupEntity implements Serializable {
 
     @Id
@@ -32,13 +33,13 @@ public class AgeGroupEntity implements Serializable {
     @NotNull(message = "Maximum age is required")
     @Min(value = 0, message = "Maximum age must be at least 0")
     @Max(value = 150, message = "Maximum age cannot exceed 150")
-    @Column(name = "max_age", nullable = false, columnDefinition = "CHECK (maxAge >= minAge)")
+    @Column(name = "max_age", nullable = false)
     private int maxAge;
 
     @NotNull(message = "Minimum age is required")
     @Min(value = 0, message = "Minimum age must be at least 0")
     @Max(value = 150, message = "Minimum age cannot exceed 150")
-    @Column(name = "min_age", nullable = false, columnDefinition = "CHECK (minAge <= maxAge)")
+    @Column(name = "min_age", nullable = false)
     private int minAge;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "ageGroup")

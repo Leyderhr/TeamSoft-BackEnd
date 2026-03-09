@@ -1,5 +1,6 @@
 package com.tesis.teamsoft.metaheuristics.operator;
 
+import com.tesis.teamsoft.config.AlgorithmConfig;
 import com.tesis.teamsoft.metaheuristics.util.TeamFormationProblem;
 import com.tesis.teamsoft.persistence.entity.PersonEntity;
 import metaheurictics.strategy.Strategy;
@@ -32,11 +33,10 @@ public class TeamFormationOperator extends Operator {
         List<State> toReturn = new ArrayList<>();
         boolean invalidState = true;
         int count = 0;
-        int cantIntentos = 50;//Integer.parseInt(ResourceBundle.getBundle("/algorithmConf").getString("cantIntentos"));
+        int cantIntentos = AlgorithmConfig.getInt("cantIntentos", 50);
 
-        //Va en la condicional
-        //Integer.parseInt(ResourceBundle.getBundle("/algorithmConf").getString("posibleValidateNumber"))
-        while (invalidState && count < 20) {
+        int posibleValidateNumber = AlgorithmConfig.getInt("posibleValidateNumber", 20);
+        while (invalidState && count < posibleValidateNumber) {
 
             switch (((TeamFormationProblem) Strategy.getStrategy().getProblem()).getParameters().getConfFormMode()) {//Seleccion de metodo de formacion
 
@@ -73,18 +73,17 @@ public class TeamFormationOperator extends Operator {
     public List<State> generatedNewState(State currentState, Integer operatornumber) {
 
         TeamFormationCodification codification = (TeamFormationCodification) Strategy.getStrategy().getProblem().getCodification();
-        int cantIntentos = 50;//Integer.parseInt(ResourceBundle.getBundle("/algorithmConf").getString("cantIntentos"));
+        int cantIntentos = AlgorithmConfig.getInt("cantIntentos", 50);
         List<State> toReturn = new ArrayList<>();
         boolean invalidState = true;
         int count = 0;
 
-        //Va en la condicional
-        //Integer.parseInt(ResourceBundle.getBundle("/algorithmConf").getString("posibleValidateNumber"))
-        while (invalidState && count < 20) {
+        int posibleValidateNumber = AlgorithmConfig.getInt("posibleValidateNumber", 20);
+        while (invalidState && count < posibleValidateNumber) {
             ProjectRoleState prState = new ProjectRoleState(currentState.getCode(), null, currentState.getTypeGenerator());
             ArrayList<Object> projects = prState.getCode();
             Random generator = new SecureRandom();
-            int operator = 0;//Integer.parseInt(ResourceBundle.getBundle("/algorithmConf").getString("mutationOperatorOpc"));
+            int operator = AlgorithmConfig.getInt("mutationOperatorOpc", 0);
 
             if (!(operator >= 0 && operator <= 4)) { // si no esta en este intervalo
                 operator = generator.nextInt(5); // dame uno aleatorio
@@ -167,8 +166,9 @@ public class TeamFormationOperator extends Operator {
         List<State> toReturn = new ArrayList<>();
 
         TeamFormationCodification codification = (TeamFormationCodification) Strategy.getStrategy().getProblem().getCodification();
-        int cant = 50;//Integer.parseInt(ResourceBundle.getBundle("/algorithmConf").getString("cantIntentos"));
-        int operator = random.nextInt(8/*Integer.parseInt((ResourceBundle.getBundle("/algorithmConf").getString("operatorCruce")))*/);
+        int cant = AlgorithmConfig.getInt("cantIntentos", 50);
+        int maxOperatorCruce = AlgorithmConfig.getInt("operatorCruce", 8);
+        int operator = random.nextInt(maxOperatorCruce);
         boolean invalidState = true;
 
         if (!(operator <= 7)) { // si no esta en este intervalo
@@ -182,9 +182,8 @@ public class TeamFormationOperator extends Operator {
         ProjectRoleState prState2 = new ProjectRoleState(state2.getCode(), null, state2.getTypeGenerator());
         ArrayList<Object> projects2 = prState2.getCode();
 
-        //Va en la condicional
-        //Integer.parseInt(ResourceBundle.getBundle("/algorithmConf").getString("posibleValidateNumber"))
-        while (invalidState && count < 20) {
+        int posibleValidateNumber = AlgorithmConfig.getInt("posibleValidateNumber", 20);
+        while (invalidState && count < posibleValidateNumber) {
             try {
                 ArrayList<ArrayList<PersonEntity>> perSols = Cruzamiento7y8.OperadorCruzamiento7y8(projects, projects2, operator);
                 ArrayList<PersonEntity> pers1 = personasSolucion(projects);
@@ -276,19 +275,16 @@ public class TeamFormationOperator extends Operator {
                     Logger.getLogger(TeamFormationOperator.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
-            if ((stop1 && stop2)) { //Esto es una NOTA informativa
+            if ((stop1 && stop2)) {
                 System.out.println("Estado Válido");
                 invalidState = false;
-                //Va en la condicional
-                //Integer.parseInt(ResourceBundle.getBundle("/algorithmConf").getString("posibleValidateNumber"))
-            } else if (count < 20) {
+            } else if (count < posibleValidateNumber) {
                 System.out.println("Estado Inválido");
                 toReturn.clear();
             }
-            //Va en la condicional
-            //Integer.parseInt(ResourceBundle.getBundle("/algorithmConf").getString("posibleValidateNumber"))
-            if (count >= 20) {
-                Strategy.getStrategy().setCountCurrent(100/*Integer.parseInt(/*ResourceBundle.getBundle("/algorithmConf").getString("iterations"))*/);
+            if (count >= posibleValidateNumber) {
+                int iterations = AlgorithmConfig.getInt("iterations", 100);
+                Strategy.getStrategy().setCountCurrent(iterations);
             }
         }
         return toReturn;
@@ -307,7 +303,7 @@ public class TeamFormationOperator extends Operator {
         Random rdm = new Random();
         List<Object> projects = state.getCode(); // obtener lista de proyectos -roles
 
-        int initialSolution = 4;//Integer.parseInt(ResourceBundle.getBundle("/algorithmConf").getString("initialSolutionConf"));
+        int initialSolution = AlgorithmConfig.getInt("initialSolutionConf", 4);
 
         if (initialSolution == 0) {
             ArrayList<BelbinCategoryRole> workersMultiList = RestrictSearchAreaBelbinRoles(state, codification);
@@ -332,7 +328,7 @@ public class TeamFormationOperator extends Operator {
                     }
 
                     int count = 0;
-                    int limitPersonTries = 100;//Integer.parseInt(ResourceBundle.getBundle("/algorithmConf").getString("numberPersonTries"));
+                    int limitPersonTries = AlgorithmConfig.getInt("numberPersonTries", 100);
                     while (needs > 0 && count < limitPersonTries) { // intentar una cantidad (limitPersonTries) de veces, poner una persona en un rol
 
                         if (projectBelbinCategories.contains("0")) {
@@ -372,7 +368,7 @@ public class TeamFormationOperator extends Operator {
                     CompetenceRoleWorker compRoleWorker = compRoleWorkers.get(j);
 
                     int count = 0;
-                    int limitPersonTries = 100;//Integer.parseInt(ResourceBundle.getBundle("/algorithmConf").getString("numberPersonTries"));
+                    int limitPersonTries = AlgorithmConfig.getInt("numberPersonTries", 100);
                     while (needs > 0 && count < limitPersonTries) { // intentar una cantidad (limitPersonTries) de veces, poner una persona en un rol
                         int pIndex = rdm.nextInt(compRoleWorker.getWorkers().size()); //indice de persona aleatorio
 
@@ -463,7 +459,7 @@ public class TeamFormationOperator extends Operator {
                     Long needs = roleWorker.getNeededWorkers(); //obtener cantidad de pesonas necesarias para desarrollar el proyecto
 
                     int count = 0;
-                    int limitPersonTries = 100;//Integer.parseInt(ResourceBundle.getBundle("/algorithmConf").getString("numberPersonTries"));
+                    int limitPersonTries = AlgorithmConfig.getInt("numberPersonTries", 100);
                     while (needs > 0 && count < limitPersonTries) { // intentar una cantidad (limitPersonTries) de veces, poner una persona en un rol
                         int pIndex = rdm.nextInt(codification.getSearchArea().size()); //indice de persona aleatorio
                         PersonEntity chosenPerson = codification.getSearchArea().get(pIndex);
@@ -494,7 +490,7 @@ public class TeamFormationOperator extends Operator {
                     Long needs = roleWorker.getNeededWorkers(); //obtener cantidad de pesonas necesarias para desarrollar el proyecto
 
                     int count = 0;
-                    int limitPersonTries = 100;//Integer.parseInt(ResourceBundle.getBundle("/algorithmConf").getString("numberPersonTries"));
+                    int limitPersonTries = AlgorithmConfig.getInt("numberPersonTries", 100);
                     while (needs > 0 && count < limitPersonTries) { // intentar una cantidad (limitPersonTries) de veces, poner una persona en un rol
                         int pIndex = rdm.nextInt(codification.getSearchArea().size()); //indice de persona aleatorio
                         PersonEntity chosenPerson = codification.getSearchArea().get(pIndex);
@@ -536,7 +532,7 @@ public class TeamFormationOperator extends Operator {
 
         int role = 0;
 
-        int initialSolution = 4;//Integer.parseInt(ResourceBundle.getBundle("/algorithmConf").getString("initialSolutionConf"));
+        int initialSolution = AlgorithmConfig.getInt("initialSolutionConf", 4);
 
         if (initialSolution == 0) {
             ArrayList<BelbinCategoryRole> workersMultiList = RestrictSearchAreaBelbinRoles(state, codification);
@@ -571,7 +567,7 @@ public class TeamFormationOperator extends Operator {
                             }
 
                             int count = 0;
-                            int limitPersonTries = 100;//Integer.parseInt(ResourceBundle.getBundle("/algorithmConf").getString("numberPersonTries"));
+                            int limitPersonTries = AlgorithmConfig.getInt("numberPersonTries", 100);
                             while (needs > 0 && count < limitPersonTries) { // intentar una cantidad (limitPersonTries) de veces, poner una persona en un rol
                                 int pIndex = rdm.nextInt(belbinCat.size()); //indice de persona aleatorio
 
@@ -620,7 +616,7 @@ public class TeamFormationOperator extends Operator {
                             CompetenceRoleWorker compRoleWorker = compRoleWorkers.get(role);
 
                             int count = 0;
-                            int limitPersonTries = 100;//Integer.parseInt(ResourceBundle.getBundle("/algorithmConf").getString("numberPersonTries"));
+                            int limitPersonTries = AlgorithmConfig.getInt("numberPersonTries", 100);
                             while (needs > 0 && count < limitPersonTries) { // intentar una cantidad (limitPersonTries) de veces, poner una persona en un rol
                                 int pIndex = rdm.nextInt(compRoleWorker.getWorkers().size()); //indice de persona aleatorio
 
@@ -658,7 +654,7 @@ public class TeamFormationOperator extends Operator {
                             Long needs = roleWorker.getNeededWorkers(); //obtener cantidad de pesonas necesarias para desarrollar el proyecto
 
                             int count = 0;
-                            int limitPersonTries = 100;//Integer.parseInt(ResourceBundle.getBundle("/algorithmConf").getString("numberPersonTries"));
+                            int limitPersonTries = AlgorithmConfig.getInt("numberPersonTries", 100);
                             while (needs > 0 && count < limitPersonTries) { // intentar una cantidad (limitPersonTries) de veces, poner una persona en un rol
                                 int pIndex = rdm.nextInt(codification.getSearchArea().size()); //indice de persona aleatorio
                                 PersonEntity chosenPerson = codification.getSearchArea().get(pIndex);
@@ -899,17 +895,17 @@ public class TeamFormationOperator extends Operator {
             if (workerTest != null) {
                 //              int code = 0;
                 //action role
-                if ((workerTest.getI_D() != 'I' && workerTest.getI_D() != 'E') || (workerTest.getI_S() != 'I' && workerTest.getI_S() != 'E') || (workerTest.getI_F() != 'I' && workerTest.getI_F() != 'E')) {
+                if ((workerTest.getIM() != 'I' && workerTest.getIM() != 'E') || (workerTest.getIS() != 'I' && workerTest.getIS() != 'E') || (workerTest.getIF() != 'I' && workerTest.getIF() != 'E')) {
                     belbinRoles.get(1).getCategoryWorkers().add(worker); // code += 010;
                 }
 
                 //mental role
-                if ((workerTest.getC_E() != 'I' && workerTest.getC_E() != 'E') || (workerTest.getM_E() != 'I' && workerTest.getM_E() != 'E') || (workerTest.getE_S() != 'I' && workerTest.getE_S() != 'E')) {
+                if ((workerTest.getCE() != 'I' && workerTest.getCE() != 'E') || (workerTest.getME() != 'I' && workerTest.getME() != 'E') || (workerTest.getES() != 'I' && workerTest.getES() != 'E')) {
                     belbinRoles.get(2).getCategoryWorkers().add(worker); // code += 001;
                 }
 
                 //social role
-                if ((workerTest.getC_O() != 'I' && workerTest.getC_O() != 'E') || (workerTest.getC_H() != 'I' && workerTest.getC_H() != 'E') || (workerTest.getI_R() != 'I' && workerTest.getI_R() != 'E')) {
+                if ((workerTest.getCO() != 'I' && workerTest.getCO() != 'E') || (workerTest.getCH() != 'I' && workerTest.getCH() != 'E') || (workerTest.getIR() != 'I' && workerTest.getIR() != 'E')) {
                     belbinRoles.getFirst().getCategoryWorkers().add(worker); // code += 100;
                 }
             }
@@ -978,15 +974,15 @@ public class TeamFormationOperator extends Operator {
 
             if (workerTest != null) {
                 //action role
-                if ((workerTest.getI_D() != 'I' && workerTest.getI_D() != 'E') || (workerTest.getI_S() != 'I' && workerTest.getI_S() != 'E') || (workerTest.getI_F() != 'I' && workerTest.getI_F() != 'E')) {
+                if ((workerTest.getIM() != 'I' && workerTest.getIM() != 'E') || (workerTest.getIS() != 'I' && workerTest.getIS() != 'E') || (workerTest.getIF() != 'I' && workerTest.getIF() != 'E')) {
                     workerBelbinCategories += 10;
                 }
                 //mental role
-                if ((workerTest.getC_E() != 'I' && workerTest.getC_E() != 'E') || (workerTest.getM_E() != 'I' && workerTest.getM_E() != 'E') || (workerTest.getE_S() != 'I' && workerTest.getE_S() != 'E')) {
+                if ((workerTest.getCE() != 'I' && workerTest.getCE() != 'E') || (workerTest.getME() != 'I' && workerTest.getME() != 'E') || (workerTest.getES() != 'I' && workerTest.getES() != 'E')) {
                     workerBelbinCategories += 1;
                 }
                 //social role
-                if ((workerTest.getC_O() != 'I' && workerTest.getC_O() != 'E') || (workerTest.getC_H() != 'I' && workerTest.getC_H() != 'E') || (workerTest.getI_R() != 'I' && workerTest.getI_R() != 'E')) {
+                if ((workerTest.getCO() != 'I' && workerTest.getCO() != 'E') || (workerTest.getCH() != 'I' && workerTest.getCH() != 'E') || (workerTest.getIR() != 'I' && workerTest.getIR() != 'E')) {
                     workerBelbinCategories += 100;
                 }
             }
@@ -1225,12 +1221,13 @@ public class TeamFormationOperator extends Operator {
             invalidState = false;
             //Va en la condicional
             //Integer.parseInt(ResourceBundle.getBundle("/algorithmConf").getString("posibleValidateNumber"))
-        } else if (count < 20/*Integer.parseInt(ResourceBundle.getBundle("/algorithmConf").getString("posibleValidateNumber"))*/) {
+        } else if (count < AlgorithmConfig.getInt("posibleValidateNumber", 20)) {
             toReturn.clear();
         }//Va en la condicional
         //Integer.parseInt(ResourceBundle.getBundle("/algorithmConf").getString("posibleValidateNumber"))
-        if (count >= 20/*Integer.parseInt(ResourceBundle.getBundle("/algorithmConf").getString("posibleValidateNumber"))*/) {
-            Strategy.getStrategy().setCountCurrent(100/*Integer.parseInt(ResourceBundle.getBundle("/algorithmConf").getString("iterations"))*/);
+        if (count >= AlgorithmConfig.getInt("posibleValidateNumber", 20)) {
+            int iterations = AlgorithmConfig.getInt("iterations", 100);
+            Strategy.getStrategy().setCountCurrent(iterations);
         }
         return invalidState;
     }
@@ -1250,3 +1247,4 @@ public class TeamFormationOperator extends Operator {
         return isInvalidState(toReturn, count, codification);
     }
 }
+

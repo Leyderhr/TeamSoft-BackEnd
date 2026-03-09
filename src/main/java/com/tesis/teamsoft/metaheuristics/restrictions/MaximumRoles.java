@@ -1,5 +1,6 @@
 package com.tesis.teamsoft.metaheuristics.restrictions;
 
+import com.tesis.teamsoft.persistence.entity.auxiliar.Status;
 import com.tesis.teamsoft.pojos.TeamFormationParameters;
 import com.tesis.teamsoft.persistence.entity.AssignedRoleEntity;
 import com.tesis.teamsoft.persistence.entity.PersonEntity;
@@ -67,7 +68,7 @@ public class MaximumRoles extends Constrain {
         }
         int l = 0;
         while (l < assignedRoles.size() && meet) { //para cada rol asignado anteriormente
-            if (assignedRoles.get(l).getStatus().equalsIgnoreCase("ACTIVE")) { // si la persona aun se encuentra desempeñando este rol
+            if (assignedRoles.get(l).getStatus().equals(Status.ACTIVE)) { // si la persona aun se encuentra desempeñando este rol
                 rolesCount++;
                 if (rolesCount > maxRoles) { //si la cantidad de roles desempeñados exede el definodo
                     meet = false;

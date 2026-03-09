@@ -1,14 +1,16 @@
 package com.tesis.teamsoft.presentation.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
+import lombok.AccessLevel;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Date;
 import java.util.List;
 
 @Data
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class PersonDTO {
 
     @Data
@@ -18,7 +20,7 @@ public class PersonDTO {
         private String personName;
 
         @NotBlank(message = "ID card is required")
-        @Pattern(regexp = "^[0-9]+$", message = "Card can only contain digits, spaces, plus and hyphen")
+        @Pattern(regexp = "^\\d{8,}$", message = "Card must contain at least 8 digits")
         private String card;
 
         @NotBlank(message = "Surname is required")
@@ -29,11 +31,11 @@ public class PersonDTO {
         private String address;
 
         @NotBlank(message = "Phone is required")
-        @Pattern(regexp = "^[0-9]+$", message = "Phone can only contain digits, spaces, plus and hyphen")
+        @Pattern(regexp = "^\\d{8,}$", message = "Phone must contain at least 8 digits")
         private String phone;
 
         @NotNull(message = "Sex is required")
-        @Pattern(regexp = "^[MF]$", message = "Sex must be 'M' or 'F'")
+        @Pattern(regexp = "^[MFO]$", message = "Sex must be 'M' or 'F'")
         private Character sex;
 
         @NotBlank(message = "Email is required")
@@ -43,14 +45,8 @@ public class PersonDTO {
         @NotNull(message = "In date is required")
         private Date inDate;
 
-        @NotNull(message = "Workload is required")
-        private Float workload;
-
         @NotNull(message = "Experience is required")
         private Integer experience;
-
-        @NotBlank(message = "Status is required")
-        private String status;
 
         @NotNull(message = "Birth date is required")
         @Past(message = "Birth date must be in the past")
@@ -77,7 +73,7 @@ public class PersonDTO {
         private List<CompetenceValueDTO.CompetenceValueCreateDTO> competenceValues;
 
         @Valid
-        private List<PersonalInterestDTP.PersonalInterestCreateDTO> personalInterests;
+        private List<PersonalInterestDTO.PersonalInterestCreateDTO> personalInterests;
 
         @Valid
         private List<PersonalProjectInterestDTO.PersonalProjectInterestCreateDTO> personalProjectInterests;
@@ -109,11 +105,11 @@ public class PersonDTO {
         private CountyDTO.CountyResponseDTO county;
         private RaceDTO.RaceResponseDTO race;
         private PersonGroupDTO.PersonGroupResponseDTO group;
-        private NacionalityDTO.NacionalityResponseDTO nacionality;
+        private NationalityDTO.NacionalityResponseDTO nacionality;
         private ReligionDTO.ReligionResponseDTO religion;
         private AgeGroupDTO.AgeGroupResponseDTO ageGroup;
         private List<CompetenceValueDTO.CompetenceValueResponseDTO> competenceValues;
-        private List<PersonalInterestDTP.PersonalInterestResponseDTO> personalInterests;
+        private List<PersonalInterestDTO.PersonalInterestResponseDTO> personalInterests;
         private List<PersonalProjectInterestDTO.PersonalProjectInterestResponseDTO> personalProjectInterests;
         private PersonTestDTO.PersonTestResponseDTO personTest;
         private List<PersonConflictDTO.PersonConflictResponseDTO> personConflicts;

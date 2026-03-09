@@ -24,7 +24,7 @@ public class RoleLoadEntity implements Serializable {
     private Long id;
 
     @NotNull(message = "Value is required")
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "float check (value >= 0)")
     private float value;
 
     @NotNull(message = "Significance is required")

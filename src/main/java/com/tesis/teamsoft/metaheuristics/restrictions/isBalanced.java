@@ -76,13 +76,13 @@ public class isBalanced extends Constrain {
 
             if (workerTest != null) {
 
-                if ((workerTest.getI_D() != 'I' && workerTest.getI_D() != 'E') || (workerTest.getI_S() != 'I' && workerTest.getI_S() != 'E') || (workerTest.getI_F() != 'I' && workerTest.getI_F() != 'E')) {
+                if ((workerTest.getIM() != 'I' && workerTest.getIM() != 'E') || (workerTest.getIS() != 'I' && workerTest.getIS() != 'E') || (workerTest.getIF() != 'I' && workerTest.getIF() != 'E')) {
                     countActionRoles++;
                 }
-                if ((workerTest.getC_E() != 'I' && workerTest.getC_E() != 'E') || (workerTest.getM_E() != 'I' && workerTest.getM_E() != 'E') || (workerTest.getE_S() != 'I' && workerTest.getE_S() != 'E')) {
+                if ((workerTest.getCE() != 'I' && workerTest.getCE() != 'E') || (workerTest.getME() != 'I' && workerTest.getME() != 'E') || (workerTest.getES() != 'I' && workerTest.getES() != 'E')) {
                     countMentalRoles++;
                 }
-                if ((workerTest.getC_O() != 'I' && workerTest.getC_O() != 'E') || (workerTest.getC_H() != 'I' && workerTest.getC_H() != 'E') || (workerTest.getI_R() != 'I' && workerTest.getI_R() != 'E')) {
+                if ((workerTest.getCO() != 'I' && workerTest.getCO() != 'E') || (workerTest.getCH() != 'I' && workerTest.getCH() != 'E') || (workerTest.getIR() != 'I' && workerTest.getIR() != 'E')) {
                     countSocialRoles++;
                 }
 
@@ -139,7 +139,7 @@ public class isBalanced extends Constrain {
                 PersonTestEntity workerTest = worker.getPersonTest(); //obtener caracteristicas psicologicas
                 switch (seaRol) {
                     case "MentalRoles": {
-                        boolean mr = ((workerTest.getC_E() != 'I' && workerTest.getC_E() != 'E') || (workerTest.getM_E() != 'I' && workerTest.getM_E() != 'E') || (workerTest.getE_S() != 'I' && workerTest.getE_S() != 'E'));
+                        boolean mr = ((workerTest.getCE() != 'I' && workerTest.getCE() != 'E') || (workerTest.getME() != 'I' && workerTest.getME() != 'E') || (workerTest.getES() != 'I' && workerTest.getES() != 'E'));
 
                         switch (noSeaRol) {
                             case "": {
@@ -150,7 +150,7 @@ public class isBalanced extends Constrain {
                                 break;
                             }
                             case "ActionRoles":
-                                boolean ar = ((workerTest.getI_D() != 'I' && workerTest.getI_D() != 'E') || (workerTest.getI_S() != 'I' && workerTest.getI_S() != 'E') || (workerTest.getI_F() != 'I' && workerTest.getI_F() != 'E'));
+                                boolean ar = ((workerTest.getIM() != 'I' && workerTest.getIM() != 'E') || (workerTest.getIS() != 'I' && workerTest.getIS() != 'E') || (workerTest.getIF() != 'I' && workerTest.getIF() != 'E'));
                                 if (mr && !ar) {
                                     PersonEntity wor = candidatos.removeFirst();
                                     ((ProjectRole) state.getCode().get(posProy)).getRoleWorkers().get(j).getWorkers().set(k, wor);
@@ -158,7 +158,7 @@ public class isBalanced extends Constrain {
 
                                 break;
                             case "SocialRoles":
-                                boolean sr = ((workerTest.getC_O() != 'I' && workerTest.getC_O() != 'E') || (workerTest.getC_H() != 'I' && workerTest.getC_H() != 'E') || (workerTest.getI_R() != 'I' && workerTest.getI_R() != 'E'));
+                                boolean sr = ((workerTest.getCO() != 'I' && workerTest.getCO() != 'E') || (workerTest.getCH() != 'I' && workerTest.getCH() != 'E') || (workerTest.getIR() != 'I' && workerTest.getIR() != 'E'));
                                 if (!sr && mr) {
                                     PersonEntity wor = candidatos.removeFirst();
                                     ((ProjectRole) state.getCode().get(posProy)).getRoleWorkers().get(j).getWorkers().set(k, wor);
@@ -171,7 +171,7 @@ public class isBalanced extends Constrain {
                         break;
                     }
                     case "ActionRoles": {
-                        boolean ar = ((workerTest.getI_D() != 'I' && workerTest.getI_D() != 'E') || (workerTest.getI_S() != 'I' && workerTest.getI_S() != 'E') || (workerTest.getI_F() != 'I' && workerTest.getI_F() != 'E'));
+                        boolean ar = ((workerTest.getIM() != 'I' && workerTest.getIM() != 'E') || (workerTest.getIS() != 'I' && workerTest.getIS() != 'E') || (workerTest.getIF() != 'I' && workerTest.getIF() != 'E'));
 
                         switch (noSeaRol) {
                             case "": {
@@ -182,7 +182,7 @@ public class isBalanced extends Constrain {
                                 break;
                             }
                             case "MentalRoles":
-                                boolean mr = ((workerTest.getC_E() != 'I' && workerTest.getC_E() != 'E') || (workerTest.getM_E() != 'I' && workerTest.getM_E() != 'E') || (workerTest.getE_S() != 'I' && workerTest.getE_S() != 'E'));
+                                boolean mr = ((workerTest.getCE() != 'I' && workerTest.getCE() != 'E') || (workerTest.getME() != 'I' && workerTest.getME() != 'E') || (workerTest.getES() != 'I' && workerTest.getES() != 'E'));
                                 if (!mr && ar) {
                                     PersonEntity wor = candidatos.removeFirst();
                                     ((ProjectRole) state.getCode().get(posProy)).getRoleWorkers().get(j).getWorkers().set(k, wor);
@@ -190,7 +190,7 @@ public class isBalanced extends Constrain {
 
                                 break;
                             case "SocialRoles":
-                                boolean sr = ((workerTest.getC_O() != 'I' && workerTest.getC_O() != 'E') || (workerTest.getC_H() != 'I' && workerTest.getC_H() != 'E') || (workerTest.getI_R() != 'I' && workerTest.getI_R() != 'E'));
+                                boolean sr = ((workerTest.getCO() != 'I' && workerTest.getCO() != 'E') || (workerTest.getCH() != 'I' && workerTest.getCH() != 'E') || (workerTest.getIR() != 'I' && workerTest.getIR() != 'E'));
                                 if (!sr && ar) {
                                     PersonEntity wor = candidatos.removeFirst();
                                     ((ProjectRole) state.getCode().get(posProy)).getRoleWorkers().get(j).getWorkers().set(k, wor);
@@ -205,7 +205,7 @@ public class isBalanced extends Constrain {
                     }
                     case "SocialRoles": {
 
-                        boolean sr = ((workerTest.getC_O() != 'I' && workerTest.getC_O() != 'E') || (workerTest.getC_H() != 'I' && workerTest.getC_H() != 'E') || (workerTest.getI_R() != 'I' && workerTest.getI_R() != 'E'));
+                        boolean sr = ((workerTest.getCO() != 'I' && workerTest.getCO() != 'E') || (workerTest.getCH() != 'I' && workerTest.getCH() != 'E') || (workerTest.getIR() != 'I' && workerTest.getIR() != 'E'));
 
                         switch (noSeaRol) {
                             case "": {
@@ -216,7 +216,7 @@ public class isBalanced extends Constrain {
                                 break;
                             }
                             case "MentalRoles":
-                                boolean mr = ((workerTest.getC_E() != 'I' && workerTest.getC_E() != 'E') || (workerTest.getM_E() != 'I' && workerTest.getM_E() != 'E') || (workerTest.getE_S() != 'I' && workerTest.getE_S() != 'E'));
+                                boolean mr = ((workerTest.getCE() != 'I' && workerTest.getCE() != 'E') || (workerTest.getME() != 'I' && workerTest.getME() != 'E') || (workerTest.getES() != 'I' && workerTest.getES() != 'E'));
                                 if (!mr && sr) {
                                     PersonEntity wor = candidatos.removeFirst();
                                     ((ProjectRole) state.getCode().get(posProy)).getRoleWorkers().get(j).getWorkers().set(k, wor);
@@ -224,7 +224,7 @@ public class isBalanced extends Constrain {
 
                                 break;
                             case "ActionRoles":
-                                boolean ar = ((workerTest.getI_D() != 'I' && workerTest.getI_D() != 'E') || (workerTest.getI_S() != 'I' && workerTest.getI_S() != 'E') || (workerTest.getI_F() != 'I' && workerTest.getI_F() != 'E'));
+                                boolean ar = ((workerTest.getIM() != 'I' && workerTest.getIM() != 'E') || (workerTest.getIS() != 'I' && workerTest.getIS() != 'E') || (workerTest.getIF() != 'I' && workerTest.getIF() != 'E'));
                                 if (sr && !ar) {
                                     PersonEntity wor = candidatos.removeFirst();
                                     ((ProjectRole) state.getCode().get(posProy)).getRoleWorkers().get(j).getWorkers().set(k, wor);
@@ -241,7 +241,7 @@ public class isBalanced extends Constrain {
                         switch (noSeaRol) {
 
                             case "SocialRoles": {
-                                boolean sr = ((workerTest.getC_O() != 'I' && workerTest.getC_O() != 'E') || (workerTest.getC_H() != 'I' && workerTest.getC_H() != 'E') || (workerTest.getI_R() != 'I' && workerTest.getI_R() != 'E'));
+                                boolean sr = ((workerTest.getCO() != 'I' && workerTest.getCO() != 'E') || (workerTest.getCH() != 'I' && workerTest.getCH() != 'E') || (workerTest.getIR() != 'I' && workerTest.getIR() != 'E'));
 
                                 if (!sr) {
                                     PersonEntity wor = candidatos.removeFirst();
@@ -250,7 +250,7 @@ public class isBalanced extends Constrain {
                                 break;
                             }
                             case "MentalRoles":
-                                boolean mr = ((workerTest.getC_E() != 'I' && workerTest.getC_E() != 'E') || (workerTest.getM_E() != 'I' && workerTest.getM_E() != 'E') || (workerTest.getE_S() != 'I' && workerTest.getE_S() != 'E'));
+                                boolean mr = ((workerTest.getCE() != 'I' && workerTest.getCE() != 'E') || (workerTest.getME() != 'I' && workerTest.getME() != 'E') || (workerTest.getES() != 'I' && workerTest.getES() != 'E'));
                                 if (!mr) {
                                     PersonEntity wor = candidatos.removeFirst();
                                     ((ProjectRole) state.getCode().get(posProy)).getRoleWorkers().get(j).getWorkers().set(k, wor);
@@ -258,7 +258,7 @@ public class isBalanced extends Constrain {
 
                                 break;
                             case "ActionRoles":
-                                boolean ar = ((workerTest.getI_D() != 'I' && workerTest.getI_D() != 'E') || (workerTest.getI_S() != 'I' && workerTest.getI_S() != 'E') || (workerTest.getI_F() != 'I' && workerTest.getI_F() != 'E'));
+                                boolean ar = ((workerTest.getIM() != 'I' && workerTest.getIM() != 'E') || (workerTest.getIS() != 'I' && workerTest.getIS() != 'E') || (workerTest.getIF() != 'I' && workerTest.getIF() != 'E'));
                                 if (!ar) {
                                     PersonEntity wor = candidatos.removeFirst();
                                     ((ProjectRole) state.getCode().get(posProy)).getRoleWorkers().get(j).getWorkers().set(k, wor);
@@ -403,15 +403,15 @@ public class isBalanced extends Constrain {
             PersonEntity worker = codification.getSearchArea().get(i);
             PersonTestEntity workerTest = worker.getPersonTest(); //obtener caracteristicas psicologicas
 
-            boolean isRoleAction = (workerTest.getI_D() != 'I' && workerTest.getI_D() != 'E') || (workerTest.getI_S() != 'I' && workerTest.getI_S() != 'E') || (workerTest.getI_F() != 'I' && workerTest.getI_F() != 'E');
-            boolean isRoleMental = (workerTest.getC_E() != 'I' && workerTest.getC_E() != 'E') || (workerTest.getM_E() != 'I' && workerTest.getM_E() != 'E') || (workerTest.getE_S() != 'I' && workerTest.getE_S() != 'E');
+            boolean isRoleAction = (workerTest.getIM() != 'I' && workerTest.getIM() != 'E') || (workerTest.getIS() != 'I' && workerTest.getIS() != 'E') || (workerTest.getIF() != 'I' && workerTest.getIF() != 'E');
+            boolean isRoleMental = (workerTest.getCE() != 'I' && workerTest.getCE() != 'E') || (workerTest.getME() != 'I' && workerTest.getME() != 'E') || (workerTest.getES() != 'I' && workerTest.getES() != 'E');
 
             switch (seaRol) {
                 case "MentalRoles": {
-                    boolean mr = (workerTest.getC_E() != 'I' && workerTest.getC_E() != 'E') || (workerTest.getM_E() != 'I' && workerTest.getM_E() != 'E') || (workerTest.getE_S() != 'I' && workerTest.getE_S() != 'E');
+                    boolean mr = (workerTest.getCE() != 'I' && workerTest.getCE() != 'E') || (workerTest.getME() != 'I' && workerTest.getME() != 'E') || (workerTest.getES() != 'I' && workerTest.getES() != 'E');
                     switch (noSeaRol) {
                         case "ActionRoles":
-                            boolean ar = (workerTest.getI_D() != 'I' && workerTest.getI_D() != 'E') || (workerTest.getI_S() != 'I' && workerTest.getI_S() != 'E') || (workerTest.getI_F() != 'I' && workerTest.getI_F() != 'E');
+                            boolean ar = (workerTest.getIM() != 'I' && workerTest.getIM() != 'E') || (workerTest.getIS() != 'I' && workerTest.getIS() != 'E') || (workerTest.getIF() != 'I' && workerTest.getIF() != 'E');
                             if ((mr && !ar && caso == 1) ||
                                     (mr && ar && caso == 2) ||
                                     (mr && !ar && isRoleAction && caso == 3) ||
@@ -420,7 +420,7 @@ public class isBalanced extends Constrain {
                             }
                             break;
                         case "SocialRoles":
-                            boolean sr = (workerTest.getC_O() != 'I' && workerTest.getC_O() != 'E') || (workerTest.getC_H() != 'I' && workerTest.getC_H() != 'E') || (workerTest.getI_R() != 'I' && workerTest.getI_R() != 'E');
+                            boolean sr = (workerTest.getCO() != 'I' && workerTest.getCO() != 'E') || (workerTest.getCH() != 'I' && workerTest.getCH() != 'E') || (workerTest.getIR() != 'I' && workerTest.getIR() != 'E');
                             if ((mr && !sr && caso == 1) ||
                                     (mr && sr && caso == 2) ||
                                     (mr && !sr && isRoleAction && caso == 3) ||
@@ -441,11 +441,11 @@ public class isBalanced extends Constrain {
                     break;
                 }
                 case "ActionRoles": {
-                    boolean ar = (workerTest.getI_D() != 'I' && workerTest.getI_D() != 'E') || (workerTest.getI_S() != 'I' && workerTest.getI_S() != 'E') || (workerTest.getI_F() != 'I' && workerTest.getI_F() != 'E');
+                    boolean ar = (workerTest.getIM() != 'I' && workerTest.getIM() != 'E') || (workerTest.getIS() != 'I' && workerTest.getIS() != 'E') || (workerTest.getIF() != 'I' && workerTest.getIF() != 'E');
 
                     switch (noSeaRol) {
                         case "MentalRoles":
-                            boolean mr = (workerTest.getC_E() != 'I' && workerTest.getC_E() != 'E') || (workerTest.getM_E() != 'I' && workerTest.getM_E() != 'E') || (workerTest.getE_S() != 'I' && workerTest.getE_S() != 'E');
+                            boolean mr = (workerTest.getCE() != 'I' && workerTest.getCE() != 'E') || (workerTest.getME() != 'I' && workerTest.getME() != 'E') || (workerTest.getES() != 'I' && workerTest.getES() != 'E');
                             if ((!mr && ar && caso == 1) ||
                                     (mr && ar && caso == 2) ||
                                     (!mr && ar && isRoleAction && caso == 3) ||
@@ -454,7 +454,7 @@ public class isBalanced extends Constrain {
                             }
                             break;
                         case "SocialRoles":
-                            boolean sr = (workerTest.getC_O() != 'I' && workerTest.getC_O() != 'E') || (workerTest.getC_H() != 'I' && workerTest.getC_H() != 'E') || (workerTest.getI_R() != 'I' && workerTest.getI_R() != 'E');
+                            boolean sr = (workerTest.getCO() != 'I' && workerTest.getCO() != 'E') || (workerTest.getCH() != 'I' && workerTest.getCH() != 'E') || (workerTest.getIR() != 'I' && workerTest.getIR() != 'E');
                             if ((ar && !sr && caso == 1) ||
                                     (ar && sr && caso == 2) ||
                                     (ar && !sr && isRoleAction && caso == 3) ||
@@ -474,10 +474,10 @@ public class isBalanced extends Constrain {
                     break;
                 }
                 case "SocialRoles": {
-                    boolean sr = (workerTest.getC_O() != 'I' && workerTest.getC_O() != 'E') || (workerTest.getC_H() != 'I' && workerTest.getC_H() != 'E') || (workerTest.getI_R() != 'I' && workerTest.getI_R() != 'E');
+                    boolean sr = (workerTest.getCO() != 'I' && workerTest.getCO() != 'E') || (workerTest.getCH() != 'I' && workerTest.getCH() != 'E') || (workerTest.getIR() != 'I' && workerTest.getIR() != 'E');
                     switch (noSeaRol) {
                         case "MentalRoles":
-                            boolean mr = (workerTest.getC_E() != 'I' && workerTest.getC_E() != 'E') || (workerTest.getM_E() != 'I' && workerTest.getM_E() != 'E') || (workerTest.getE_S() != 'I' && workerTest.getE_S() != 'E');
+                            boolean mr = (workerTest.getCE() != 'I' && workerTest.getCE() != 'E') || (workerTest.getME() != 'I' && workerTest.getME() != 'E') || (workerTest.getES() != 'I' && workerTest.getES() != 'E');
                             if ((!mr && sr && caso == 1) ||
                                     (mr && sr && caso == 2) ||
                                     (!mr && sr && isRoleAction && caso == 3) ||
@@ -487,7 +487,7 @@ public class isBalanced extends Constrain {
                             }
                             break;
                         case "ActionRoles":
-                            boolean ar = (workerTest.getI_D() != 'I' && workerTest.getI_D() != 'E') || (workerTest.getI_S() != 'I' && workerTest.getI_S() != 'E') || (workerTest.getI_F() != 'I' && workerTest.getI_F() != 'E');
+                            boolean ar = (workerTest.getIM() != 'I' && workerTest.getIM() != 'E') || (workerTest.getIS() != 'I' && workerTest.getIS() != 'E') || (workerTest.getIF() != 'I' && workerTest.getIF() != 'E');
                             if ((sr && !ar && caso == 1) ||
                                     (sr && ar && caso == 2) ||
                                     (sr && !ar && isRoleAction && caso == 3) ||
@@ -526,13 +526,13 @@ public class isBalanced extends Constrain {
             PersonTestEntity workerTest = worker.getPersonTest(); //obtener caracteristicas psicologicas
 
             if (workerTest != null) {
-                if ((workerTest.getI_D() != 'I' && workerTest.getI_D() != 'E') || (workerTest.getI_S() != 'I' && workerTest.getI_S() != 'E') || (workerTest.getI_F() != 'I' && workerTest.getI_F() != 'E')) {
+                if ((workerTest.getIM() != 'I' && workerTest.getIM() != 'E') || (workerTest.getIS() != 'I' && workerTest.getIS() != 'E') || (workerTest.getIF() != 'I' && workerTest.getIF() != 'E')) {
                     countActionRoles++;
                 }
-                if ((workerTest.getC_E() != 'I' && workerTest.getC_E() != 'E') || (workerTest.getM_E() != 'I' && workerTest.getM_E() != 'E') || (workerTest.getE_S() != 'I' && workerTest.getE_S() != 'E')) {
+                if ((workerTest.getCE() != 'I' && workerTest.getCE() != 'E') || (workerTest.getME() != 'I' && workerTest.getME() != 'E') || (workerTest.getES() != 'I' && workerTest.getES() != 'E')) {
                     countMentalRoles++;
                 }
-                if ((workerTest.getC_O() != 'I' && workerTest.getC_O() != 'E') || (workerTest.getC_H() != 'I' && workerTest.getC_H() != 'E') || (workerTest.getI_R() != 'I' && workerTest.getI_R() != 'E')) {
+                if ((workerTest.getCO() != 'I' && workerTest.getCO() != 'E') || (workerTest.getCH() != 'I' && workerTest.getCH() != 'E') || (workerTest.getIR() != 'I' && workerTest.getIR() != 'E')) {
                     countSocialRoles++;
                 }
             }

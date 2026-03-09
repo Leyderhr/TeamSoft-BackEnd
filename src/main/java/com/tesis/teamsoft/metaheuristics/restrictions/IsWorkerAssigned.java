@@ -4,6 +4,7 @@ import com.tesis.teamsoft.persistence.entity.AssignedRoleEntity;
 import com.tesis.teamsoft.persistence.entity.PersonEntity;
 import com.tesis.teamsoft.metaheuristics.util.ProjectRole;
 import com.tesis.teamsoft.metaheuristics.util.RoleWorker;
+import com.tesis.teamsoft.persistence.entity.auxiliar.Status;
 import problem.definition.State;
 
 import java.util.ArrayList;
@@ -58,7 +59,7 @@ public class IsWorkerAssigned extends Constrain {
             List<AssignedRoleEntity> roles = worker.getAssignedRoleList(); // obtener roles asignados anteriormente
             int m = 0;
             while (m < roles.size() && meet) { // para cada rol asignado
-                if (roles.get(m).getRole().isBoss() && roles.get(m).getStatus().equalsIgnoreCase("ACTIVE")) { // si es Jefe de P. y aun está activo
+                if (roles.get(m).getRole().isBoss() && roles.get(m).getStatus().equals(Status.ACTIVE)) { // si es Jefe de P. y aun está activo
                     meet = false; // falla la retriccion porque un Jefe de Proyecto esta desarrollando (propuesto para desarrollar) otro rol
                 }
                 m++;

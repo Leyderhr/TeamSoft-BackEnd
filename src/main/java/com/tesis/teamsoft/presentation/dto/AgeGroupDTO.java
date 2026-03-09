@@ -1,9 +1,12 @@
 package com.tesis.teamsoft.presentation.dto;
 
 import jakarta.validation.constraints.*;
+import lombok.AccessLevel;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class AgeGroupDTO {
 
     @Data

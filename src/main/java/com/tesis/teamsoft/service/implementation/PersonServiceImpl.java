@@ -1,6 +1,7 @@
 package com.tesis.teamsoft.service.implementation;
 
 import com.tesis.teamsoft.persistence.entity.*;
+import com.tesis.teamsoft.persistence.entity.auxiliar.Status;
 import com.tesis.teamsoft.persistence.repository.*;
 import com.tesis.teamsoft.presentation.dto.*;
 import com.tesis.teamsoft.service.interfaces.IPersonService;
@@ -38,6 +39,7 @@ public class PersonServiceImpl implements IPersonService {
         try {
             PersonEntity person = modelMapper.map(personDTO, PersonEntity.class);
             person.setId(null);
+            person.setStatus(Status.ACTIVE);
 
             // Procesar relaciones simples
             processSimpleRelations(personDTO, person);
@@ -81,8 +83,6 @@ public class PersonServiceImpl implements IPersonService {
                 .orElseThrow(() -> new RuntimeException("Person not found with ID: " + id));
 
         try {
-            // Actualizar campos básicos
-           // existingPerson = modelMapper.map(personDTO, PersonEntity.class);
             existingPerson.setId(id);
             existingPerson.setAddress(personDTO.getAddress());
             existingPerson.setBirthDate(personDTO.getBirthDate());
@@ -93,10 +93,7 @@ public class PersonServiceImpl implements IPersonService {
             existingPerson.setPersonName(personDTO.getPersonName());
             existingPerson.setPhone(personDTO.getPhone());
             existingPerson.setSex(personDTO.getSex());
-            existingPerson.setStatus(personDTO.getStatus());
             existingPerson.setSurName(personDTO.getSurName());
-            existingPerson.setWorkload(personDTO.getWorkload());
-
 
             // Procesar relaciones simples
             processSimpleRelations(personDTO, existingPerson);
@@ -171,7 +168,7 @@ public class PersonServiceImpl implements IPersonService {
         try {
             return personRepository.findAll().stream()
                     .map(this::convertToResponseDTO)
-                    .collect(Collectors.toList());
+                    .toList();
         } catch (Exception e) {
             throw new RuntimeException("Error finding all persons: " + e.getMessage());
         }
@@ -182,7 +179,7 @@ public class PersonServiceImpl implements IPersonService {
         try {
             return personRepository.findAllByOrderByIdAsc().stream()
                     .map(this::convertToResponseDTO)
-                    .collect(Collectors.toList());
+                    .toList();
         } catch (Exception e) {
             throw new RuntimeException("Error finding all persons: " + e.getMessage());
         }
@@ -239,7 +236,7 @@ public class PersonServiceImpl implements IPersonService {
             cv.setLevel(level);
             cv.setPerson(person);
             return cv;
-        }).collect(Collectors.toList());
+        }).toList();
     }
 
     private void syncCompetenceValues(PersonEntity person, List<CompetenceValueEntity> validatedCompetenceValues) {
@@ -263,7 +260,7 @@ public class PersonServiceImpl implements IPersonService {
         person.getCompetenceValueList().addAll(finalList);
     }
 
-    private List<PersonalInterestsEntity> processPersonalInterests(List<PersonalInterestDTP.PersonalInterestCreateDTO> personalInterestsDTO, PersonEntity person) {
+    private List<PersonalInterestsEntity> processPersonalInterests(List<PersonalInterestDTO.PersonalInterestCreateDTO> personalInterestsDTO, PersonEntity person) {
         Set<Long> processedRoleIds = new HashSet<>();
 
         return personalInterestsDTO.stream().map(dto -> {
@@ -324,7 +321,7 @@ public class PersonServiceImpl implements IPersonService {
             ppi.setPreference(dto.getPreference());
             ppi.setPerson(person);
             return ppi;
-        }).collect(Collectors.toList());
+        }).toList();
     }
 
     private void syncPersonalProjectInterests(PersonEntity person, List<PersonalProjectInterestsEntity> validatedProjectInterests) {
@@ -349,6 +346,7 @@ public class PersonServiceImpl implements IPersonService {
 
     private PersonTestEntity processPersonTest(PersonTestDTO.PersonTestCreateDTO personTestDTO, PersonEntity person) {
         PersonTestEntity pt = modelMapper.map(personTestDTO, PersonTestEntity.class);
+        pt.setPerson(person);
         return pt;
     }
 
@@ -375,7 +373,7 @@ public class PersonServiceImpl implements IPersonService {
             pc.setPersonConflict(otherPerson);
             pc.setPerson(person);
             return pc;
-        }).collect(Collectors.toList());
+        }).toList();
     }
 
     private void syncPersonConflicts(PersonEntity person, List<PersonConflictEntity> validatedPersonConflicts) {
@@ -389,12 +387,8 @@ public class PersonServiceImpl implements IPersonService {
 
         for (PersonConflictEntity validatedPc : validatedPersonConflicts) {
             String key = generateConflictKey(validatedPc.getPersonConflict().getId(), validatedPc.getIndex().getId());
-            if (existingMap.containsKey(key)) {
-                // Mantener existente (no hay campos para actualizar)
-                finalList.add(existingMap.get(key));
-            } else {
-                finalList.add(validatedPc);
-            }
+            // Mantener existente (no hay campos para actualizar)
+            finalList.add(existingMap.getOrDefault(key, validatedPc));
         }
         person.getPersonConflictList().clear();
         person.getPersonConflictList().addAll(finalList);
@@ -416,7 +410,7 @@ public class PersonServiceImpl implements IPersonService {
         responseDTO.setPersonName(person.getPersonName());
         responseDTO.setPhone(person.getPhone());
         responseDTO.setSex(person.getSex());
-        responseDTO.setStatus(person.getStatus());
+        responseDTO.setStatus(person.getStatus().toString());
         responseDTO.setSurName(person.getSurName());
         responseDTO.setWorkload(person.getWorkload());
 
@@ -427,7 +421,7 @@ public class PersonServiceImpl implements IPersonService {
         responseDTO.setCounty(modelMapper.map(person.getCounty(), CountyDTO.CountyResponseDTO.class));
         responseDTO.setRace(modelMapper.map(person.getRace(), RaceDTO.RaceResponseDTO.class));
         responseDTO.setGroup(modelMapper.map(person.getGroup(), PersonGroupDTO.PersonGroupResponseDTO.class));
-        responseDTO.setNacionality(modelMapper.map(person.getNacionality(), NacionalityDTO.NacionalityResponseDTO.class));
+        responseDTO.setNacionality(modelMapper.map(person.getNacionality(), NationalityDTO.NacionalityResponseDTO.class));
         responseDTO.setReligion(modelMapper.map(person.getReligion(), ReligionDTO.ReligionResponseDTO.class));
         if (person.getAgeGroup() != null) {
             responseDTO.setAgeGroup(modelMapper.map(person.getAgeGroup(), AgeGroupDTO.AgeGroupResponseDTO.class));
@@ -442,17 +436,17 @@ public class PersonServiceImpl implements IPersonService {
                         dto.setLevel(modelMapper.map(cv.getLevel(), LevelsDTO.LevelsResponseDTO.class));
                         return dto;
                     })
-                    .collect(Collectors.toList()));
+                    .toList());
         }
 
         if (person.getPersonalInterestsList() != null) {
             responseDTO.setPersonalInterests(person.getPersonalInterestsList().stream()
                     .map(pi -> {
-                        PersonalInterestDTP.PersonalInterestResponseDTO dto = modelMapper.map(pi, PersonalInterestDTP.PersonalInterestResponseDTO.class);
+                        PersonalInterestDTO.PersonalInterestResponseDTO dto = modelMapper.map(pi, PersonalInterestDTO.PersonalInterestResponseDTO.class);
                         dto.setRole(modelMapper.map(pi.getRole(), RoleDTO.RoleMinimalDTO.class));
                         return dto;
                     })
-                    .collect(Collectors.toList()));
+                    .toList());
         }
 
         if (person.getPersonalProjectInterestsList() != null) {
@@ -462,7 +456,7 @@ public class PersonServiceImpl implements IPersonService {
                         dto.setProject(modelMapper.map(ppi.getProject(), ProjectDTO.ProjectResponseDTO.class));
                         return dto;
                     })
-                    .collect(Collectors.toList()));
+                    .toList());
         }
 
         if (person.getPersonTest() != null) {
@@ -477,7 +471,7 @@ public class PersonServiceImpl implements IPersonService {
                         dto.setPersonConflict(modelMapper.map(pc.getPersonConflict(), PersonDTO.PersonMinimalDTO.class));
                         return dto;
                     })
-                    .collect(Collectors.toList()));
+                    .toList());
         }
 
         return responseDTO;

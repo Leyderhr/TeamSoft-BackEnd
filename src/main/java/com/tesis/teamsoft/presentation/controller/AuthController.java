@@ -41,6 +41,18 @@ public class AuthController {
         return ResponseEntity.ok(Map.of("message", "Logged out successfully"));
     }
 
+    @PostMapping("/refresh")
+    public ResponseEntity<?> refreshToken(@Valid @RequestBody LoginDTO.RefreshTokenRequestDTO request) {
+        try {
+            LoginDTO.RefreshTokenResponseDTO response = authService.refreshToken(request.getRefreshToken());
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            log.warn("Token refresh failed: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", "Invalid or expired refresh token"));
+        }
+    }
+
 //    @PostMapping("/forgot-password")
 //    public ResponseEntity<?> forgotPassword(@Valid @RequestBody ForgotPasswordDTO request) {
 //        try {

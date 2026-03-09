@@ -70,14 +70,14 @@ public class AllBelbinCategories extends Constrain {
                 if (workerTest != null) {
                     //De este modo garantizo que en el primer proyecto no hayan roles de acción
 
-                    if (workerTest.getI_D() != 'I' && workerTest.getI_D() != 'E') {
-                        ((ProjectRole) code.getFirst()).getRoleWorkers().get(j).getWorkers().get(k).getPersonTest().setI_D('I');
+                    if (workerTest.getIM() != 'I' && workerTest.getIM() != 'E') {
+                        ((ProjectRole) code.getFirst()).getRoleWorkers().get(j).getWorkers().get(k).getPersonTest().setIM('I');
                     }
-                    if (workerTest.getI_S() != 'I' && workerTest.getI_S() != 'E') {
-                        ((ProjectRole) code.getFirst()).getRoleWorkers().get(j).getWorkers().get(k).getPersonTest().setI_S('I');
+                    if (workerTest.getIS() != 'I' && workerTest.getIS() != 'E') {
+                        ((ProjectRole) code.getFirst()).getRoleWorkers().get(j).getWorkers().get(k).getPersonTest().setIS('I');
                     }
-                    if (workerTest.getI_F() != 'I' && workerTest.getI_F() != 'E') {
-                        ((ProjectRole) code.getFirst()).getRoleWorkers().get(j).getWorkers().get(k).getPersonTest().setI_F('I');
+                    if (workerTest.getIF() != 'I' && workerTest.getIF() != 'E') {
+                        ((ProjectRole) code.getFirst()).getRoleWorkers().get(j).getWorkers().get(k).getPersonTest().setIF('I');
                     }
                 }
             }
@@ -100,13 +100,13 @@ public class AllBelbinCategories extends Constrain {
 
             if (workerTest != null) {
 
-                if ((workerTest.getI_D() != 'I' && workerTest.getI_D() != 'E') || (workerTest.getI_S() != 'I' && workerTest.getI_S() != 'E') || (workerTest.getI_F() != 'I' && workerTest.getI_F() != 'E')) {
+                if ((workerTest.getIM() != 'I' && workerTest.getIM() != 'E') || (workerTest.getIS() != 'I' && workerTest.getIS() != 'E') || (workerTest.getIF() != 'I' && workerTest.getIF() != 'E')) {
                     actionRoles = true;
                 }
-                if ((workerTest.getC_E() != 'I' && workerTest.getC_E() != 'E') || (workerTest.getM_E() != 'I' && workerTest.getM_E() != 'E') || (workerTest.getE_S() != 'I' && workerTest.getE_S() != 'E')) {
+                if ((workerTest.getCE() != 'I' && workerTest.getCE() != 'E') || (workerTest.getME() != 'I' && workerTest.getME() != 'E') || (workerTest.getES() != 'I' && workerTest.getES() != 'E')) {
                     mentalRoles = true;
                 }
-                if ((workerTest.getC_O() != 'I' && workerTest.getC_O() != 'E') || (workerTest.getC_H() != 'I' && workerTest.getC_H() != 'E') || (workerTest.getI_R() != 'I' && workerTest.getI_R() != 'E')) {
+                if ((workerTest.getCO() != 'I' && workerTest.getCO() != 'E') || (workerTest.getCH() != 'I' && workerTest.getCH() != 'E') || (workerTest.getIR() != 'I' && workerTest.getIR() != 'E')) {
                     socialRoles = true;
                 }
 
@@ -127,14 +127,14 @@ public class AllBelbinCategories extends Constrain {
 
             if (workerTest != null) {
 
-                if ((workerTest.getI_D() != 'I' && workerTest.getI_D() != 'E') || (workerTest.getI_S() != 'I' && workerTest.getI_S() != 'E') || (workerTest.getI_F() != 'I' && workerTest.getI_F() != 'E')) {
+                if ((workerTest.getIM() != 'I' && workerTest.getIM() != 'E') || (workerTest.getIS() != 'I' && workerTest.getIS() != 'E') || (workerTest.getIF() != 'I' && workerTest.getIF() != 'E')) {
                     rolesQHay.add("actionRoles");
                 }
-                if ((workerTest.getC_E() != 'I' && workerTest.getC_E() != 'E') || (workerTest.getM_E() != 'I' && workerTest.getM_E() != 'E') || (workerTest.getE_S() != 'I' && workerTest.getE_S() != 'E')) {
+                if ((workerTest.getCE() != 'I' && workerTest.getCE() != 'E') || (workerTest.getME() != 'I' && workerTest.getME() != 'E') || (workerTest.getES() != 'I' && workerTest.getES() != 'E')) {
                     rolesQHay.add("mentalRoles");
 
                 }
-                if ((workerTest.getC_O() != 'I' && workerTest.getC_O() != 'E') || (workerTest.getC_H() != 'I' && workerTest.getC_H() != 'E') || (workerTest.getI_R() != 'I' && workerTest.getI_R() != 'E')) {
+                if ((workerTest.getCO() != 'I' && workerTest.getCO() != 'E') || (workerTest.getCH() != 'I' && workerTest.getCH() != 'E') || (workerTest.getIR() != 'I' && workerTest.getIR() != 'E')) {
                     rolesQHay.add("socialRoles");
                 }
             }
@@ -200,17 +200,17 @@ public class AllBelbinCategories extends Constrain {
             for (String s : rolesFaltan) {
                 switch (s) {
                     case "actionRoles":
-                        if ((workerTest.getI_D() != 'I' && workerTest.getI_D() != 'E') || (workerTest.getI_S() != 'I' && workerTest.getI_S() != 'E') || (workerTest.getI_F() != 'I' && workerTest.getI_F() != 'E')) {
+                        if ((workerTest.getIM() != 'I' && workerTest.getIM() != 'E') || (workerTest.getIS() != 'I' && workerTest.getIS() != 'E') || (workerTest.getIF() != 'I' && workerTest.getIF() != 'E')) {
                             candidatos.add(worker);
                         }
                         break;
                     case "mentalRoles":
-                        if ((workerTest.getC_E() != 'I' && workerTest.getC_E() != 'E') || (workerTest.getM_E() != 'I' && workerTest.getM_E() != 'E') || (workerTest.getE_S() != 'I' && workerTest.getE_S() != 'E')) {
+                        if ((workerTest.getCE() != 'I' && workerTest.getCE() != 'E') || (workerTest.getME() != 'I' && workerTest.getME() != 'E') || (workerTest.getES() != 'I' && workerTest.getES() != 'E')) {
                             candidatos.add(worker);
                         }
                         break;
                     case "socialRoles":
-                        if ((workerTest.getC_O() != 'I' && workerTest.getC_O() != 'E') || (workerTest.getC_H() != 'I' && workerTest.getC_H() != 'E') || (workerTest.getI_R() != 'I' && workerTest.getI_R() != 'E')) {
+                        if ((workerTest.getCO() != 'I' && workerTest.getCO() != 'E') || (workerTest.getCH() != 'I' && workerTest.getCH() != 'E') || (workerTest.getIR() != 'I' && workerTest.getIR() != 'E')) {
                             candidatos.add(worker);
                         }
                         break;
@@ -235,17 +235,17 @@ public class AllBelbinCategories extends Constrain {
                 while (a < rolesRepetidos.size() && !candidatos.isEmpty()) {
                     switch (rolesRepetidos.get(a)) {
                         case "actionRoles":
-                            if ((workerTest.getI_D() != 'I' && workerTest.getI_D() != 'E') || (workerTest.getI_S() != 'I' && workerTest.getI_S() != 'E') || (workerTest.getI_F() != 'I' && workerTest.getI_F() != 'E')) {
+                            if ((workerTest.getIM() != 'I' && workerTest.getIM() != 'E') || (workerTest.getIS() != 'I' && workerTest.getIS() != 'E') || (workerTest.getIF() != 'I' && workerTest.getIF() != 'E')) {
                                 ((ProjectRole) state.getCode().get(posProy)).getRoleWorkers().get(j).getWorkers().set(k, candidatos.removeFirst());
                             }
                             break;
                         case "mentalRoles":
-                            if ((workerTest.getC_E() != 'I' && workerTest.getC_E() != 'E') || (workerTest.getM_E() != 'I' && workerTest.getM_E() != 'E') || (workerTest.getE_S() != 'I' && workerTest.getE_S() != 'E')) {
+                            if ((workerTest.getCE() != 'I' && workerTest.getCE() != 'E') || (workerTest.getME() != 'I' && workerTest.getME() != 'E') || (workerTest.getES() != 'I' && workerTest.getES() != 'E')) {
                                 ((ProjectRole) state.getCode().get(posProy)).getRoleWorkers().get(j).getWorkers().set(k, candidatos.removeFirst());
                             }
                             break;
                         case "socialRoles":
-                            if ((workerTest.getC_O() != 'I' && workerTest.getC_O() != 'E') || (workerTest.getC_H() != 'I' && workerTest.getC_H() != 'E') || (workerTest.getI_R() != 'I' && workerTest.getI_R() != 'E')) {
+                            if ((workerTest.getCO() != 'I' && workerTest.getCO() != 'E') || (workerTest.getCH() != 'I' && workerTest.getCH() != 'E') || (workerTest.getIR() != 'I' && workerTest.getIR() != 'E')) {
                                 ((ProjectRole) state.getCode().get(posProy)).getRoleWorkers().get(j).getWorkers().set(k, candidatos.removeFirst());
                             }
                             break;

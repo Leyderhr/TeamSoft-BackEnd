@@ -52,8 +52,7 @@ public class RoleEvaluationServiceImpl implements IRoleEvaluationService {
 
         // Verificar si tiene relaciones antes de eliminar
         if ((roleEvaluation.getProjectsList() != null && !roleEvaluation.getProjectsList().isEmpty()) ||
-                (roleEvaluation.getRoleEvaluationList() != null && !roleEvaluation.getRoleEvaluationList().isEmpty()) ||
-                (roleEvaluation.getRoleEvalProjectList() != null && !roleEvaluation.getRoleEvalProjectList().isEmpty())) {
+                (roleEvaluation.getRoleEvaluationList() != null && !roleEvaluation.getRoleEvaluationList().isEmpty())) {
             throw new IllegalArgumentException("Cannot delete role evaluation because it has associated relations");
         }
 

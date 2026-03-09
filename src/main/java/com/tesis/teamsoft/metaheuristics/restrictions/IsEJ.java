@@ -50,7 +50,7 @@ public class IsEJ extends Constrain {
         String J = "";
 
         if (worker.getPersonTest() != null) {   // si se registraron características psicológicas para la misma
-            mb = worker.getPersonTest().getTipoMB();
+            mb = worker.getPersonTest().getMbtiType();
             E = mb.substring(0, 1);
             J = mb.substring(3, 4);
             if (!E.equalsIgnoreCase("e") || !J.equalsIgnoreCase("j")) { // si no tiene el subtipo E__J

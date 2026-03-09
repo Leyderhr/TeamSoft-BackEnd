@@ -1,5 +1,6 @@
 package com.tesis.teamsoft.metaheuristics.util;
 
+import com.tesis.teamsoft.persistence.entity.auxiliar.Status;
 import com.tesis.teamsoft.pojos.ProjectRoleCompetenceTemplate;
 import com.tesis.teamsoft.persistence.entity.AssignedRoleEntity;
 import com.tesis.teamsoft.persistence.entity.CycleEntity;
@@ -16,7 +17,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.ResourceBundle;
+import com.tesis.teamsoft.config.AlgorithmConfig;
 
 @NoArgsConstructor
 @Getter
@@ -34,6 +35,7 @@ public class TeamFormationCodification extends Codification {
         this.restrictions = restrictions;
         this.problem = problem;
         this.searchArea = searchArea;
+        this.count_iteration_aleatory_search = AlgorithmConfig.getInt("countIterationAleatorySearch", 100);
     }
 
     @Override
@@ -372,7 +374,7 @@ public class TeamFormationCodification extends Codification {
     public void repareIndividualRestrictionsState(State state) {
 
         ArrayList<Object> projects = state.getCode();
-        int cantIntentos = 50;//Integer.parseInt(ResourceBundle.getBundle("/algorithmConf").getString("cantIntentos"));
+        int cantIntentos = AlgorithmConfig.getInt("cantIntentos", 50);
 
         ArrayList<PersonEntity> peopleSol = new ArrayList<>(); //lista de todas las presonas de la solucion
         ArrayList<PersonEntity> peopleSol2 = new ArrayList<>(); //lista de todas las presonas de la solucion asignadas antes de un rol y proyecto especifico
@@ -590,7 +592,7 @@ public class TeamFormationCodification extends Codification {
                 if (meet) {
                     ((ProjectRole) solution.getCode().get(1)).getRoleWorkers().getFirst().getRole().setBoss(true);
 
-                    ((ProjectRole) solution.getCode().get(1)).getRoleWorkers().getFirst().getWorkers().getFirst().getPersonTest().setTipoMB("xxxx");
+                    ((ProjectRole) solution.getCode().get(1)).getRoleWorkers().getFirst().getWorkers().getFirst().getPersonTest().setMbtiType("xxxx");
                 }
                 meet = rest.ValidateState(solution);
                 if (!meet) {
@@ -605,9 +607,9 @@ public class TeamFormationCodification extends Codification {
                 if (meet) {
                     ((ProjectRole) solution.getCode().get(1)).getRoleWorkers().getFirst().getRole().setBoss(true);
 
-                    ((ProjectRole) solution.getCode().get(1)).getRoleWorkers().getFirst().getWorkers().getFirst().getPersonTest().setI_S('I');
+                    ((ProjectRole) solution.getCode().get(1)).getRoleWorkers().getFirst().getWorkers().getFirst().getPersonTest().setIS('I');
 
-                    ((ProjectRole) solution.getCode().get(0)).getRoleWorkers().getFirst().getWorkers().getFirst().getPersonTest().setC_O('I');
+                    ((ProjectRole) solution.getCode().get(0)).getRoleWorkers().getFirst().getWorkers().getFirst().getPersonTest().setCO('I');
                 }
                 meet = rest.ValidateState(solution);
                 if (!meet) {
@@ -711,7 +713,7 @@ public class TeamFormationCodification extends Codification {
                     assignedRole.setId(id);
                     assignedRole.setPerson(worker);
                     assignedRole.setRole(roleWorker.getRole());
-                    assignedRole.setStatus("ACTIVE");
+                    assignedRole.setStatus(Status.ACTIVE);
 
                     ((ProjectRole) solution.getCode().get(0)).getProject().getCycleList().get(0).getAssignedRoleList().add(assignedRole);
 
@@ -746,7 +748,7 @@ public class TeamFormationCodification extends Codification {
         List<Object> projects = state.getCode(); // obtener lista de proyectos -roles
         int personCount = 0; //contador de personas con rol cerebro
         int i = 0;
-        int cantIntentos = 50;//Integer.parseInt(ResourceBundle.getBundle("/algorithmConf").getString("cantIntentos"));
+        int cantIntentos = AlgorithmConfig.getInt("cantIntentos", 50);
 
         while (i < projects.size()) { //para cada projecto-rol
             ProjectRole projectRole = (ProjectRole) projects.get(i);
@@ -767,7 +769,7 @@ public class TeamFormationCodification extends Codification {
                 while (k < aux.size()) { // para cada persona
                     PersonEntity worker = aux.get(k);
                     if (worker.getPersonTest() != null) {
-                        if (worker.getPersonTest().getC_E() != 'I' && worker.getPersonTest().getC_E() != 'E') { // si tiene rol cerebro
+                        if (worker.getPersonTest().getCE() != 'I' && worker.getPersonTest().getCE() != 'E') { // si tiene rol cerebro
                             personCount++; //cuento uno
                         }
                     }
@@ -890,7 +892,7 @@ public class TeamFormationCodification extends Codification {
                 aux.addAll(roleWorker.getFixedWorkers());
                 for (PersonEntity worker : aux) { // para cada persona
                     if (worker.getPersonTest() != null) {
-                        if (worker.getPersonTest().getC_E() != 'I' && worker.getPersonTest().getC_E() != 'E') { // si tiene rol cerebro
+                        if (worker.getPersonTest().getCE() != 'I' && worker.getPersonTest().getCE() != 'E') { // si tiene rol cerebro
                             personCount++; //cuento uno
                         }
 

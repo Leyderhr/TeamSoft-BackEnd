@@ -36,4 +36,3 @@ security:
 
 server:
   port: ${SERVER_PORT:8081}
-

@@ -5,11 +5,14 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import lombok.AccessLevel;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
 @Data
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ProjectStructureDTO {
 
     @Data
@@ -35,15 +38,5 @@ public class ProjectStructureDTO {
     public static class ProjectStructureSimpleDTO {
         private Long id;
         private String name;
-    }
-
-
-
-    // DTO auxiliar para RoleLoad (si no existe)
-    @Data
-    public static class RoleLoadDTO {
-        private Long id;
-        private String name;
-        // Agrega otros campos según tu entidad RoleLoadEntity
     }
 }

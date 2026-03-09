@@ -70,31 +70,31 @@ public class BalanceMaximizeBelbinRoles extends ObjetiveFunction {
                 PersonTestEntity workerTest = worker.getPersonTest(); //obtener caracteristicas psicologicas
 
                 if (workerTest != null) {
-                    if (workerTest.getI_D() != 'I' && workerTest.getI_D() != 'E' && ID != 1) {
+                    if (workerTest.getIM() != 'I' && workerTest.getIM() != 'E' && ID != 1) {
                         ID = 1;
                     }
-                    if (workerTest.getI_S() != 'I' && workerTest.getI_S() != 'E' && IS != 1) {
+                    if (workerTest.getIS() != 'I' && workerTest.getIS() != 'E' && IS != 1) {
                         IS = 1;
                     }
-                    if (workerTest.getI_F() != 'I' && workerTest.getI_F() != 'E' && IF != 1) {
+                    if (workerTest.getIF() != 'I' && workerTest.getIF() != 'E' && IF != 1) {
                         IF = 1;
                     }
-                    if (workerTest.getC_E() != 'I' && workerTest.getC_E() != 'E' && CE != 1) {
+                    if (workerTest.getCE() != 'I' && workerTest.getCE() != 'E' && CE != 1) {
                         CE = 1;
                     }
-                    if (workerTest.getM_E() != 'I' && workerTest.getM_E() != 'E' && ME != 1) {
+                    if (workerTest.getME() != 'I' && workerTest.getME() != 'E' && ME != 1) {
                         ME = 1;
                     }
-                    if (workerTest.getE_S() != 'I' && workerTest.getE_S() != 'E' && ES != 1) {
+                    if (workerTest.getES() != 'I' && workerTest.getES() != 'E' && ES != 1) {
                         ES = 1;
                     }
-                    if (workerTest.getC_O() != 'I' && workerTest.getC_O() != 'E' && CO != 1) {
+                    if (workerTest.getCO() != 'I' && workerTest.getCO() != 'E' && CO != 1) {
                         CO = 1;
                     }
-                    if (workerTest.getC_H() != 'I' && workerTest.getC_H() != 'E' && CH != 1) {
+                    if (workerTest.getCH() != 'I' && workerTest.getCH() != 'E' && CH != 1) {
                         CH = 1;
                     }
-                    if (workerTest.getI_R() != 'I' && workerTest.getI_R() != 'E' && IR != 1) {
+                    if (workerTest.getIR() != 'I' && workerTest.getIR() != 'E' && IR != 1) {
                         IR = 1;
                     }
 

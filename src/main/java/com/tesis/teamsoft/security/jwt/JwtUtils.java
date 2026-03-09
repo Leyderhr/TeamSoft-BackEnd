@@ -7,10 +7,12 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
@@ -30,6 +32,9 @@ public class JwtUtils {
     @Value("${security.jwt.expiration-ms:1800000}")
     private long expirationMs;
 
+    @Autowired
+    private UserDetailsService userDetailsService;
+
     // Generar token a partir de Authentication
     public String createToken(Authentication authentication) {
         if (this.privateKey == null || this.privateKey.length() < 32) {
@@ -44,6 +49,32 @@ public class JwtUtils {
                 : principal.toString();
 
         String authorities = authentication.getAuthorities()
+                .stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.joining(","));
+
+        return JWT.create()
+                .withIssuer(this.userGenerator)
+                .withSubject(username)
+                .withClaim("authorities", authorities)
+                .withIssuedAt(new Date())
+                .withExpiresAt(new Date(System.currentTimeMillis() + expirationMs))
+                .withJWTId(UUID.randomUUID().toString())
+                .withNotBefore(new Date(System.currentTimeMillis()))
+                .sign(algorithm);
+    }
+
+    // Generar token a partir de username (usado en refresh)
+    public String createToken(String username) {
+        if (this.privateKey == null || this.privateKey.length() < 32) {
+            log.warn("JWT secret key is not configured or too short");
+        }
+
+        Algorithm algorithm = Algorithm.HMAC256(this.privateKey);
+
+        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+        
+        String authorities = userDetails.getAuthorities()
                 .stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(","));

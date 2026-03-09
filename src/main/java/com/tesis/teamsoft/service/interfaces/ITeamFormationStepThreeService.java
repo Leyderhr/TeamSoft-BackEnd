@@ -2,7 +2,6 @@ package com.tesis.teamsoft.service.interfaces;
 
 import com.tesis.teamsoft.pojos.TeamFormationParameters;
 import com.tesis.teamsoft.presentation.dto.TeamProposalDTO;
-import com.tesis.teamsoft.presentation.dto.TreeNode;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.bind.annotation.RequestBody;
 

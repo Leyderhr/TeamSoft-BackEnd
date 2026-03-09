@@ -2,7 +2,7 @@ package com.tesis.teamsoft.service.implementation;
 
 import com.tesis.teamsoft.persistence.entity.NacionalityEntity;
 import com.tesis.teamsoft.persistence.repository.INacionalityRepository;
-import com.tesis.teamsoft.presentation.dto.NacionalityDTO;
+import com.tesis.teamsoft.presentation.dto.NationalityDTO;
 import com.tesis.teamsoft.service.interfaces.INacionalityService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,17 +20,17 @@ public class NacionalityServiceImpl implements INacionalityService {
     private final ModelMapper modelMapper = new ModelMapper();
 
     @Override
-    public NacionalityDTO.NacionalityResponseDTO saveNacionality(NacionalityDTO.NacionalityCreateDTO nacionalityDTO) {
+    public NationalityDTO.NacionalityResponseDTO saveNacionality(NationalityDTO.NacionalityCreateDTO nacionalityDTO) {
         try {
             NacionalityEntity savedNacionality = modelMapper.map(nacionalityDTO, NacionalityEntity.class);
-            return modelMapper.map(nacionalityRepository.save(savedNacionality), NacionalityDTO.NacionalityResponseDTO.class);
+            return modelMapper.map(nacionalityRepository.save(savedNacionality), NationalityDTO.NacionalityResponseDTO.class);
         } catch (Exception e) {
             throw new RuntimeException("Error saving nationality: " + e.getMessage());
         }
     }
 
     @Override
-    public NacionalityDTO.NacionalityResponseDTO updateNacionality(NacionalityDTO.NacionalityCreateDTO nacionalityDTO, Long id) {
+    public NationalityDTO.NacionalityResponseDTO updateNacionality(NationalityDTO.NacionalityCreateDTO nacionalityDTO, Long id) {
 
         if (!nacionalityRepository.existsById(id)) {
             throw new RuntimeException("Nationality not found with ID: " + id);
@@ -39,7 +39,7 @@ public class NacionalityServiceImpl implements INacionalityService {
         try {
             NacionalityEntity updatedNacionality = modelMapper.map(nacionalityDTO, NacionalityEntity.class);
             updatedNacionality.setId(id);
-            return modelMapper.map(nacionalityRepository.save(updatedNacionality), NacionalityDTO.NacionalityResponseDTO.class);
+            return modelMapper.map(nacionalityRepository.save(updatedNacionality), NationalityDTO.NacionalityResponseDTO.class);
         } catch (Exception e) {
             throw new IllegalArgumentException("Error updating nationality: " + e.getMessage());
         }
@@ -60,11 +60,11 @@ public class NacionalityServiceImpl implements INacionalityService {
     }
 
     @Override
-    public List<NacionalityDTO.NacionalityResponseDTO> findAllNacionality() {
+    public List<NationalityDTO.NacionalityResponseDTO> findAllNacionality() {
         try {
             return nacionalityRepository.findAll()
                     .stream()
-                    .map(entity -> modelMapper.map(entity, NacionalityDTO.NacionalityResponseDTO.class))
+                    .map(entity -> modelMapper.map(entity, NationalityDTO.NacionalityResponseDTO.class))
                     .collect(Collectors.toList());
         } catch (Exception e) {
             throw new RuntimeException("Error finding all nationalities: " + e.getMessage());
@@ -72,11 +72,11 @@ public class NacionalityServiceImpl implements INacionalityService {
     }
 
     @Override
-    public List<NacionalityDTO.NacionalityResponseDTO> findAllByOrderByIdAsc() {
+    public List<NationalityDTO.NacionalityResponseDTO> findAllByOrderByIdAsc() {
         try {
             return nacionalityRepository.findAllByOrderByIdAsc()
                     .stream()
-                    .map(entity -> modelMapper.map(entity, NacionalityDTO.NacionalityResponseDTO.class))
+                    .map(entity -> modelMapper.map(entity, NationalityDTO.NacionalityResponseDTO.class))
                     .collect(Collectors.toList());
         } catch (Exception e) {
             throw new RuntimeException("Error finding all nationalities ordered by ID: " + e.getMessage());
@@ -84,10 +84,10 @@ public class NacionalityServiceImpl implements INacionalityService {
     }
 
     @Override
-    public NacionalityDTO.NacionalityResponseDTO findNacionalityById(Long id) {
+    public NationalityDTO.NacionalityResponseDTO findNacionalityById(Long id) {
         NacionalityEntity nacionality = nacionalityRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Nationality not found with ID: " + id));
 
-        return modelMapper.map(nacionality, NacionalityDTO.NacionalityResponseDTO.class);
+        return modelMapper.map(nacionality, NationalityDTO.NacionalityResponseDTO.class);
     }
 }

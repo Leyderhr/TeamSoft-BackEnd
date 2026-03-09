@@ -2,9 +2,12 @@ package com.tesis.teamsoft.presentation.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
+import lombok.AccessLevel;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class CountyDTO {
 
     @Data
@@ -14,7 +17,7 @@ public class CountyDTO {
         private String countyName;
 
         @NotBlank(message = "Code is required")
-        @Pattern(regexp = "^[0-9]+$", message = "Phone can only contain digits, spaces, plus and hyphen")
+        @Pattern(regexp = "^\\d{8,}$", message = "Code must contain at least 8 digits")
         private String code;
     }
 

@@ -1,11 +1,13 @@
 package com.tesis.teamsoft.persistence.entity;
 
+import com.tesis.teamsoft.persistence.entity.auxiliar.Status;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Check;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -16,6 +18,7 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "assigned_role")
+@Check(constraints = "end_date IS NULL OR end_date > begin_date")
 public class AssignedRoleEntity implements Serializable {
 
     @Id
@@ -23,9 +26,9 @@ public class AssignedRoleEntity implements Serializable {
     @SequenceGenerator(name = "assignedRoleSeq", sequenceName = "hibernate_sequence", allocationSize = 1)
     private Long id;
 
-    @NotBlank(message = "Status is required")
-    @Column(nullable = false, length = 255)
-    private String status;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 1024)
+    private Status status;
 
     @NotBlank(message = "Observation is required")
     @Column(nullable = false)

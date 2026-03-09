@@ -31,3 +31,13 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Environment Variables ###
+.env
+.env.local
+.env.*.local
+
+### Application Properties with Sensitive Data ###
+src/main/resources/application.yml
+application-local.yml
+application-secrets.yml

@@ -50,7 +50,7 @@ public class IsISCO extends Constrain {
         PersonTestEntity workerTest = (PersonTestEntity) worker.getPersonTest();
 
         if (workerTest != null) { //si se registraron sus caracteristicas psicologicas
-            if ((workerTest.getC_O() == 'I' || workerTest.getC_O() == 'E') && (workerTest.getI_S() == 'I' || workerTest.getI_S() == 'E')) {
+            if ((workerTest.getCO() == 'I' || workerTest.getCO() == 'E') && (workerTest.getIS() == 'I' || workerTest.getIS() == 'E')) {
                 meet = false;
             }
         } else {  //si no se cuenta con los datos psicologicos de la persona

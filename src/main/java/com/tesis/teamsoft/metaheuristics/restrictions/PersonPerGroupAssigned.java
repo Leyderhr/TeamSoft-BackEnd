@@ -1,5 +1,6 @@
 package com.tesis.teamsoft.metaheuristics.restrictions;
 
+import com.tesis.teamsoft.config.AlgorithmConfig;
 import com.tesis.teamsoft.persistence.entity.PersonEntity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -121,7 +122,7 @@ public class PersonPerGroupAssigned extends Constrain {
         ProjectRole projectRole = (ProjectRole) state.getCode().get(posProy);
         List<RoleWorker> roleWorkers = projectRole.getRoleWorkers();
         List<PersonEntity> projectWorkers = personasProyecto(projectRole);
-        int cantIntentos = 50;//Integer.parseInt(ResourceBundle.getBundle("/algorithmConf").getString("cantIntentos"));
+        int cantIntentos = AlgorithmConfig.getInt("cantIntentos", 50);
         if (cantIntentos < cant)
             cantIntentos = cant;
         int j = 0, c = 0;

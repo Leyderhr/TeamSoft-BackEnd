@@ -1,6 +1,5 @@
 package com.tesis.teamsoft.presentation.dto;
 
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 

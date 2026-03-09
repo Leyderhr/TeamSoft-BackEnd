@@ -26,52 +26,52 @@ public class PersonTestEntity implements Serializable {
     @NotNull
     @Column(name = "e_s", nullable = false)
     @Check(constraints = "e_s IN ('P', 'E', 'I')")
-    private Character e_S;
+    private Character eS;
 
     @NotNull
-    @Column(name = "i_d", nullable = false)
+    @Column(name = "i_m", nullable = false)
     @Check(constraints = "i_d IN ('P', 'E', 'I')")
-    private Character i_D;
+    private Character iM;
 
     @NotNull
     @Column(name = "c_o", nullable = false)
     @Check(constraints = "c_o IN ('P', 'E', 'I')")
-    private Character c_O;
+    private Character cO;
 
     @NotNull
     @Column(name = "i_s", nullable = false)
     @Check(constraints = "i_s IN ('P', 'E', 'I')")
-    private Character i_S;
+    private Character iS;
 
     @NotNull
     @Column(name = "c_e", nullable = false)
     @Check(constraints = "c_e IN ('P', 'E', 'I')")
-    private Character c_E;
+    private Character cE;
 
     @NotNull
     @Column(name = "i_r", nullable = false)
     @Check(constraints = "i_r IN ('P', 'E', 'I')")
-    private Character i_R;
+    private Character iR;
 
     @NotNull
     @Column(name = "m_e", nullable = false)
     @Check(constraints = "m_e IN ('P', 'E', 'I')")
-    private Character m_E;
+    private Character mE;
 
     @NotNull
     @Column(name = "c_h", nullable = false)
     @Check(constraints = "c_h IN ('P', 'E', 'I')")
-    private Character c_H;
+    private Character cH;
 
     @NotNull
     @Column(name = "i_f", nullable = false)
     @Check(constraints = "i_f IN ('P', 'E', 'I')")
-    private Character i_F;
+    private Character iF;
 
     @NotNull(message = "MBTI result is required")
-    @Column(name = "tipo_m_b", nullable = false)
+    @Column(name = "mbti_type;", nullable = false)
     @Check(constraints = "tipo_m_b IN ('INTJ', 'INTP', 'ISTJ', 'ISTP', 'INFJ', 'INFP', 'ISFJ', 'ISFP', 'ENTJ', 'ENTP', 'ESTJ', 'ESTP', 'ENFJ', 'ENFP', 'ESFJ', 'ESFP')")
-    private String tipoMB;
+    private String mbtiType;
 
     @NotNull(message = "Person is required")
     @OneToOne(optional = false, cascade = CascadeType.ALL)

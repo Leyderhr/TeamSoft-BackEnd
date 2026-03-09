@@ -3,7 +3,7 @@ package com.tesis.teamsoft.presentation.dto;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
-public class PersonalInterestDTP {
+public class PersonalInterestDTO {
 
     @Data
     public static class PersonalInterestCreateDTO {

@@ -1,6 +1,6 @@
 package com.tesis.teamsoft.service.interfaces;
 
-import com.tesis.teamsoft.presentation.dto.NacionalityDTO;
+import com.tesis.teamsoft.presentation.dto.NationalityDTO;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -8,15 +8,15 @@ import java.util.List;
 @Repository
 public interface INacionalityService {
 
-    NacionalityDTO.NacionalityResponseDTO saveNacionality(NacionalityDTO.NacionalityCreateDTO nacionalityDTO);
+    NationalityDTO.NacionalityResponseDTO saveNacionality(NationalityDTO.NacionalityCreateDTO nacionalityDTO);
 
-    NacionalityDTO.NacionalityResponseDTO updateNacionality(NacionalityDTO.NacionalityCreateDTO nacionalityDTO, Long id);
+    NationalityDTO.NacionalityResponseDTO updateNacionality(NationalityDTO.NacionalityCreateDTO nacionalityDTO, Long id);
 
     String deleteNacionality(Long id);
 
-    List<NacionalityDTO.NacionalityResponseDTO> findAllNacionality();
+    List<NationalityDTO.NacionalityResponseDTO> findAllNacionality();
 
-    List<NacionalityDTO.NacionalityResponseDTO> findAllByOrderByIdAsc();
+    List<NationalityDTO.NacionalityResponseDTO> findAllByOrderByIdAsc();
 
-    NacionalityDTO.NacionalityResponseDTO findNacionalityById(Long id);
+    NationalityDTO.NacionalityResponseDTO findNacionalityById(Long id);
 }

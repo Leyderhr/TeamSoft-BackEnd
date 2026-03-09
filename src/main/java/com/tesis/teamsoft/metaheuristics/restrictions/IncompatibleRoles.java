@@ -1,5 +1,6 @@
 package com.tesis.teamsoft.metaheuristics.restrictions;
 
+import com.tesis.teamsoft.config.AlgorithmConfig;
 import com.tesis.teamsoft.persistence.entity.PersonEntity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -16,7 +17,6 @@ import problem.definition.State;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.ResourceBundle;
 
 /**
  * Verificar que no juegue roles incompatibles dentro de un mismo proyecto
@@ -96,7 +96,7 @@ public class IncompatibleRoles extends Constrain {
         List<Long> personRolA = new ArrayList<>();
         List<Long> personRolB = new ArrayList<>();
         Random generator = new Random();
-        int cantIntentos = 50;//Integer.parseInt(ResourceBundle.getBundle("/algorithmConf").getString("cantIntentos"));
+        int cantIntentos = AlgorithmConfig.getInt("cantIntentos", 50);
         boolean meet;
 
         TeamFormationCodification codification = (TeamFormationCodification) Strategy.getStrategy().getProblem().getCodification();

@@ -1,6 +1,6 @@
 package com.tesis.teamsoft.presentation.controller;
 
-import com.tesis.teamsoft.presentation.dto.NacionalityDTO;
+import com.tesis.teamsoft.presentation.dto.NationalityDTO;
 import com.tesis.teamsoft.service.implementation.NacionalityServiceImpl;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -24,7 +24,7 @@ public class NacionalityController {
 
     @PostMapping()
     @PreAuthorize("hasRole('GESTOR_RRHH')")
-    public ResponseEntity<?> createNacionality(@Valid @RequestBody NacionalityDTO.NacionalityCreateDTO nacionalityDTO, BindingResult bindingResult) {
+    public ResponseEntity<?> createNacionality(@Valid @RequestBody NationalityDTO.NacionalityCreateDTO nacionalityDTO, BindingResult bindingResult) {
 
         if (bindingResult.hasErrors()) {
             Map<String, String> errors = new HashMap<>();
@@ -44,7 +44,7 @@ public class NacionalityController {
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('GESTOR_RRHH')")
-    public ResponseEntity<?> updateNacionality(@Valid @RequestBody NacionalityDTO.NacionalityCreateDTO nacionalityDTO,
+    public ResponseEntity<?> updateNacionality(@Valid @RequestBody NationalityDTO.NacionalityCreateDTO nacionalityDTO,
                                                BindingResult bindingResult,
                                                @PathVariable Long id) {
 

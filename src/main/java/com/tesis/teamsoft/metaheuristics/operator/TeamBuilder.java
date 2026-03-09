@@ -1,6 +1,7 @@
 package com.tesis.teamsoft.metaheuristics.operator;
 
 import com.tesis.teamsoft.persistence.entity.*;
+import com.tesis.teamsoft.persistence.entity.auxiliar.Status;
 import com.tesis.teamsoft.pojos.TeamFormationParameters;
 import com.tesis.teamsoft.pojos.FixedWorker;
 import com.tesis.teamsoft.metaheuristics.util.ProjectRole;
@@ -61,7 +62,7 @@ public class TeamBuilder {
 
                         List<AssignedRoleEntity> as = lastCycle.getAssignedRoleList(); //obtener lista de roles que ya fueron asignados al ciclo actual
                         for (AssignedRoleEntity ar : as) { //para cada rol asignado al ciclo actual
-                            if (ar.getStatus().equalsIgnoreCase("ACTIVE")) { //si se encuentra activo el proyecto
+                            if (ar.getStatus().equals(Status.ACTIVE)) { //si se encuentra activo el proyecto
                                 roleWorker.getFixedWorkers().add(ar.getPerson()); //agregar la persona a la lista
                                 roleWorker.setNeededWorkers(roleWorker.getNeededWorkers() - 1);//decrementar las personas requeridas
                             }

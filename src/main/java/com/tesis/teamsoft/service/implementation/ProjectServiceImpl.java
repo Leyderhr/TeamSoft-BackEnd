@@ -185,8 +185,7 @@ public class ProjectServiceImpl implements IProjectService {
     private boolean isCycleWithDependencies(List<CycleEntity> cycles) {
         for (CycleEntity cycle : cycles) {
             if((cycle.getAssignedRoleList() != null && !cycle.getAssignedRoleList().isEmpty()) ||
-                    (cycle.getRoleEvaluationList() != null && !cycle.getRoleEvaluationList().isEmpty()) ||
-                    (cycle.getRoleEvalProjectList() != null && !cycle.getRoleEvalProjectList().isEmpty()))
+                    (cycle.getRoleEvaluationList() != null && !cycle.getRoleEvaluationList().isEmpty()))
                 return true;
         }
         return false;

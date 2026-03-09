@@ -1,11 +1,13 @@
 package com.tesis.teamsoft.presentation.dto;
 
-import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
+import lombok.AccessLevel;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ClientDTO {
 
     @Data
@@ -18,15 +20,8 @@ public class ClientDTO {
         private String address;
 
         @NotBlank(message = "Phone is required")
-        @Pattern(regexp = "^[0-9]+$", message = "Phone can only contain digits, spaces, plus and hyphen")
+        @Pattern(regexp = "^\\d{8,}$", message = "Phone must contain at least 8 digits")
         private String phone;
-
-        @AssertTrue(message = "Phone must contain at least 8 numeric digits")
-        public boolean isPhoneValid() {
-            if (phone == null) return false;
-            String digitsOnly = phone.replaceAll("[^0-9]", "");
-            return digitsOnly.length() >= 8;
-        }
     }
 
     @Data

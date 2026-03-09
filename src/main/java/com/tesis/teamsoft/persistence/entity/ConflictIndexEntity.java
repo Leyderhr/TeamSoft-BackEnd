@@ -2,7 +2,6 @@ package com.tesis.teamsoft.persistence.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -29,7 +28,7 @@ public class ConflictIndexEntity implements Serializable {
     private String description;
 
     @NotNull(message = "Weight is required")
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "bigint check (weight >= 0)")
     private long weight;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "index")

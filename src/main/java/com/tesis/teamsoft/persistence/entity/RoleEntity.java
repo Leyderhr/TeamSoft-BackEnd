@@ -32,7 +32,7 @@ public class RoleEntity implements Serializable {
     private String roleDesc;
 
     @NotNull(message = "Impact is required")
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "float check (impact >= 0)")
     private float impact;
 
     @NotNull(message = "Is boss flag is required")

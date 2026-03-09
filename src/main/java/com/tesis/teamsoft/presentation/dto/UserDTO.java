@@ -1,11 +1,14 @@
 package com.tesis.teamsoft.presentation.dto;
 
 import jakarta.validation.constraints.*;
+import lombok.AccessLevel;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Set;
 
 @Data
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class UserDTO {
 
     @Data
@@ -43,12 +46,6 @@ public class UserDTO {
         private String mail;
         private String username;
         private boolean enabled;
-        private Set<RoleResponseDTO> roles;
-    }
-
-    @Data
-    public static class RoleResponseDTO {
-        private Long id;
-        private String roleName;
+        private Set<UserRoleDTO.UserRoleResponseDTO> roles;
     }
 }
