@@ -4,7 +4,7 @@ import com.tesis.teamsoft.presentation.dto.NationalityDTO;
 import com.tesis.teamsoft.service.implementation.NacionalityServiceImpl;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -15,12 +15,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
+@RequiredArgsConstructor
 @Tag(name = "Nacionality")
 @RequestMapping("/nacionality")
 public class NacionalityController {
 
-    @Autowired
-    private NacionalityServiceImpl nacionalityService;
+    private final NacionalityServiceImpl nacionalityService;
 
     @PostMapping()
     @PreAuthorize("hasRole('GESTOR_RRHH')")

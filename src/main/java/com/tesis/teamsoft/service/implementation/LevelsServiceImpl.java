@@ -4,20 +4,19 @@ import com.tesis.teamsoft.persistence.entity.LevelsEntity;
 import com.tesis.teamsoft.persistence.repository.ILevelsRepository;
 import com.tesis.teamsoft.presentation.dto.LevelsDTO;
 import com.tesis.teamsoft.service.interfaces.ILevelsService;
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class LevelsServiceImpl implements ILevelsService {
 
-    @Autowired
-    private ILevelsRepository levelsRepository;
-
-    private final ModelMapper modelMapper = new ModelMapper();
+    private final ILevelsRepository levelsRepository;
+    private final ModelMapper modelMapper;
 
     @Override
     public LevelsDTO.LevelsResponseDTO saveLevels(LevelsDTO.LevelsCreateDTO levelsDTO) {

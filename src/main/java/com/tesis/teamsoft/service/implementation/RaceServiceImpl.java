@@ -4,20 +4,20 @@ import com.tesis.teamsoft.persistence.entity.RaceEntity;
 import com.tesis.teamsoft.persistence.repository.IRaceRepository;
 import com.tesis.teamsoft.presentation.dto.RaceDTO;
 import com.tesis.teamsoft.service.interfaces.IRaceService;
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class RaceServiceImpl implements IRaceService {
 
-    @Autowired
-    private IRaceRepository raceRepository;
+    private final IRaceRepository raceRepository;
+    private final ModelMapper modelMapper;
 
-    private final ModelMapper modelMapper = new ModelMapper();
 
     @Override
     public RaceDTO.RaceResponseDTO saveRace(RaceDTO.RaceCreateDTO raceDTO) {

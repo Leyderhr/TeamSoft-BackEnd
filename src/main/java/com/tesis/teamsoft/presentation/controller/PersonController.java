@@ -4,7 +4,7 @@ import com.tesis.teamsoft.presentation.dto.PersonDTO;
 import com.tesis.teamsoft.service.implementation.PersonServiceImpl;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -15,15 +15,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
+@RequiredArgsConstructor
 @Tag(name = "Person")
 @RequestMapping("/person")
 public class PersonController {
 
-    @Autowired
-    private PersonServiceImpl personService;
+    private final PersonServiceImpl personService;
 
     @PostMapping()
-
+    @PreAuthorize("hasRole('GESTOR_RRHH')")
     public ResponseEntity<?> createPerson(@Valid @RequestBody PersonDTO.PersonCreateDTO personDTO, BindingResult bindingResult) {
 
         if (bindingResult.hasErrors()) {
@@ -55,7 +55,7 @@ public class PersonController {
     }
 
     @PutMapping("/{id}")
-
+    @PreAuthorize("hasRole('GESTOR_RRHH')")
     public ResponseEntity<?> updatePerson(@Valid @RequestBody PersonDTO.PersonCreateDTO personDTO,
                                           BindingResult bindingResult,
                                           @PathVariable Long id) {
@@ -84,7 +84,7 @@ public class PersonController {
     }
 
     @DeleteMapping("/{id}")
-
+    @PreAuthorize("hasRole('GESTOR_RRHH')")
     public ResponseEntity<?> deletePerson(@PathVariable Long id) {
         try {
             return new ResponseEntity<>(personService.deletePerson(id), HttpStatus.OK);
@@ -104,7 +104,7 @@ public class PersonController {
     }
 
     @GetMapping()
-
+    @PreAuthorize("hasRole('GESTOR_RRHH')")
     public ResponseEntity<?> findAllPerson() {
         try {
             return new ResponseEntity<>(personService.findAllByOrderByIdAsc(), HttpStatus.OK);
@@ -116,7 +116,7 @@ public class PersonController {
     }
 
     @GetMapping("/{id}")
-
+    @PreAuthorize("hasRole('GESTOR_RRHH')")
     public ResponseEntity<?> findPersonById(@PathVariable Long id) {
         try {
             return new ResponseEntity<>(personService.findPersonById(id), HttpStatus.OK);

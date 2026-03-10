@@ -8,8 +8,8 @@ import com.tesis.teamsoft.presentation.dto.RoleDTO;
 import com.tesis.teamsoft.presentation.dto.RoleLoadDTO;
 import com.tesis.teamsoft.service.interfaces.IProjectStructureService;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,16 +18,14 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class ProjectStructureServiceImpl implements IProjectStructureService {
 
-    @Autowired
-    private IProjectStructureRepository projectStructureRepository;
-    @Autowired
-    private IRoleRepository roleRepository;
-    @Autowired
-    private IRoleLoadRepository roleLoadRepository;
+    private final IProjectStructureRepository projectStructureRepository;
+    private final IRoleRepository roleRepository;
+    private final IRoleLoadRepository roleLoadRepository;
+    private final ModelMapper modelMapper;
 
-    private final ModelMapper modelMapper = new ModelMapper();
 
     @Override
     @Transactional

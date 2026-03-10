@@ -4,20 +4,20 @@ import com.tesis.teamsoft.persistence.entity.ClientEntity;
 import com.tesis.teamsoft.persistence.repository.IClientRepository;
 import com.tesis.teamsoft.presentation.dto.ClientDTO;
 import com.tesis.teamsoft.service.interfaces.IClientService;
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class ClientServiceImpl implements IClientService {
 
-    @Autowired
-    private IClientRepository clientRepository;
+    private final IClientRepository clientRepository;
+    private final ModelMapper modelMapper;
 
-    private final ModelMapper modelMapper = new ModelMapper();
 
     @Override
     public ClientDTO.ClientResponseDTO saveClient(ClientDTO.ClientCreateDTO clientDTO) {

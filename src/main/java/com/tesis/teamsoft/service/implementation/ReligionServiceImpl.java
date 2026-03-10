@@ -4,20 +4,20 @@ import com.tesis.teamsoft.persistence.entity.ReligionEntity;
 import com.tesis.teamsoft.persistence.repository.IReligionRepository;
 import com.tesis.teamsoft.presentation.dto.ReligionDTO;
 import com.tesis.teamsoft.service.interfaces.IReligionService;
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class ReligionServiceImpl implements IReligionService {
 
-    @Autowired
-    IReligionRepository religionRepository;
+    private final IReligionRepository religionRepository;
+    private final ModelMapper modelMapper;
 
-    ModelMapper modelMapper = new ModelMapper();
 
     @Override
     public ReligionDTO.ReligionResponseDTO saveReligion(ReligionDTO.ReligionCreateDTO religionDTO) {

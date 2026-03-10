@@ -4,20 +4,21 @@ import com.tesis.teamsoft.persistence.entity.AgeGroupEntity;
 import com.tesis.teamsoft.persistence.repository.IAgeGroupRepository;
 import com.tesis.teamsoft.presentation.dto.AgeGroupDTO;
 import com.tesis.teamsoft.service.interfaces.IAgeGroupService;
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class AgeGroupServiceImpl implements IAgeGroupService {
 
-    @Autowired
-    private IAgeGroupRepository ageGroupRepository;
 
-    private final ModelMapper modelMapper = new ModelMapper();
+    private final IAgeGroupRepository ageGroupRepository;
+    private final ModelMapper modelMapper;
+
 
     @Override
     public AgeGroupDTO.AgeGroupResponseDTO saveAgeGroup(AgeGroupDTO.AgeGroupCreateDTO ageGroupDTO){

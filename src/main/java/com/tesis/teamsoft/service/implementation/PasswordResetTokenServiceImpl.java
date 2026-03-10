@@ -28,6 +28,7 @@ public class PasswordResetTokenServiceImpl {
     private final IUserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
+
     @Transactional
     public String createPasswordResetToken(UserEntity user) {
         // Invalidar tokens previos no usados

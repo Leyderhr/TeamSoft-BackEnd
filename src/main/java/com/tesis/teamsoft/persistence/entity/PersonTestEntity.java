@@ -30,7 +30,7 @@ public class PersonTestEntity implements Serializable {
 
     @NotNull
     @Column(name = "i_m", nullable = false)
-    @Check(constraints = "i_d IN ('P', 'E', 'I')")
+    @Check(constraints = "i_m IN ('P', 'E', 'I')")
     private Character iM;
 
     @NotNull
@@ -69,8 +69,8 @@ public class PersonTestEntity implements Serializable {
     private Character iF;
 
     @NotNull(message = "MBTI result is required")
-    @Column(name = "mbti_type;", nullable = false)
-    @Check(constraints = "tipo_m_b IN ('INTJ', 'INTP', 'ISTJ', 'ISTP', 'INFJ', 'INFP', 'ISFJ', 'ISFP', 'ENTJ', 'ENTP', 'ESTJ', 'ESTP', 'ENFJ', 'ENFP', 'ESFJ', 'ESFP')")
+    @Column(name = "mbti_type", nullable = false)
+    @Check(constraints = "mbti_type IN ('INTJ', 'INTP', 'ISTJ', 'ISTP', 'INFJ', 'INFP', 'ISFJ', 'ISFP', 'ENTJ', 'ENTP', 'ESTJ', 'ESTP', 'ENFJ', 'ENFP', 'ESFJ', 'ESFP')")
     private String mbtiType;
 
     @NotNull(message = "Person is required")

@@ -4,7 +4,7 @@ import com.tesis.teamsoft.presentation.dto.RoleEvaluationDTO;
 import com.tesis.teamsoft.service.implementation.RoleEvaluationServiceImpl;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -15,12 +15,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
+@RequiredArgsConstructor
 @Tag(name = "RoleEvaluation")
 @RequestMapping("/roleEvaluation")
 public class RoleEvaluationController {
 
-    @Autowired
-    private RoleEvaluationServiceImpl roleEvaluationService;
+    private final RoleEvaluationServiceImpl roleEvaluationService;
 
     @PostMapping()
     @PreAuthorize("hasRole('GESTOR_RRHH')")

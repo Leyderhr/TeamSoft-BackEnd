@@ -10,9 +10,8 @@ import com.tesis.teamsoft.presentation.dto.CompetenceDTO;
 import com.tesis.teamsoft.presentation.dto.CompetenceDimensionDTO;
 import com.tesis.teamsoft.presentation.dto.LevelsDTO;
 import com.tesis.teamsoft.service.interfaces.ICompetenceService;
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionSystemException;
 
@@ -21,18 +20,14 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class CompetenceServiceImpl implements ICompetenceService {
 
-    @Autowired
-    private ICompetenceRepository competenceRepository;
+    private final ICompetenceRepository competenceRepository;
+    private final ILevelsRepository levelsRepository;
+    private final ICompetenceDimensionRepository competenceDimensionRepository;
+    private final ModelMapper modelMapper;
 
-    @Autowired
-    private ILevelsRepository levelsRepository;
-
-    @Autowired
-    private ICompetenceDimensionRepository competenceDimensionRepository;
-
-    private final ModelMapper modelMapper = new ModelMapper();
 
     @Override
     public CompetenceDTO.CompetenceResponseDTO saveCompetence(CompetenceDTO.CompetenceCreateDTO competenceDTO){

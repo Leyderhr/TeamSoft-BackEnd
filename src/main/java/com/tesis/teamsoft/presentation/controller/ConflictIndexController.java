@@ -4,7 +4,7 @@ import com.tesis.teamsoft.presentation.dto.ConflictIndexDTO;
 import com.tesis.teamsoft.service.implementation.ConflictIndexServiceImpl;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -15,12 +15,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
+@RequiredArgsConstructor
 @Tag(name = "ConflictIndex")
 @RequestMapping("/conflictIndex")
 public class ConflictIndexController {
 
-    @Autowired
-    private ConflictIndexServiceImpl conflictIndexService;
+    private final ConflictIndexServiceImpl conflictIndexService;
 
     @PostMapping()
     @PreAuthorize("hasRole('GESTOR_RRHH')")

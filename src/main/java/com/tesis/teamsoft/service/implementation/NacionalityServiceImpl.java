@@ -4,20 +4,19 @@ import com.tesis.teamsoft.persistence.entity.NacionalityEntity;
 import com.tesis.teamsoft.persistence.repository.INacionalityRepository;
 import com.tesis.teamsoft.presentation.dto.NationalityDTO;
 import com.tesis.teamsoft.service.interfaces.INacionalityService;
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class NacionalityServiceImpl implements INacionalityService {
 
-    @Autowired
-    private INacionalityRepository nacionalityRepository;
-
-    private final ModelMapper modelMapper = new ModelMapper();
+    private final INacionalityRepository nacionalityRepository;
+    private final ModelMapper modelMapper;
 
     @Override
     public NationalityDTO.NacionalityResponseDTO saveNacionality(NationalityDTO.NacionalityCreateDTO nacionalityDTO) {

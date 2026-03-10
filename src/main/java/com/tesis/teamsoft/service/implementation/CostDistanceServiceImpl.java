@@ -7,23 +7,20 @@ import com.tesis.teamsoft.persistence.repository.ICountyRepository;
 import com.tesis.teamsoft.presentation.dto.CostDistanceDTO;
 import com.tesis.teamsoft.presentation.dto.CountyDTO;
 import com.tesis.teamsoft.service.interfaces.ICostDistanceService;
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class CostDistanceServiceImpl implements ICostDistanceService {
 
-    @Autowired
-    private ICostDistanceRepository costDistanceRepository;
-
-    @Autowired
-    private ICountyRepository countyRepository;
-
-    private ModelMapper modelMapper = new ModelMapper();
+    private final ICostDistanceRepository costDistanceRepository;
+    private final ICountyRepository countyRepository;
+    private final ModelMapper modelMapper;
 
     @Override
     public CostDistanceDTO.CostDistanceResponseDTO saveCostDistance(CostDistanceDTO.CostDistanceCreateDTO costDistanceDTO) {

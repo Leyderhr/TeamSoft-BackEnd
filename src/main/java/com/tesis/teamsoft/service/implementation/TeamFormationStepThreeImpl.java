@@ -11,6 +11,7 @@ import evolutionary_algorithms.complement.SelectionType;
 import local_search.complement.StopExecute;
 import local_search.complement.TabuSolutions;
 import local_search.complement.UpdateParameter;
+import lombok.RequiredArgsConstructor;
 import metaheurictics.strategy.Strategy;
 import metaheuristics.generators.*;
 import com.tesis.teamsoft.pojos.*;
@@ -20,7 +21,6 @@ import com.tesis.teamsoft.metaheuristics.operator.TeamFormationOperator;
 import com.tesis.teamsoft.metaheuristics.restrictions.*;
 import com.tesis.teamsoft.metaheuristics.util.*;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import problem.definition.ObjetiveFunction;
 import problem.definition.Problem;
@@ -37,33 +37,18 @@ import java.util.stream.Collectors;
 import com.tesis.teamsoft.config.AlgorithmConfig;
 
 @Service
+@RequiredArgsConstructor
 public class TeamFormationStepThreeImpl implements ITeamFormationStepThreeService {
 
-    private final ModelMapper modelMapper = new ModelMapper();
-
-    @Autowired
-    private IPersonRepository personRepository;
-
-    @Autowired
-    private ILevelsRepository lvlRepository;
-
-    @Autowired
-    private ICostDistanceRepository costDistanceRepository;
-
-    @Autowired
-    private IConflictIndexRepository conflictIndexRepository;
-
-    @Autowired
-    private IProjectRepository projectRepository;
-
-    @Autowired
-    private IPersonGroupRepository iPersonGroupRepository;
-
-    @Autowired
-    private IRoleRepository roleRepository;
-
-    @Autowired
-    private IAssignedRoleRepository assignedRoleRepository;
+    private final ModelMapper modelMapper;
+    private final IPersonRepository personRepository;
+    private final ILevelsRepository lvlRepository;
+    private final ICostDistanceRepository costDistanceRepository;
+    private final IConflictIndexRepository conflictIndexRepository;
+    private final IProjectRepository projectRepository;
+    private final IPersonGroupRepository iPersonGroupRepository;
+    private final IRoleRepository roleRepository;
+    private final IAssignedRoleRepository assignedRoleRepository;
 
 
     public List<TeamProposalDTO>  getTeam(TeamFormationParameters parameters, List<Long> projectsIDs, List<Long> groupIDs) throws Exception {

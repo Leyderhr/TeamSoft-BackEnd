@@ -4,20 +4,19 @@ import com.tesis.teamsoft.persistence.entity.CountyEntity;
 import com.tesis.teamsoft.persistence.repository.ICountyRepository;
 import com.tesis.teamsoft.presentation.dto.CountyDTO;
 import com.tesis.teamsoft.service.interfaces.ICountyService;
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class CountyServiceImpl implements ICountyService {
 
-    @Autowired
-    private ICountyRepository countyRepository;
-
-    private final ModelMapper modelMapper = new ModelMapper();
+    private final ICountyRepository countyRepository;
+    private final ModelMapper modelMapper;
 
     @Override
     public CountyDTO.CountyResponseDTO saveCounty(CountyDTO.CountyCreateDTO countyDTO) {

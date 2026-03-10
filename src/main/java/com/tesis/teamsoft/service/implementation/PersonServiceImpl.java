@@ -5,8 +5,8 @@ import com.tesis.teamsoft.persistence.entity.auxiliar.Status;
 import com.tesis.teamsoft.persistence.repository.*;
 import com.tesis.teamsoft.presentation.dto.*;
 import com.tesis.teamsoft.service.interfaces.IPersonService;
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,29 +16,29 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class PersonServiceImpl implements IPersonService {
 
-    @Autowired private IPersonRepository personRepository;
-    @Autowired private ICountyRepository countyRepository;
-    @Autowired private IRaceRepository raceRepository;
-    @Autowired private IPersonGroupRepository personGroupRepository;
-    @Autowired private INacionalityRepository nacionalityRepository;
-    @Autowired private IReligionRepository religionRepository;
-    @Autowired private IAgeGroupRepository ageGroupRepository;
-    @Autowired private ICompetenceRepository competenceRepository;
-    @Autowired private ILevelsRepository levelsRepository;
-    @Autowired private IRoleRepository roleRepository;
-    @Autowired private IProjectRepository projectRepository;
-    @Autowired private IConflictIndexRepository conflictIndexRepository;
+    private final IPersonRepository personRepository;
+    private final ICountyRepository countyRepository;
+    private final IRaceRepository raceRepository;
+    private final IPersonGroupRepository personGroupRepository;
+    private final INacionalityRepository nacionalityRepository;
+    private final IReligionRepository religionRepository;
+    private final IAgeGroupRepository ageGroupRepository;
+    private final ICompetenceRepository competenceRepository;
+    private final ILevelsRepository levelsRepository;
+    private final IRoleRepository roleRepository;
+    private final IProjectRepository projectRepository;
+    private final IConflictIndexRepository conflictIndexRepository;
+    private final ModelMapper modelMapper;
 
-    private final ModelMapper modelMapper = new ModelMapper();
 
     @Override
     @Transactional
     public PersonDTO.PersonResponseDTO savePerson(PersonDTO.PersonCreateDTO personDTO) {
         try {
             PersonEntity person = modelMapper.map(personDTO, PersonEntity.class);
-            person.setId(null);
             person.setStatus(Status.ACTIVE);
 
             // Procesar relaciones simples
@@ -208,7 +208,7 @@ public class PersonServiceImpl implements IPersonService {
     }
 
     private void processAgeGroup(PersonDTO.PersonCreateDTO personDTO, PersonEntity person) {
-       if (personDTO.getBirthDate() != null) {
+        if (personDTO.getBirthDate() != null) {
             // Calcular AgeGroup automáticamente basado en la edad
             int age = person.getAge(); // Usa el método getAge() de PersonEntity
             Optional<AgeGroupEntity> ageGroupOpt = ageGroupRepository.findAll().stream()
@@ -218,7 +218,7 @@ public class PersonServiceImpl implements IPersonService {
         }
     }
 
-    private List<CompetenceValueEntity> processCompetenceValues(List<CompetenceValueDTO.CompetenceValueCreateDTO> competenceValuesDTO, PersonEntity person) {
+    private final List<CompetenceValueEntity> processCompetenceValues(List<CompetenceValueDTO.CompetenceValueCreateDTO> competenceValuesDTO, PersonEntity person) {
         Set<Long> processedCompetenceIds = new HashSet<>();
 
         return competenceValuesDTO.stream().map(dto -> {
@@ -260,7 +260,7 @@ public class PersonServiceImpl implements IPersonService {
         person.getCompetenceValueList().addAll(finalList);
     }
 
-    private List<PersonalInterestsEntity> processPersonalInterests(List<PersonalInterestDTO.PersonalInterestCreateDTO> personalInterestsDTO, PersonEntity person) {
+    private final List<PersonalInterestsEntity> processPersonalInterests(List<PersonalInterestDTO.PersonalInterestCreateDTO> personalInterestsDTO, PersonEntity person) {
         Set<Long> processedRoleIds = new HashSet<>();
 
         return personalInterestsDTO.stream().map(dto -> {

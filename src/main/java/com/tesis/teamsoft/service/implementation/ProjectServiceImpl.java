@@ -7,8 +7,8 @@ import com.tesis.teamsoft.presentation.dto.CountyDTO;
 import com.tesis.teamsoft.presentation.dto.ProjectDTO;
 import com.tesis.teamsoft.presentation.dto.ProjectStructureDTO;
 import com.tesis.teamsoft.service.interfaces.IProjectService;
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
@@ -17,18 +17,16 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class ProjectServiceImpl implements IProjectService {
 
-    @Autowired
-    IProjectRepository projectRepository;
-    @Autowired
-    IClientRepository clientRepository;
-    @Autowired
-    ICountyRepository countyRepository;
-    @Autowired
-    IProjectStructureRepository projectStructureRepository;
+    
+    private final IProjectRepository projectRepository;
+    private final IClientRepository clientRepository;
+    private final ICountyRepository countyRepository;
+    private final IProjectStructureRepository projectStructureRepository;
+    private final ModelMapper modelMapper;
 
-    private final ModelMapper modelMapper =  new ModelMapper();
 
     @Override
     public List<ProjectDTO.ProjectResponseDTO> saveProjects(List<ProjectDTO.ProjectCreateDTO> projectDTOs) {

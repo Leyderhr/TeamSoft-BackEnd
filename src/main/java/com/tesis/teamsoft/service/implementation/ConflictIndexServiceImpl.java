@@ -4,20 +4,20 @@ import com.tesis.teamsoft.persistence.entity.ConflictIndexEntity;
 import com.tesis.teamsoft.persistence.repository.IConflictIndexRepository;
 import com.tesis.teamsoft.presentation.dto.ConflictIndexDTO;
 import com.tesis.teamsoft.service.interfaces.IConflictIndexService;
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class ConflictIndexServiceImpl implements IConflictIndexService {
 
-    @Autowired
-    private IConflictIndexRepository conflictIndexRepository;
+    private final IConflictIndexRepository conflictIndexRepository;
+    private final ModelMapper modelMapper;
 
-    private final ModelMapper modelMapper = new ModelMapper();
 
     @Override
     public ConflictIndexDTO.ConflictIndexResponseDTO saveConflictIndex(ConflictIndexDTO.ConflictIndexCreateDTO conflictIndexDTO) {

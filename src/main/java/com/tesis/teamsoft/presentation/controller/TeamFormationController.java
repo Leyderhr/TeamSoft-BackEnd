@@ -3,7 +3,7 @@ package com.tesis.teamsoft.presentation.controller;
 import com.tesis.teamsoft.presentation.dto.TeamProposalDTO;
 import com.tesis.teamsoft.service.implementation.TeamFormationStepThreeImpl;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -14,12 +14,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
+@RequiredArgsConstructor
 @Tag(name = "TeamFormation")
 @RequestMapping("/teamFormation")
 public class TeamFormationController {
 
-    @Autowired
-    private TeamFormationStepThreeImpl teamFormationStepThree;
+    private final TeamFormationStepThreeImpl teamFormationStepThree;
 
     @PostMapping("teams")
     @PreAuthorize("hasRole('EXPERIMENTADOR') OR hasRole('DIRECTIVO_TECNICO')")

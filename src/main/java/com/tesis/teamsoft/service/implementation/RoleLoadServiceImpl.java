@@ -4,20 +4,20 @@ import com.tesis.teamsoft.persistence.entity.RoleLoadEntity;
 import com.tesis.teamsoft.persistence.repository.IRoleLoadRepository;
 import com.tesis.teamsoft.presentation.dto.RoleLoadDTO;
 import com.tesis.teamsoft.service.interfaces.IRoleLoadService;
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class RoleLoadServiceImpl implements IRoleLoadService {
 
-    @Autowired
-    private IRoleLoadRepository roleLoadRepository;
+    private final IRoleLoadRepository roleLoadRepository;
+    private final ModelMapper modelMapper;
 
-    private final ModelMapper modelMapper = new ModelMapper();
 
     @Override
     public RoleLoadDTO.RoleLoadResponseDTO saveRoleLoad(RoleLoadDTO.RoleLoadCreateDTO roleLoadDTO) {

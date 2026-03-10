@@ -4,6 +4,7 @@ import com.tesis.teamsoft.presentation.dto.AgeGroupDTO;
 import com.tesis.teamsoft.service.implementation.AgeGroupServiceImpl;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,15 +16,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
+@RequiredArgsConstructor
 @Tag(name = "AgeGroups")
 @RequestMapping("/ageGroups")
 public class AgeGroupController {
 
-    @Autowired
-    private AgeGroupServiceImpl ageGroupService;
+
+    private final AgeGroupServiceImpl ageGroupService;
 
     @PostMapping()
-    @PreAuthorize("hasRole('GESTOR_RRHH')")
+    //@PreAuthorize("hasRole('GESTOR_RRHH')")
     public ResponseEntity<?> createAgeGroup(@Valid @RequestBody AgeGroupDTO.AgeGroupCreateDTO ageGroupDTO, BindingResult bindingResult) {
 
         if (bindingResult.hasErrors()) {
@@ -90,7 +92,7 @@ public class AgeGroupController {
     }
 
     @GetMapping()
-    @PreAuthorize("hasRole('GESTOR_RRHH')")
+    //@PreAuthorize("hasRole('GESTOR_RRHH')")
     public ResponseEntity<?> findAllAgeGroup() {
         try {
             return new ResponseEntity<>(ageGroupService.findAllByOrderByIdAsc(), HttpStatus.OK);

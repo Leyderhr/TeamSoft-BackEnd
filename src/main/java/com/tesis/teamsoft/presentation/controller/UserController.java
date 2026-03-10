@@ -5,7 +5,7 @@ import com.tesis.teamsoft.service.implementation.UserServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -16,12 +16,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
+@RequiredArgsConstructor
 @Tag(name = "Users", description = "User Management APIs")
 @RequestMapping("/users")
 public class UserController {
 
-    @Autowired
-    private UserServiceImpl userService;
+    private final UserServiceImpl userService;
 
     @PostMapping()
     @Operation(summary = "Create a new user")

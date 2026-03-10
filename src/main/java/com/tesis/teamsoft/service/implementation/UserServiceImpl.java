@@ -7,8 +7,8 @@ import com.tesis.teamsoft.persistence.repository.IUserRoleRepository;
 import com.tesis.teamsoft.presentation.dto.UserDTO;
 import com.tesis.teamsoft.presentation.dto.UserRoleDTO;
 import com.tesis.teamsoft.service.interfaces.IUserService;
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,19 +20,15 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 @Transactional
 public class UserServiceImpl implements IUserService {
 
-    @Autowired
-    private IUserRepository userRepository;
+    private final IUserRepository userRepository;
+    private final IUserRoleRepository userRoleRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final ModelMapper modelMapper;
 
-    @Autowired
-    private IUserRoleRepository userRoleRepository;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    private final ModelMapper modelMapper = new ModelMapper();
 
     @Override
     public UserDTO.UserResponseDTO saveUser(UserDTO.UserCreateDTO userDTO) {

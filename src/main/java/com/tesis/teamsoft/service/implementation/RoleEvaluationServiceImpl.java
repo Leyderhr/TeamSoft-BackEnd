@@ -4,20 +4,20 @@ import com.tesis.teamsoft.persistence.entity.RoleEvaluationEntity;
 import com.tesis.teamsoft.persistence.repository.IRoleEvaluationRepository;
 import com.tesis.teamsoft.presentation.dto.RoleEvaluationDTO;
 import com.tesis.teamsoft.service.interfaces.IRoleEvaluationService;
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class RoleEvaluationServiceImpl implements IRoleEvaluationService {
 
-    @Autowired
-    private IRoleEvaluationRepository roleEvaluationRepository;
+    private final IRoleEvaluationRepository roleEvaluationRepository;
+    private final ModelMapper modelMapper;
 
-    private final ModelMapper modelMapper = new ModelMapper();
 
     @Override
     public RoleEvaluationDTO.RoleEvaluationResponseDTO saveRoleEvaluation(RoleEvaluationDTO.RoleEvaluationCreateDTO roleEvaluationDTO) {

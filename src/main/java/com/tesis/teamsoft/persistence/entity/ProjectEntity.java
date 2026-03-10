@@ -53,8 +53,8 @@ public class ProjectEntity implements Serializable {
     private ClientEntity client;
 
     @NotNull(message = "Role evaluation is required")
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "role_eval_fk", nullable = false)
+    @ManyToOne()
+    @JoinColumn(name = "role_eval_fk")
     private RoleEvaluationEntity roleEvaluation;
 
     @NotNull(message = "Province is required")

@@ -6,8 +6,8 @@ import com.tesis.teamsoft.persistence.repository.IUserRepository;
 import com.tesis.teamsoft.presentation.dto.LoginDTO;
 import com.tesis.teamsoft.security.jwt.JwtUtils;
 import com.tesis.teamsoft.service.interfaces.IAuthService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -22,26 +22,18 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 @Slf4j
 public class AuthServiceImpl implements IAuthService {
 
-    @Autowired
-    private AuthenticationManager authenticationManager;
+    
+    private final AuthenticationManager authenticationManager;
+    private final JwtUtils jwtUtils;
+    private final IUserRepository userRepository;
+    private final PasswordResetTokenServiceImpl passwordResetTokenService;
+    private final PasswordEncoder passwordEncoder;
+    private final RefreshTokenServiceImpl refreshTokenService;
 
-    @Autowired
-    private JwtUtils jwtUtils;
-
-    @Autowired
-    private IUserRepository userRepository;
-
-    @Autowired
-    private PasswordResetTokenServiceImpl passwordResetTokenService;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private RefreshTokenServiceImpl refreshTokenService;
 
     @Override
     public LoginDTO.LoginResponseDTO login(LoginDTO.LoginRequestDTO loginDTO) {

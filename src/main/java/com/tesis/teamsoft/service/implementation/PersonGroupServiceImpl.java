@@ -4,20 +4,20 @@ import com.tesis.teamsoft.persistence.entity.PersonGroupEntity;
 import com.tesis.teamsoft.persistence.repository.IPersonGroupRepository;
 import com.tesis.teamsoft.presentation.dto.PersonGroupDTO;
 import com.tesis.teamsoft.service.interfaces.IPersonGroupService;
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class PersonGroupServiceImpl implements IPersonGroupService {
 
-    @Autowired
-    private IPersonGroupRepository personGroupRepository;
+    private final IPersonGroupRepository personGroupRepository;
+    private final ModelMapper modelMapper;
 
-    private final ModelMapper modelMapper = new ModelMapper();
 
     @Override
     public PersonGroupDTO.PersonGroupResponseDTO savePersonGroup(PersonGroupDTO.PersonGroupCreateDTO personGroupDTO) {

@@ -4,8 +4,8 @@ import com.tesis.teamsoft.persistence.entity.*;
 import com.tesis.teamsoft.persistence.repository.*;
 import com.tesis.teamsoft.presentation.dto.*;
 import com.tesis.teamsoft.service.interfaces.IRoleService;
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,14 +14,15 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class RoleServiceImpl implements IRoleService {
 
-    @Autowired private IRoleRepository roleRepository;
-    @Autowired private ICompetenceRepository competenceRepository;
-    @Autowired private ICompetenceImportanceRepository competenceImportanceRepository;
-    @Autowired private ILevelsRepository levelsRepository;
+    private final IRoleRepository roleRepository;
+    private final ICompetenceRepository competenceRepository;
+    private final ICompetenceImportanceRepository competenceImportanceRepository;
+    private final ILevelsRepository levelsRepository;
+    private final ModelMapper modelMapper;
 
-    private final ModelMapper modelMapper = new ModelMapper();
 
     @Override
     @Transactional
