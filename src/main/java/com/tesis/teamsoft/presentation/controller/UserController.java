@@ -106,6 +106,19 @@ public class UserController {
         }
     }
 
+    @PostMapping("/{id}/reset-password")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> resetPasswordToDefault(@PathVariable Long id) {
+        try {
+            String message = userService.resetPasswordToDefault(id);
+            return ResponseEntity.ok(Map.of("message", message));
+        } catch (RuntimeException e) {
+            return buildErrorResponse(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return buildErrorResponse("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     private ResponseEntity<?> buildValidationErrors(BindingResult bindingResult) {
         Map<String, String> errors = new HashMap<>();
         bindingResult.getFieldErrors().forEach(error ->

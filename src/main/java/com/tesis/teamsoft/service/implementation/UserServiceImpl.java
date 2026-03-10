@@ -8,6 +8,7 @@ import com.tesis.teamsoft.presentation.dto.UserDTO;
 import com.tesis.teamsoft.presentation.dto.UserRoleDTO;
 import com.tesis.teamsoft.service.interfaces.IUserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -22,10 +23,12 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 public class UserServiceImpl implements IUserService {
 
     private final IUserRepository userRepository;
     private final IUserRoleRepository userRoleRepository;
+    private final RefreshTokenServiceImpl refreshTokenService;
     private final PasswordEncoder passwordEncoder;
     private final ModelMapper modelMapper;
 
@@ -171,21 +174,21 @@ public class UserServiceImpl implements IUserService {
         return convertToResponseDTO(user);
     }
 
-//    @Override
-//    public boolean existsByUsername(String username) {
-//        return userRepository.findByUsername(username).isPresent();
-//    }
-//
-//    @Override
-//    public boolean existsByMail(String email) {
-//        return userRepository.findByMail(email).isPresent();
-//    }
-//
-//    @Override
-//    public boolean existsByIdCard(String idCard) {
-//        // Necesitarías agregar este método al repositorio
-//        return false; // Implementar según necesidad
-//    }
+    @Transactional
+    public String resetPasswordToDefault(Long userId) {
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
+
+        String defaultPassword = generatePassword(user.getIdCard());
+        user.setPassword(passwordEncoder.encode(defaultPassword));
+        userRepository.save(user);
+        refreshTokenService.deleteByUserId(userId);
+
+        log.info("Password reset to default for user: {} (ID: {})", user.getUsername(), userId);
+        return "Password reset successfully to system default";
+    }
+
+
 
     private String generateUsername(String personName, String surname) {
         String username = "";
