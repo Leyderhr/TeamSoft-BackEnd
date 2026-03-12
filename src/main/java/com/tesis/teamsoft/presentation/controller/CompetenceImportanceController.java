@@ -8,11 +8,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -23,94 +21,39 @@ public class CompetenceImportanceController {
 
     private final CompetenceImportanceServiceImpl competenceImportanceService;
 
-    @PostMapping()
+
+    @PostMapping
     @PreAuthorize("hasRole('GESTOR_RRHH')")
-    public ResponseEntity<?> createCompetenceImportance(
-            @Valid @RequestBody CompetenceImportanceDTO.CompetenceImportanceCreateDTO competenceImportanceDTO,
-            BindingResult bindingResult) {
-
-        if (bindingResult.hasErrors()) {
-            Map<String, String> errors = new HashMap<>();
-            bindingResult.getFieldErrors().forEach(error ->
-                    errors.put(error.getField(), error.getDefaultMessage()));
-            return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
-        }
-
-        try {
-            return new ResponseEntity<>(competenceImportanceService.saveCompetenceImportance(competenceImportanceDTO),
-                    HttpStatus.CREATED);
-        } catch (Exception e) {
-            Map<String, String> error = new HashMap<>();
-            error.put("Error", e.getMessage());
-            return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
-        }
+    public ResponseEntity<CompetenceImportanceDTO.CompetenceImportanceResponseDTO> createCompetenceImportance(
+            @Valid @RequestBody CompetenceImportanceDTO.CompetenceImportanceCreateDTO competenceImportanceDTO) {
+        return new ResponseEntity<>(competenceImportanceService.saveCompetenceImportance(competenceImportanceDTO),
+                HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('GESTOR_RRHH')")
-    public ResponseEntity<?> updateCompetenceImportance(
+    public ResponseEntity<CompetenceImportanceDTO.CompetenceImportanceResponseDTO> updateCompetenceImportance(
             @Valid @RequestBody CompetenceImportanceDTO.CompetenceImportanceCreateDTO competenceImportanceDTO,
-            BindingResult bindingResult,
             @PathVariable Long id) {
-
-        if (bindingResult.hasErrors()) {
-            Map<String, String> errors = new HashMap<>();
-            bindingResult.getFieldErrors().forEach(error ->
-                    errors.put(error.getField(), error.getDefaultMessage()));
-            return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
-        }
-
-        try {
-            return new ResponseEntity<>(competenceImportanceService.updateCompetenceImportance(competenceImportanceDTO, id),
-                    HttpStatus.OK);
-        } catch (IllegalArgumentException e) {
-            Map<String, String> error = new HashMap<>();
-            error.put("Error", e.getMessage());
-            return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
-        } catch (RuntimeException e) {
-            Map<String, String> error = new HashMap<>();
-            error.put("Error", e.getMessage());
-            return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
-        }
+        return new ResponseEntity<>(competenceImportanceService.updateCompetenceImportance(competenceImportanceDTO, id),
+                HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('GESTOR_RRHH')")
-    public ResponseEntity<?> deleteCompetenceImportance(@PathVariable Long id) {
-        try {
-            return new ResponseEntity<>(competenceImportanceService.deleteCompetenceImportance(id), HttpStatus.OK);
-        } catch (RuntimeException e) {
-            Map<String, String> error = new HashMap<>();
-            error.put("Error", e.getMessage());
-            return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
-        } catch (Exception e) {
-            Map<String, String> error = new HashMap<>();
-            error.put("Error", e.getMessage());
-            return new ResponseEntity<>(error, HttpStatus.CONFLICT);
-        }
+    public ResponseEntity<String> deleteCompetenceImportance(@PathVariable Long id) {
+        return new ResponseEntity<>(competenceImportanceService.deleteCompetenceImportance(id), HttpStatus.OK);
     }
 
-    @GetMapping()
+    @GetMapping
     @PreAuthorize("hasRole('GESTOR_RRHH')")
-    public ResponseEntity<?> findAllCompetenceImportance() {
-        try {
-            return new ResponseEntity<>(competenceImportanceService.findAllByOrderByIdAsc(), HttpStatus.OK);
-        } catch (Exception e) {
-            Map<String, String> error = new HashMap<>();
-            error.put("Error", e.getMessage());
-            return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    public ResponseEntity<List<CompetenceImportanceDTO.CompetenceImportanceResponseDTO>> findAllCompetenceImportance() {
+        return new ResponseEntity<>(competenceImportanceService.findAllByOrderByIdAsc(), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('GESTOR_RRHH')")
-    public ResponseEntity<?> findCompetenceImportanceById(@PathVariable Long id) {
-        try {
-            return new ResponseEntity<>(competenceImportanceService.findCompetenceImportanceById(id), HttpStatus.OK);
-        } catch (RuntimeException e) {
-            Map<String, String> error = new HashMap<>();
-            error.put("Error", e.getMessage());
-            return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
-        }
+    public ResponseEntity<CompetenceImportanceDTO.CompetenceImportanceResponseDTO> findCompetenceImportanceById(@PathVariable Long id) {
+        return new ResponseEntity<>(competenceImportanceService.findCompetenceImportanceById(id), HttpStatus.OK);
     }
 }

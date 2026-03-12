@@ -1,5 +1,8 @@
 package com.tesis.teamsoft.service.implementation;
 
+import com.tesis.teamsoft.exception.BusinessRuleException;
+import com.tesis.teamsoft.exception.ResourceNotFoundException;
+import com.tesis.teamsoft.exception.TokenRefreshException;
 import com.tesis.teamsoft.persistence.entity.RefreshTokenEntity;
 import com.tesis.teamsoft.persistence.entity.UserEntity;
 import com.tesis.teamsoft.persistence.repository.IUserRepository;
@@ -64,7 +67,6 @@ public class AuthServiceImpl implements IAuthService {
                             .collect(Collectors.toSet()))
                     .expiresIn(1800000L)
                     .build();
-
         } catch (BadCredentialsException e) {
             log.warn("Login failed for user: {} - Invalid credentials", loginDTO.getUsername());
             throw new BadCredentialsException("Invalid credentials or password");
@@ -78,7 +80,7 @@ public class AuthServiceImpl implements IAuthService {
         if (authentication != null && authentication.isAuthenticated()) {
             String username = authentication.getName();
             UserEntity user = userRepository.findByUsername(username)
-                    .orElseThrow(() -> new RuntimeException("User not found"));
+                    .orElseThrow(() -> new ResourceNotFoundException("User not found " + username));
             refreshTokenService.deleteByUserId(user.getId());
             log.info("All refresh tokens revoked for user: {}", username);
         }
@@ -92,13 +94,9 @@ public class AuthServiceImpl implements IAuthService {
     public LoginDTO.RefreshTokenResponseDTO refreshToken(String requestRefreshToken) {
         try {
             RefreshTokenEntity refreshToken = refreshTokenService.findByToken(requestRefreshToken);
-            
             refreshToken = refreshTokenService.verifyExpiration(refreshToken);
-            
             UserEntity user = refreshToken.getUser();
-            
             String newAccessToken = jwtUtils.createToken(user.getUsername());
-            
             refreshTokenService.revokeToken(requestRefreshToken);
             RefreshTokenEntity newRefreshToken = refreshTokenService.createRefreshToken(user.getUsername());
             
@@ -113,7 +111,7 @@ public class AuthServiceImpl implements IAuthService {
                     
         } catch (Exception e) {
             log.error("Error refreshing token: {}", e.getMessage());
-            throw new RuntimeException("Invalid or expired refresh token");
+            throw new TokenRefreshException("Invalid or expired refresh token");
         }
     }
 
@@ -156,7 +154,7 @@ public class AuthServiceImpl implements IAuthService {
         }
 
         if (passwordEncoder.matches(newPassword, user.getPassword())) {
-            throw new IllegalArgumentException("New password cannot be the same as current password");
+            throw new BusinessRuleException("New password cannot be the same as current password");
         }
 
         user.setPassword(passwordEncoder.encode(newPassword));

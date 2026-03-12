@@ -9,10 +9,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -26,22 +26,9 @@ public class UserController {
     @PostMapping()
     @Operation(summary = "Create a new user")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> createUser(@Valid @RequestBody UserDTO.UserCreateDTO userDTO,
-                                        BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            return buildValidationErrors(bindingResult);
-        }
-
-        try {
+    public ResponseEntity<UserDTO.UserResponseDTO> createUser(@Valid @RequestBody UserDTO.UserCreateDTO userDTO) {
             UserDTO.UserResponseDTO createdUser = userService.saveUser(userDTO);
             return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
-        } catch (IllegalArgumentException e) {
-            return buildErrorResponse(e.getMessage(), HttpStatus.CONFLICT);
-        } catch (RuntimeException e) {
-            return buildErrorResponse(e.getMessage(), HttpStatus.BAD_REQUEST);
-        } catch (Exception e) {
-            return buildErrorResponse("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
     }
 
 //    @PutMapping("/{id}")
@@ -69,66 +56,31 @@ public class UserController {
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete a user")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> deleteUser(@PathVariable Long id) {
-        try {
+    public ResponseEntity<Map<String, String>> deleteUser(@PathVariable Long id) {
             String message = userService.deleteUser(id);
             Map<String, String> response = new HashMap<>();
             response.put("message", message);
             return new ResponseEntity<>(response, HttpStatus.OK);
-        } catch (RuntimeException e) {
-            return buildErrorResponse(e.getMessage(), HttpStatus.NOT_FOUND);
-        } catch (Exception e) {
-            return buildErrorResponse("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
     }
 
     @GetMapping()
     @Operation(summary = "Get all users ordered by ID")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> getAllUsers() {
-        try {
+    public ResponseEntity<List<UserDTO.UserResponseDTO>> getAllUsers() {
             return new ResponseEntity<>(userService.findAllByOrderByIdAsc(), HttpStatus.OK);
-        } catch (Exception e) {
-            return buildErrorResponse("Error retrieving users", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
     }
 
     @GetMapping("/{id}")
     @Operation(summary = "Get user by ID")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> getUserById(@PathVariable Long id) {
-        try {
+    public ResponseEntity<UserDTO.UserResponseDTO> getUserById(@PathVariable Long id) {
             return new ResponseEntity<>(userService.findUserById(id), HttpStatus.OK);
-        } catch (RuntimeException e) {
-            return buildErrorResponse(e.getMessage(), HttpStatus.NOT_FOUND);
-        } catch (Exception e) {
-            return buildErrorResponse("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
     }
 
     @PostMapping("/{id}/reset-password")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> resetPasswordToDefault(@PathVariable Long id) {
-        try {
+    public ResponseEntity<Map<String, String>> resetPasswordToDefault(@PathVariable Long id) {
             String message = userService.resetPasswordToDefault(id);
             return ResponseEntity.ok(Map.of("message", message));
-        } catch (RuntimeException e) {
-            return buildErrorResponse(e.getMessage(), HttpStatus.NOT_FOUND);
-        } catch (Exception e) {
-            return buildErrorResponse("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    private ResponseEntity<?> buildValidationErrors(BindingResult bindingResult) {
-        Map<String, String> errors = new HashMap<>();
-        bindingResult.getFieldErrors().forEach(error ->
-                errors.put(error.getField(), error.getDefaultMessage()));
-        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
-    }
-
-    private ResponseEntity<?> buildErrorResponse(String message, HttpStatus status) {
-        Map<String, String> error = new HashMap<>();
-        error.put("error", message);
-        return new ResponseEntity<>(error, status);
     }
 }

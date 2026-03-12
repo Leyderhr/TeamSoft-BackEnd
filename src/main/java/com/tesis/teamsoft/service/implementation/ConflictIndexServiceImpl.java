@@ -1,5 +1,7 @@
 package com.tesis.teamsoft.service.implementation;
 
+import com.tesis.teamsoft.exception.BusinessRuleException;
+import com.tesis.teamsoft.exception.ResourceNotFoundException;
 import com.tesis.teamsoft.persistence.entity.ConflictIndexEntity;
 import com.tesis.teamsoft.persistence.repository.IConflictIndexRepository;
 import com.tesis.teamsoft.presentation.dto.ConflictIndexDTO;
@@ -7,9 +9,9 @@ import com.tesis.teamsoft.service.interfaces.IConflictIndexService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -20,39 +22,32 @@ public class ConflictIndexServiceImpl implements IConflictIndexService {
 
 
     @Override
+    @Transactional
     public ConflictIndexDTO.ConflictIndexResponseDTO saveConflictIndex(ConflictIndexDTO.ConflictIndexCreateDTO conflictIndexDTO) {
-        try {
-            ConflictIndexEntity savedConflictIndex = modelMapper.map(conflictIndexDTO, ConflictIndexEntity.class);
-            return modelMapper.map(conflictIndexRepository.save(savedConflictIndex), ConflictIndexDTO.ConflictIndexResponseDTO.class);
-        } catch (Exception e) {
-            throw new RuntimeException("Error saving conflict index: " + e.getMessage());
-        }
+        ConflictIndexEntity savedConflictIndex = modelMapper.map(conflictIndexDTO, ConflictIndexEntity.class);
+        return modelMapper.map(conflictIndexRepository.save(savedConflictIndex), ConflictIndexDTO.ConflictIndexResponseDTO.class);
     }
 
     @Override
+    @Transactional
     public ConflictIndexDTO.ConflictIndexResponseDTO updateConflictIndex(ConflictIndexDTO.ConflictIndexCreateDTO conflictIndexDTO, Long id) {
-
         if (!conflictIndexRepository.existsById(id)) {
-            throw new RuntimeException("Conflict index not found with ID: " + id);
+            throw new ResourceNotFoundException("Conflict index not found with ID: " + id);
         }
 
-        try {
-            ConflictIndexEntity updatedConflictIndex = modelMapper.map(conflictIndexDTO, ConflictIndexEntity.class);
-            updatedConflictIndex.setId(id);
-            return modelMapper.map(conflictIndexRepository.save(updatedConflictIndex), ConflictIndexDTO.ConflictIndexResponseDTO.class);
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Error updating conflict index: " + e.getMessage());
-        }
+        ConflictIndexEntity updatedConflictIndex = modelMapper.map(conflictIndexDTO, ConflictIndexEntity.class);
+        updatedConflictIndex.setId(id);
+        return modelMapper.map(conflictIndexRepository.save(updatedConflictIndex), ConflictIndexDTO.ConflictIndexResponseDTO.class);
     }
 
     @Override
+    @Transactional
     public String deleteConflictIndex(Long id) {
         ConflictIndexEntity conflictIndex = conflictIndexRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Conflict index not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Conflict index not found with ID: " + id));
 
-        // Verificar si tiene PersonConflictEntity asociados antes de eliminar
         if (conflictIndex.getPersonConflictList() != null && !conflictIndex.getPersonConflictList().isEmpty()) {
-            throw new IllegalArgumentException("Cannot delete conflict index because it has associated person conflicts");
+            throw new BusinessRuleException("Cannot delete conflict index because it has associated person conflicts");
         }
 
         conflictIndexRepository.deleteById(id);
@@ -60,34 +55,28 @@ public class ConflictIndexServiceImpl implements IConflictIndexService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<ConflictIndexDTO.ConflictIndexResponseDTO> findAllConflictIndex() {
-        try {
-            return conflictIndexRepository.findAll()
-                    .stream()
-                    .map(entity -> modelMapper.map(entity, ConflictIndexDTO.ConflictIndexResponseDTO.class))
-                    .collect(Collectors.toList());
-        } catch (Exception e) {
-            throw new RuntimeException("Error finding all conflict indices: " + e.getMessage());
-        }
+        return conflictIndexRepository.findAll()
+                .stream()
+                .map(entity -> modelMapper.map(entity, ConflictIndexDTO.ConflictIndexResponseDTO.class))
+                .toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<ConflictIndexDTO.ConflictIndexResponseDTO> findAllByOrderByIdAsc() {
-        try {
-            return conflictIndexRepository.findAllByOrderByIdAsc()
-                    .stream()
-                    .map(entity -> modelMapper.map(entity, ConflictIndexDTO.ConflictIndexResponseDTO.class))
-                    .collect(Collectors.toList());
-        } catch (Exception e) {
-            throw new RuntimeException("Error finding all conflict indices: " + e.getMessage());
-        }
+        return conflictIndexRepository.findAllByOrderByIdAsc()
+                .stream()
+                .map(entity -> modelMapper.map(entity, ConflictIndexDTO.ConflictIndexResponseDTO.class))
+                .toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public ConflictIndexDTO.ConflictIndexResponseDTO findConflictIndexById(Long id) {
         ConflictIndexEntity conflictIndex = conflictIndexRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Conflict index not found with ID: " + id));
-
+                .orElseThrow(() -> new ResourceNotFoundException("Conflict index not found with ID: " + id));
         return modelMapper.map(conflictIndex, ConflictIndexDTO.ConflictIndexResponseDTO.class);
     }
 }

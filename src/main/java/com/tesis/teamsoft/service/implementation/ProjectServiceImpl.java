@@ -1,5 +1,7 @@
 package com.tesis.teamsoft.service.implementation;
 
+import com.tesis.teamsoft.exception.BusinessRuleException;
+import com.tesis.teamsoft.exception.ResourceNotFoundException;
 import com.tesis.teamsoft.persistence.entity.*;
 import com.tesis.teamsoft.persistence.repository.*;
 import com.tesis.teamsoft.presentation.dto.ClientDTO;
@@ -9,18 +11,15 @@ import com.tesis.teamsoft.presentation.dto.ProjectStructureDTO;
 import com.tesis.teamsoft.service.interfaces.IProjectService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class ProjectServiceImpl implements IProjectService {
 
-    
+
     private final IProjectRepository projectRepository;
     private final IClientRepository clientRepository;
     private final ICountyRepository countyRepository;
@@ -30,87 +29,49 @@ public class ProjectServiceImpl implements IProjectService {
 
     @Override
     public List<ProjectDTO.ProjectResponseDTO> saveProjects(List<ProjectDTO.ProjectCreateDTO> projectDTOs) {
-        try{
-            duplicatedNames(projectDTOs);
-            List<ProjectEntity> projects = new ArrayList<>();
+        duplicatedNames(projectDTOs);
+        List<ProjectEntity> projects = new ArrayList<>();
 
-            for(ProjectDTO.ProjectCreateDTO dto : projectDTOs) {
-                projects.add(initializeProject(dto));
-            }
-
-            List<ProjectDTO.ProjectResponseDTO> responses = new ArrayList<>();
-            for(ProjectEntity project : projects) {
-                responses.add(convertToResponseDTO(projectRepository.save(project)));
-            }
-
-            return responses;
-        }catch (DataIntegrityViolationException e){
-            throw new IllegalArgumentException("Error updating project: Data integrity violation");
-        }catch (IllegalArgumentException e){
-            throw e;
-        } catch (Exception e) {
-            throw new RuntimeException("Error saving project: " + e.getMessage());
+        for(ProjectDTO.ProjectCreateDTO dto : projectDTOs) {
+            projects.add(initializeProject(dto));
         }
+
+        List<ProjectDTO.ProjectResponseDTO> responses = new ArrayList<>();
+        for(ProjectEntity project : projects) {
+            responses.add(convertToResponseDTO(projectRepository.save(project)));
+        }
+
+        return responses;
     }
 
     @Override
     public ProjectDTO.ProjectResponseDTO updateProject(ProjectDTO.ProjectCreateDTO projectDTO, Long id) {
-        List<ProjectEntity> allProjects = projectRepository.findAll();
-        Map<Long, ProjectEntity> projectMap = allProjects.stream()
-                .collect(Collectors.toMap(ProjectEntity::getId, Function.identity()));
+        ProjectEntity updatedProject = projectRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found with ID: " + id));
 
-        ProjectEntity updatedProject = projectMap.get(id);
-        if (updatedProject == null) {
-            throw new RuntimeException("Project not found with ID: " + id);
-        }
+        updatedProject.setProjectName(projectDTO.getProjectName());
+        updatedProject.setInitialDate(projectDTO.getInitialDate());
+        updatedProject.updateCycle(processSimpleRelations(projectDTO,  updatedProject));
 
-        try{
-            updatedProject.setProjectName(projectDTO.getProjectName());
-            updatedProject.setInitialDate(projectDTO.getInitialDate());
-            updatedProject.updateCycle(processSimpleRelations(projectDTO,  updatedProject));
-
-            return convertToResponseDTO(projectRepository.save(updatedProject));
-        }catch (DataIntegrityViolationException e){
-            throw new IllegalArgumentException("Error updating project: Data integrity violation");
-        }catch (IllegalArgumentException e){
-            throw e;
-        }catch (RuntimeException e){
-            throw new RuntimeException("Error updating project: " + e.getMessage());
-        }
+        return convertToResponseDTO(projectRepository.save(updatedProject));
     }
 
     public ProjectDTO.ProjectResponseDTO closeProject(Long id){
-        List<ProjectEntity> allProjects = projectRepository.findByCloseFalse();
-        Map<Long, ProjectEntity> projectMap = allProjects.stream()
-                .collect(Collectors.toMap(ProjectEntity::getId, Function.identity()));
+        ProjectEntity updatedProject = projectRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found with ID: " + id));
 
-        ProjectEntity updatedProject = projectMap.get(id);
-        if (updatedProject == null) {
-            throw new RuntimeException("Project not found with ID: " + id);
-        }
-
-        try{
-            updatedProject.setClose(true);
-            return convertToResponseDTO(projectRepository.save(updatedProject));
-        }catch (RuntimeException e){
-            throw new RuntimeException("Error updating project: " + e.getMessage());
-        }
+        updatedProject.setClose(true);
+        return convertToResponseDTO(projectRepository.save(updatedProject));
     }
 
     @Override
     public String deleteProject(Long id) {
-        List<ProjectEntity> allProjects = projectRepository.findAll();
-        Map<Long, ProjectEntity> projectMap = allProjects.stream()
-                .collect(Collectors.toMap(ProjectEntity::getId, Function.identity()));
-
-        ProjectEntity project = projectMap.get(id);
-        if (project == null) {
-            throw new RuntimeException("Project not found with ID: " + id);
-        }
+        ProjectEntity project = projectRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found with ID: " + id));
 
         if ((project.getPersonalProjectInterestsList() != null && !project.getPersonalProjectInterestsList().isEmpty()) ||
                 (isCycleWithDependencies(project.getCycleList()))) {
-            throw new IllegalArgumentException("Cannot delete project because it has associated datas");
+            throw new BusinessRuleException("Cannot delete project because it has associated datas");
         }
 
         projectRepository.delete(project);
@@ -119,27 +80,17 @@ public class ProjectServiceImpl implements IProjectService {
 
     @Override
     public List<ProjectDTO.ProjectSimpleDTO> findAllProjects() {
-        try{
-            return projectRepository.findAllByOrderByIdAsc()
-                    .stream()
-                    .map(entity ->  modelMapper.map(entity, ProjectDTO.ProjectSimpleDTO.class))
-                    .collect(Collectors.toList());
-        } catch (Exception e) {
-            throw new RuntimeException("Error finding all projects: " + e.getMessage());
-        }
+        return projectRepository.findAllByOrderByIdAsc()
+                .stream()
+                .map(entity ->  modelMapper.map(entity, ProjectDTO.ProjectSimpleDTO.class))
+                .toList();
     }
 
     @Override
     public ProjectDTO.ProjectResponseDTO findProjectById(Long id) {
+        ProjectEntity project = projectRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found with ID: " + id));
 
-        List<ProjectEntity> allProjects = projectRepository.findAll();
-        Map<Long, ProjectEntity> projectMap = allProjects.stream()
-                .collect(Collectors.toMap(ProjectEntity::getId, Function.identity()));
-
-        ProjectEntity project = projectMap.get(id);
-        if (project == null) {
-            throw new RuntimeException("Project not found with ID: " + id);
-        }
         return convertToResponseDTO(project);
     }
 
@@ -159,25 +110,25 @@ public class ProjectServiceImpl implements IProjectService {
         Set<String> namesInBatch = new HashSet<>();
         List<String> duplicateNamesInBatch = projectDTOs.stream().map(dto -> {
                     if(projectRepository.existsByProjectName(dto.getProjectName()))
-                        throw new IllegalArgumentException("Project name already exists: " + dto.getProjectName());
+                        throw new BusinessRuleException("Project name already exists: " + dto.getProjectName());
 
                     return dto.getProjectName();
                 }).filter(name -> !namesInBatch.add(name))
-                .collect(Collectors.toList());
+                .toList();
 
         if (!duplicateNamesInBatch.isEmpty()) {
-            throw new IllegalArgumentException("Duplicate project names in the same request: " + duplicateNamesInBatch);
+            throw new BusinessRuleException("Duplicate project names in the same request: " + duplicateNamesInBatch);
         }
     }
 
     private ProjectStructureEntity processSimpleRelations(ProjectDTO.ProjectCreateDTO projectDTO, ProjectEntity project) {
         project.setClient(clientRepository.findById(projectDTO.getClient())
-                .orElseThrow(() -> new RuntimeException("Client not found with ID: " + projectDTO.getClient())));
+                .orElseThrow(() -> new ResourceNotFoundException("Client not found with ID: " + projectDTO.getClient())));
         project.setProvince(countyRepository.findById(projectDTO.getProvince())
-                .orElseThrow(()-> new RuntimeException("Province not found with id: " + projectDTO.getProvince())));
+                .orElseThrow(()-> new ResourceNotFoundException("Province not found with id: " + projectDTO.getProvince())));
 
         return projectStructureRepository.findById(projectDTO.getProjectStructure())
-                .orElseThrow(() -> new RuntimeException("Project structure not found with id: " + projectDTO.getProjectStructure()));
+                .orElseThrow(() -> new ResourceNotFoundException("Project structure not found with id: " + projectDTO.getProjectStructure()));
     }
 
     private boolean isCycleWithDependencies(List<CycleEntity> cycles) {

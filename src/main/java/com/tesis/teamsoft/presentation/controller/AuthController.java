@@ -27,66 +27,43 @@ public class AuthController {
     private final AuthServiceImpl authService;
     private final JwtUtils jwtUtils;
 
+
     @PostMapping("/login")
-    public ResponseEntity<?> login(@Valid @RequestBody LoginDTO.LoginRequestDTO loginRequest) {
-        try {
-            LoginDTO.LoginResponseDTO response = authService.login(loginRequest);
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            log.warn("Login failed for user: {}", loginRequest.getUsername(), e);
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of("Error", "Invalid credentials"));
-        }
+    public ResponseEntity<LoginDTO.LoginResponseDTO> login(@Valid @RequestBody LoginDTO.LoginRequestDTO loginRequest) {
+        LoginDTO.LoginResponseDTO response = authService.login(loginRequest);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<?> logout() {
+    public ResponseEntity<Map<String, String>> logout() {
         authService.logout();
         return ResponseEntity.ok(Map.of("message", "Logged out successfully"));
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<?> refreshToken(@Valid @RequestBody LoginDTO.RefreshTokenRequestDTO request) {
-        try {
-            LoginDTO.RefreshTokenResponseDTO response = authService.refreshToken(request.getRefreshToken());
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            log.warn("Token refresh failed: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of("error", "Invalid or expired refresh token"));
-        }
+    public ResponseEntity<LoginDTO.RefreshTokenResponseDTO> refreshToken(@Valid @RequestBody LoginDTO.RefreshTokenRequestDTO request) {
+        LoginDTO.RefreshTokenResponseDTO response = authService.refreshToken(request.getRefreshToken());
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/change-password")
-    public ResponseEntity<?> changePassword(
+    public ResponseEntity<Void> changePassword(
             @AuthenticationPrincipal UserDetails userDetails,
             @Valid @RequestBody ChangePasswordDTO request) {
 
-        // Validar que las contraseñas nuevas coincidan
         if (!request.getNewPassword().equals(request.getConfirmPassword())) {
-            return ResponseEntity.badRequest()
-                    .body(Map.of("error", "New password and confirm password do not match"));
+            throw new IllegalArgumentException("New password and confirm password do not match");
         }
 
-        try {
-            String username = userDetails.getUsername();
-            authService.changePassword(username, request.getCurrentPassword(), request.getNewPassword());
-            return ResponseEntity.ok(Map.of("message", "Password changed successfully"));
-        } catch (BadCredentialsException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of("error", "Current password is incorrect"));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest()
-                    .body(Map.of("error", e.getMessage()));
-        } catch (Exception e) {
-            log.error("Error changing password for user: {}", userDetails.getUsername(), e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "An error occurred while changing password"));
-        }
+        if(userDetails == null)
+            throw new IllegalArgumentException("You need to provide the user's information");
+
+        authService.changePassword(userDetails.getUsername(), request.getCurrentPassword(), request.getNewPassword());
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/validate-token/{token}")
-    public ResponseEntity<?> validateResetToken(@PathVariable String token) {
+    public ResponseEntity<Map<String, Object>> validateResetToken(@PathVariable String token) {
         try {
             // Este endpoint sería usado por el frontend para validar si un token es válido
             // antes de mostrar el formulario de reset de contraseña

@@ -1,5 +1,7 @@
 package com.tesis.teamsoft.service.implementation;
 
+import com.tesis.teamsoft.exception.BusinessRuleException;
+import com.tesis.teamsoft.exception.ResourceNotFoundException;
 import com.tesis.teamsoft.persistence.entity.*;
 import com.tesis.teamsoft.persistence.entity.auxiliar.Status;
 import com.tesis.teamsoft.persistence.repository.*;
@@ -7,12 +9,10 @@ import com.tesis.teamsoft.presentation.dto.*;
 import com.tesis.teamsoft.service.interfaces.IPersonService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -37,179 +37,147 @@ public class PersonServiceImpl implements IPersonService {
     @Override
     @Transactional
     public PersonDTO.PersonResponseDTO savePerson(PersonDTO.PersonCreateDTO personDTO) {
-        try {
-            PersonEntity person = modelMapper.map(personDTO, PersonEntity.class);
-            person.setStatus(Status.ACTIVE);
+        PersonEntity person = modelMapper.map(personDTO, PersonEntity.class);
+        person.setStatus(Status.ACTIVE);
 
-            // Procesar relaciones simples
-            processSimpleRelations(personDTO, person);
+        processSimpleRelations(personDTO, person);
+        processAgeGroup(personDTO, person);
 
-            // Procesar AgeGroup (automático si no se proporciona)
-            processAgeGroup(personDTO, person);
-
-            // Procesar listas
-            if (personDTO.getCompetenceValues() != null) {
-                person.setCompetenceValueList(processCompetenceValues(personDTO.getCompetenceValues(), person));
-            }
-            if (personDTO.getPersonalInterests() != null) {
-                person.setPersonalInterestsList(processPersonalInterests(personDTO.getPersonalInterests(), person));
-            }
-            if (personDTO.getPersonalProjectInterests() != null) {
-                person.setPersonalProjectInterestsList(processPersonalProjectInterests(personDTO.getPersonalProjectInterests(), person));
-            }
-            if (personDTO.getPersonTest() != null) {
-                person.setPersonTest(processPersonTest(personDTO.getPersonTest(), person));
-            }
-            if (personDTO.getPersonConflicts() != null) {
-                person.setPersonConflictList(processPersonConflicts(personDTO.getPersonConflicts(), person));
-            }
-
-            person = personRepository.save(person);
-
-            return convertToResponseDTO(person);
-        } catch (DataIntegrityViolationException e) {
-            throw new IllegalArgumentException("Error saving person: Data integrity violation");
-        } catch (IllegalArgumentException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new RuntimeException("Error saving person: " + e.getMessage());
+        if (personDTO.getCompetenceValues() != null) {
+            person.setCompetenceValueList(processCompetenceValues(personDTO.getCompetenceValues(), person));
         }
+        if (personDTO.getPersonalInterests() != null) {
+            person.setPersonalInterestsList(processPersonalInterests(personDTO.getPersonalInterests(), person));
+        }
+        if (personDTO.getPersonalProjectInterests() != null) {
+            person.setPersonalProjectInterestsList(processPersonalProjectInterests(personDTO.getPersonalProjectInterests(), person));
+        }
+        if (personDTO.getPersonTest() != null) {
+            person.setPersonTest(processPersonTest(personDTO.getPersonTest(), person));
+        }
+        if (personDTO.getPersonConflicts() != null) {
+            person.setPersonConflictList(processPersonConflicts(personDTO.getPersonConflicts(), person));
+        }
+
+        return convertToResponseDTO(personRepository.save(person));
     }
 
     @Override
     @Transactional
     public PersonDTO.PersonResponseDTO updatePerson(PersonDTO.PersonCreateDTO personDTO, Long id) {
         PersonEntity existingPerson = personRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Person not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Person not found with ID: " + id));
 
-        try {
-            existingPerson.setId(id);
-            existingPerson.setAddress(personDTO.getAddress());
-            existingPerson.setBirthDate(personDTO.getBirthDate());
-            existingPerson.setEmail(personDTO.getEmail());
-            existingPerson.setExperience(personDTO.getExperience());
-            existingPerson.setCard(personDTO.getCard());
-            existingPerson.setInDate(personDTO.getInDate());
-            existingPerson.setPersonName(personDTO.getPersonName());
-            existingPerson.setPhone(personDTO.getPhone());
-            existingPerson.setSex(personDTO.getSex());
-            existingPerson.setSurName(personDTO.getSurName());
+        mapBasicFields(existingPerson, personDTO, id);
+        processSimpleRelations(personDTO, existingPerson);
+        processAgeGroup(personDTO, existingPerson);
 
-            // Procesar relaciones simples
-            processSimpleRelations(personDTO, existingPerson);
-
-            // Procesar AgeGroup
-            processAgeGroup(personDTO, existingPerson);
-
-            // Sincronizar listas
-            if (personDTO.getCompetenceValues() != null) {
-                List<CompetenceValueEntity> validatedCompetenceValues = processCompetenceValues(personDTO.getCompetenceValues(), existingPerson);
-                syncCompetenceValues(existingPerson, validatedCompetenceValues);
-            } else {
-                existingPerson.getCompetenceValueList().clear();
-            }
-
-            if (personDTO.getPersonalInterests() != null) {
-                List<PersonalInterestsEntity> validatedPersonalInterests = processPersonalInterests(personDTO.getPersonalInterests(), existingPerson);
-                syncPersonalInterests(existingPerson, validatedPersonalInterests);
-            } else {
-                existingPerson.getPersonalInterestsList().clear();
-            }
-
-            if (personDTO.getPersonalProjectInterests() != null) {
-                List<PersonalProjectInterestsEntity> validatedProjectInterests = processPersonalProjectInterests(personDTO.getPersonalProjectInterests(), existingPerson);
-                syncPersonalProjectInterests(existingPerson, validatedProjectInterests);
-            } else {
-                existingPerson.getPersonalProjectInterestsList().clear();
-            }
-
-            if (personDTO.getPersonTest() != null) {
-                PersonTestEntity personTest = processPersonTest(personDTO.getPersonTest(), existingPerson);
-                existingPerson.setPersonTest(personTest);
-            } else {
-                existingPerson.setPersonTest(null);
-            }
-
-            if (personDTO.getPersonConflicts() != null) {
-                List<PersonConflictEntity> validatedPersonConflicts = processPersonConflicts(personDTO.getPersonConflicts(), existingPerson);
-                syncPersonConflicts(existingPerson, validatedPersonConflicts);
-            } else {
-                existingPerson.getPersonConflictList().clear();
-            }
-
-            return convertToResponseDTO(personRepository.save(existingPerson));
-        } catch (DataIntegrityViolationException e) {
-            throw new IllegalArgumentException("Error updating person: Data integrity violation");
-        } catch (IllegalArgumentException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new RuntimeException("Error updating person: " + e.getMessage());
+        if (personDTO.getCompetenceValues() != null) {
+            List<CompetenceValueEntity> validatedCompetenceValues = processCompetenceValues(personDTO.getCompetenceValues(), existingPerson);
+            syncCompetenceValues(existingPerson, validatedCompetenceValues);
+        } else {
+            existingPerson.getCompetenceValueList().clear();
         }
+
+        if (personDTO.getPersonalInterests() != null) {
+            List<PersonalInterestsEntity> validatedPersonalInterests = processPersonalInterests(personDTO.getPersonalInterests(), existingPerson);
+            syncPersonalInterests(existingPerson, validatedPersonalInterests);
+        } else {
+            existingPerson.getPersonalInterestsList().clear();
+        }
+
+        if (personDTO.getPersonalProjectInterests() != null) {
+            List<PersonalProjectInterestsEntity> validatedProjectInterests = processPersonalProjectInterests(personDTO.getPersonalProjectInterests(), existingPerson);
+            syncPersonalProjectInterests(existingPerson, validatedProjectInterests);
+        } else {
+            existingPerson.getPersonalProjectInterestsList().clear();
+        }
+
+        if (personDTO.getPersonTest() != null) {
+            PersonTestEntity personTest = processPersonTest(personDTO.getPersonTest(), existingPerson);
+            existingPerson.setPersonTest(personTest);
+        } else {
+            existingPerson.setPersonTest(null);
+        }
+
+        if (personDTO.getPersonConflicts() != null) {
+            List<PersonConflictEntity> validatedPersonConflicts = processPersonConflicts(personDTO.getPersonConflicts(), existingPerson);
+            syncPersonConflicts(existingPerson, validatedPersonConflicts);
+        } else {
+            existingPerson.getPersonConflictList().clear();
+        }
+
+        return convertToResponseDTO(personRepository.save(existingPerson));
     }
 
     @Override
     @Transactional
     public String deletePerson(Long id) {
         PersonEntity person = personRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Person not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Person not found with ID: " + id));
 
-        // Verificar si tiene relaciones antes de eliminar
-        if (!person.getAssignedRoleList().isEmpty() ||
-                !person.getRoleEvaluationList().isEmpty()) {
-            throw new IllegalArgumentException("Cannot delete person because it has associated relations");
-        }
+        if((person.getAssignedRoleList() != null && !person.getAssignedRoleList().isEmpty()) ||
+                (person.getRoleEvaluationList() != null && !person.getRoleEvaluationList().isEmpty()))
+            throw new BusinessRuleException("Cannot delete person because it has associated relations");
 
         personRepository.deleteById(id);
         return "Person deleted successfully";
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<PersonDTO.PersonResponseDTO> findAllPerson() {
-        try {
-            return personRepository.findAll().stream()
-                    .map(this::convertToResponseDTO)
-                    .toList();
-        } catch (Exception e) {
-            throw new RuntimeException("Error finding all persons: " + e.getMessage());
-        }
+        return personRepository.findAll().stream()
+                .map(this::convertToResponseDTO)
+                .toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<PersonDTO.PersonResponseDTO> findAllByOrderByIdAsc() {
-        try {
-            return personRepository.findAllByOrderByIdAsc().stream()
-                    .map(this::convertToResponseDTO)
-                    .toList();
-        } catch (Exception e) {
-            throw new RuntimeException("Error finding all persons: " + e.getMessage());
-        }
+        return personRepository.findAllByOrderByIdAsc().stream()
+                .map(this::convertToResponseDTO)
+                .toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public PersonDTO.PersonResponseDTO findPersonById(Long id) {
         PersonEntity person = personRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Person not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Person not found with ID: " + id));
         return convertToResponseDTO(person);
     }
 
     // ========== MÉTODOS PRIVADOS ==========
+    private void mapBasicFields(PersonEntity entity, PersonDTO.PersonCreateDTO dto, Long id) {
+        entity.setId(id);
+        entity.setAddress(dto.getAddress());
+        entity.setBirthDate(dto.getBirthDate());
+        entity.setEmail(dto.getEmail());
+        entity.setExperience(dto.getExperience());
+        entity.setCard(dto.getCard());
+        entity.setInDate(dto.getInDate());
+        entity.setPersonName(dto.getPersonName());
+        entity.setPhone(dto.getPhone());
+        entity.setSex(dto.getSex());
+        entity.setSurName(dto.getSurName());
+    }
 
     private void processSimpleRelations(PersonDTO.PersonCreateDTO personDTO, PersonEntity person) {
         person.setCounty(countyRepository.findById(personDTO.getCounty())
-                .orElseThrow(() -> new RuntimeException("County not found with ID: " + personDTO.getCounty())));
+                .orElseThrow(() -> new ResourceNotFoundException("County not found with ID: " + personDTO.getCounty())));
         person.setRace(raceRepository.findById(personDTO.getRace())
-                .orElseThrow(() -> new RuntimeException("Race not found with ID: " + personDTO.getRace())));
+                .orElseThrow(() -> new ResourceNotFoundException("Race not found with ID: " + personDTO.getRace())));
         person.setGroup(personGroupRepository.findById(personDTO.getGroup())
-                .orElseThrow(() -> new RuntimeException("Person group not found with ID: " + personDTO.getGroup())));
+                .orElseThrow(() -> new ResourceNotFoundException("Person group not found with ID: " + personDTO.getGroup())));
         person.setNacionality(nacionalityRepository.findById(personDTO.getNacionality())
-                .orElseThrow(() -> new RuntimeException("Nacionality not found with ID: " + personDTO.getNacionality())));
+                .orElseThrow(() -> new ResourceNotFoundException("Nacionality not found with ID: " + personDTO.getNacionality())));
         person.setReligion(religionRepository.findById(personDTO.getReligion())
-                .orElseThrow(() -> new RuntimeException("Religion not found with ID: " + personDTO.getReligion())));
+                .orElseThrow(() -> new ResourceNotFoundException("Religion not found with ID: " + personDTO.getReligion())));
     }
 
     private void processAgeGroup(PersonDTO.PersonCreateDTO personDTO, PersonEntity person) {
         if (personDTO.getBirthDate() != null) {
-            // Calcular AgeGroup automáticamente basado en la edad
             int age = person.getAge(); // Usa el método getAge() de PersonEntity
             Optional<AgeGroupEntity> ageGroupOpt = ageGroupRepository.findAll().stream()
                     .filter(ag -> ag.getMinAge() <= age && ag.getMaxAge() >= age)
@@ -218,18 +186,17 @@ public class PersonServiceImpl implements IPersonService {
         }
     }
 
-    private final List<CompetenceValueEntity> processCompetenceValues(List<CompetenceValueDTO.CompetenceValueCreateDTO> competenceValuesDTO, PersonEntity person) {
+    private List<CompetenceValueEntity> processCompetenceValues(List<CompetenceValueDTO.CompetenceValueCreateDTO> competenceValuesDTO, PersonEntity person) {
         Set<Long> processedCompetenceIds = new HashSet<>();
 
         return competenceValuesDTO.stream().map(dto -> {
-            if (!processedCompetenceIds.add(dto.getCompetenceId())) {
-                throw new IllegalArgumentException("Duplicate competence ID: " + dto.getCompetenceId());
-            }
+            if (!processedCompetenceIds.add(dto.getCompetenceId()))
+                throw new BusinessRuleException("Duplicate competence ID: " + dto.getCompetenceId());
 
             CompetenceEntity competence = competenceRepository.findById(dto.getCompetenceId())
-                    .orElseThrow(() -> new RuntimeException("Competence not found with ID: " + dto.getCompetenceId()));
+                    .orElseThrow(() -> new ResourceNotFoundException("Competence not found with ID: " + dto.getCompetenceId()));
             LevelsEntity level = levelsRepository.findById(dto.getLevelsId())
-                    .orElseThrow(() -> new RuntimeException("Levels not found with ID: " + dto.getLevelsId()));
+                    .orElseThrow(() -> new ResourceNotFoundException("Levels not found with ID: " + dto.getLevelsId()));
 
             CompetenceValueEntity cv = new CompetenceValueEntity();
             cv.setCompetence(competence);
@@ -242,7 +209,6 @@ public class PersonServiceImpl implements IPersonService {
     private void syncCompetenceValues(PersonEntity person, List<CompetenceValueEntity> validatedCompetenceValues) {
         Map<Long, CompetenceValueEntity> existingMap = person.getCompetenceValueList().stream()
                 .collect(Collectors.toMap(cv -> cv.getCompetence().getId(), cv -> cv));
-
         List<CompetenceValueEntity> finalList = new ArrayList<>();
 
         for (CompetenceValueEntity validatedCv : validatedCompetenceValues) {
@@ -260,29 +226,27 @@ public class PersonServiceImpl implements IPersonService {
         person.getCompetenceValueList().addAll(finalList);
     }
 
-    private final List<PersonalInterestsEntity> processPersonalInterests(List<PersonalInterestDTO.PersonalInterestCreateDTO> personalInterestsDTO, PersonEntity person) {
+    private List<PersonalInterestsEntity> processPersonalInterests(List<PersonalInterestDTO.PersonalInterestCreateDTO> personalInterestsDTO, PersonEntity person) {
         Set<Long> processedRoleIds = new HashSet<>();
 
         return personalInterestsDTO.stream().map(dto -> {
-            if (!processedRoleIds.add(dto.getRoleId())) {
-                throw new IllegalArgumentException("Duplicate role ID: " + dto.getRoleId());
-            }
+            if (!processedRoleIds.add(dto.getRoleId()))
+                throw new BusinessRuleException("Duplicate role ID: " + dto.getRoleId());
 
             RoleEntity role = roleRepository.findById(dto.getRoleId())
-                    .orElseThrow(() -> new RuntimeException("Role not found with ID: " + dto.getRoleId()));
+                    .orElseThrow(() -> new ResourceNotFoundException("Role not found with ID: " + dto.getRoleId()));
 
             PersonalInterestsEntity pi = new PersonalInterestsEntity();
             pi.setRole(role);
             pi.setPreference(dto.getPreference());
             pi.setPerson(person);
             return pi;
-        }).collect(Collectors.toList());
+        }).toList();
     }
 
     private void syncPersonalInterests(PersonEntity person, List<PersonalInterestsEntity> validatedPersonalInterests) {
         Map<Long, PersonalInterestsEntity> existingMap = person.getPersonalInterestsList().stream()
                 .collect(Collectors.toMap(pi -> pi.getRole().getId(), pi -> pi));
-
         List<PersonalInterestsEntity> finalList = new ArrayList<>();
 
         for (PersonalInterestsEntity validatedPi : validatedPersonalInterests) {
@@ -302,19 +266,12 @@ public class PersonServiceImpl implements IPersonService {
     private List<PersonalProjectInterestsEntity> processPersonalProjectInterests(List<PersonalProjectInterestDTO.PersonalProjectInterestCreateDTO> projectInterestsDTO, PersonEntity person) {
         Set<Long> processedProjectIds = new HashSet<>();
 
-        List<ProjectEntity> allProjects = projectRepository.findAll();
-        Map<Long, ProjectEntity> projectMap = allProjects.stream()
-                .collect(Collectors.toMap(ProjectEntity::getId, Function.identity()));
-
         return projectInterestsDTO.stream().map(dto -> {
-            if (!processedProjectIds.add(dto.getProjectId())) {
-                throw new IllegalArgumentException("Duplicate project ID: " + dto.getProjectId());
-            }
+            if (!processedProjectIds.add(dto.getProjectId()))
+                throw new BusinessRuleException("Duplicate project ID: " + dto.getProjectId());
 
-            ProjectEntity project = projectMap.get(dto.getProjectId());
-            if (project == null) {
-                throw new RuntimeException("Project not found with ID: " + dto.getProjectId());
-            }
+            ProjectEntity project = projectRepository.findById(dto.getProjectId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Project not found with ID: " + dto.getProjectId()));
 
             PersonalProjectInterestsEntity ppi = new PersonalProjectInterestsEntity();
             ppi.setProject(project);
@@ -354,19 +311,16 @@ public class PersonServiceImpl implements IPersonService {
         Set<Long> processedConflictKeys = new HashSet<>();
 
         return personConflictsDTO.stream().map(dto -> {
-            if (!processedConflictKeys.add(dto.getPersonConflictId())) {
-                throw new IllegalArgumentException("Duplicate person conflict: person " + dto.getPersonConflictId() + " with index " + dto.getConflictIndexId());
-            }
+            if (!processedConflictKeys.add(dto.getPersonConflictId()))
+                throw new BusinessRuleException("Duplicate person conflict: person " + dto.getPersonConflictId() + " with index " + dto.getConflictIndexId());
 
-            // Validar que no sea la misma persona
-            if (dto.getPersonConflictId().equals(person.getId())) {
-                throw new IllegalArgumentException("Person cannot have conflict with itself");
-            }
+            if (dto.getPersonConflictId().equals(person.getId()))
+                throw new BusinessRuleException("Person cannot have conflict with itself");
 
             ConflictIndexEntity conflictIndex = conflictIndexRepository.findById(dto.getConflictIndexId())
-                    .orElseThrow(() -> new RuntimeException("Conflict index not found with ID: " + dto.getConflictIndexId()));
+                    .orElseThrow(() -> new ResourceNotFoundException("Conflict index not found with ID: " + dto.getConflictIndexId()));
             PersonEntity otherPerson = personRepository.findById(dto.getPersonConflictId())
-                    .orElseThrow(() -> new RuntimeException("Person conflict not found with ID: " + dto.getPersonConflictId()));
+                    .orElseThrow(() -> new ResourceNotFoundException("Person conflict not found with ID: " + dto.getPersonConflictId()));
 
             PersonConflictEntity pc = new PersonConflictEntity();
             pc.setIndex(conflictIndex);
@@ -387,7 +341,6 @@ public class PersonServiceImpl implements IPersonService {
 
         for (PersonConflictEntity validatedPc : validatedPersonConflicts) {
             String key = generateConflictKey(validatedPc.getPersonConflict().getId(), validatedPc.getIndex().getId());
-            // Mantener existente (no hay campos para actualizar)
             finalList.add(existingMap.getOrDefault(key, validatedPc));
         }
         person.getPersonConflictList().clear();
@@ -414,10 +367,8 @@ public class PersonServiceImpl implements IPersonService {
         responseDTO.setSurName(person.getSurName());
         responseDTO.setWorkload(person.getWorkload());
 
-        // Calcular edad
         responseDTO.setAge(person.getAge());
 
-        // Convertir relaciones simples
         responseDTO.setCounty(modelMapper.map(person.getCounty(), CountyDTO.CountyResponseDTO.class));
         responseDTO.setRace(modelMapper.map(person.getRace(), RaceDTO.RaceResponseDTO.class));
         responseDTO.setGroup(modelMapper.map(person.getGroup(), PersonGroupDTO.PersonGroupResponseDTO.class));
@@ -427,7 +378,6 @@ public class PersonServiceImpl implements IPersonService {
             responseDTO.setAgeGroup(modelMapper.map(person.getAgeGroup(), AgeGroupDTO.AgeGroupResponseDTO.class));
         }
 
-        // Convertir listas
         if (person.getCompetenceValueList() != null) {
             responseDTO.setCompetenceValues(person.getCompetenceValueList().stream()
                     .map(cv -> {

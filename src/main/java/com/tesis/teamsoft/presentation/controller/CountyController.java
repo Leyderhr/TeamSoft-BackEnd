@@ -8,11 +8,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -24,87 +22,32 @@ public class CountyController {
 
     @PostMapping()
     @PreAuthorize("hasRole('GESTOR_RRHH')")
-    public ResponseEntity<?> createCounty(@Valid @RequestBody CountyDTO.CountyCreateDTO countyDTO, BindingResult bindingResult) {
-
-        if (bindingResult.hasErrors()) {
-            Map<String, String> errors = new HashMap<>();
-            bindingResult.getFieldErrors().forEach(error ->
-                    errors.put(error.getField(), error.getDefaultMessage()));
-            return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
-        }
-
-        try {
-            return new ResponseEntity<>(countyService.saveCounty(countyDTO), HttpStatus.CREATED);
-        } catch (Exception e) {
-            Map<String, String> error = new HashMap<>();
-            error.put("Error", e.getMessage());
-            return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
-        }
+    public ResponseEntity<CountyDTO.CountyResponseDTO> createCounty(@Valid @RequestBody CountyDTO.CountyCreateDTO countyDTO) {
+        return new ResponseEntity<>(countyService.saveCounty(countyDTO), HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('GESTOR_RRHH')")
-    public ResponseEntity<?> updateCounty(@Valid @RequestBody CountyDTO.CountyCreateDTO countyDTO,
-                                          BindingResult bindingResult,
-                                          @PathVariable Long id) {
-
-        if (bindingResult.hasErrors()) {
-            Map<String, String> errors = new HashMap<>();
-            bindingResult.getFieldErrors().forEach(error ->
-                    errors.put(error.getField(), error.getDefaultMessage()));
-            return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
-        }
-
-        try {
-            return new ResponseEntity<>(countyService.updateCounty(countyDTO, id), HttpStatus.OK);
-        } catch (IllegalArgumentException e) {
-            Map<String, String> error = new HashMap<>();
-            error.put("Error", e.getMessage());
-            return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
-        } catch (RuntimeException e) {
-            Map<String, String> error = new HashMap<>();
-            error.put("Error", e.getMessage());
-            return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
-        }
+    public ResponseEntity<CountyDTO.CountyResponseDTO> updateCounty(@Valid @RequestBody CountyDTO.CountyCreateDTO countyDTO,
+                                                                    @PathVariable Long id) {
+        return new ResponseEntity<>(countyService.updateCounty(countyDTO, id), HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('GESTOR_RRHH')")
-    public ResponseEntity<?> deleteCounty(@PathVariable Long id) {
-        try {
-            return new ResponseEntity<>(countyService.deleteCounty(id), HttpStatus.OK);
-        } catch (RuntimeException e) {
-            Map<String, String> error = new HashMap<>();
-            error.put("Error", e.getMessage());
-            return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
-        } catch (Exception e) {
-            Map<String, String> error = new HashMap<>();
-            error.put("Error", e.getMessage());
-            return new ResponseEntity<>(error, HttpStatus.CONFLICT);
-        }
+    public ResponseEntity<String> deleteCounty(@PathVariable Long id) {
+        return new ResponseEntity<>(countyService.deleteCounty(id), HttpStatus.OK);
     }
 
     @GetMapping()
     @PreAuthorize("hasRole('GESTOR_RRHH')")
-    public ResponseEntity<?> findAllCounty() {
-        try {
-            return new ResponseEntity<>(countyService.findAllByOrderByIdAsc(), HttpStatus.OK);
-        } catch (Exception e) {
-            Map<String, String> error = new HashMap<>();
-            error.put("Error", e.getMessage());
-            return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    public ResponseEntity<List<CountyDTO.CountyResponseDTO>> findAllCounty() {
+        return new ResponseEntity<>(countyService.findAllByOrderByIdAsc(), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('GESTOR_RRHH')")
-    public ResponseEntity<?> findCountyById(@PathVariable Long id) {
-        try {
-            return new ResponseEntity<>(countyService.findCountyById(id), HttpStatus.OK);
-        } catch (RuntimeException e) {
-            Map<String, String> error = new HashMap<>();
-            error.put("Error", e.getMessage());
-            return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
-        }
+    public ResponseEntity<CountyDTO.CountyResponseDTO> findCountyById(@PathVariable Long id) {
+        return new ResponseEntity<>(countyService.findCountyById(id), HttpStatus.OK);
     }
 }

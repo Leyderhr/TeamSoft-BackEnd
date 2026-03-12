@@ -1,5 +1,7 @@
 package com.tesis.teamsoft.service.implementation;
 
+import com.tesis.teamsoft.exception.BusinessRuleException;
+import com.tesis.teamsoft.exception.ResourceNotFoundException;
 import com.tesis.teamsoft.persistence.entity.CountyEntity;
 import com.tesis.teamsoft.persistence.repository.ICountyRepository;
 import com.tesis.teamsoft.presentation.dto.CountyDTO;
@@ -7,6 +9,7 @@ import com.tesis.teamsoft.service.interfaces.ICountyService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,40 +22,32 @@ public class CountyServiceImpl implements ICountyService {
     private final ModelMapper modelMapper;
 
     @Override
+    @Transactional
     public CountyDTO.CountyResponseDTO saveCounty(CountyDTO.CountyCreateDTO countyDTO) {
-        try {
-            CountyEntity savedCounty = modelMapper.map(countyDTO, CountyEntity.class);
-            return modelMapper.map(countyRepository.save(savedCounty), CountyDTO.CountyResponseDTO.class);
-        } catch (Exception e) {
-            throw new RuntimeException("Error saving county: " + e.getMessage());
-        }
+        CountyEntity savedCounty = modelMapper.map(countyDTO, CountyEntity.class);
+        return modelMapper.map(countyRepository.save(savedCounty), CountyDTO.CountyResponseDTO.class);
     }
 
     @Override
+    @Transactional
     public CountyDTO.CountyResponseDTO updateCounty(CountyDTO.CountyCreateDTO countyDTO, Long id) {
-
         if (!countyRepository.existsById(id)) {
-            throw new RuntimeException("County not found with ID: " + id);
+            throw new ResourceNotFoundException("County not found with ID: " + id);
         }
-
-        try {
-            CountyEntity updatedCounty = modelMapper.map(countyDTO, CountyEntity.class);
-            updatedCounty.setId(id);
-            return modelMapper.map(countyRepository.save(updatedCounty), CountyDTO.CountyResponseDTO.class);
-        } catch (Exception e) {
-            throw new IllegalArgumentException("Error updating county: " + e.getMessage());
-        }
+        CountyEntity updatedCounty = modelMapper.map(countyDTO, CountyEntity.class);
+        updatedCounty.setId(id);
+        return modelMapper.map(countyRepository.save(updatedCounty), CountyDTO.CountyResponseDTO.class);
     }
 
     @Override
+    @Transactional
     public String deleteCounty(Long id) {
         CountyEntity county = countyRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("County not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("County not found with ID: " + id));
 
         StringBuilder errorMessage = canByDeleted(county);
-
         if (!errorMessage.isEmpty()) {
-            throw new IllegalArgumentException(errorMessage.toString().trim());
+            throw new BusinessRuleException(errorMessage.toString().trim());
         }
 
         countyRepository.deleteById(id);
@@ -60,34 +55,28 @@ public class CountyServiceImpl implements ICountyService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<CountyDTO.CountyResponseDTO> findAllCounty() {
-        try {
-            return countyRepository.findAll()
-                    .stream()
-                    .map(entity -> modelMapper.map(entity, CountyDTO.CountyResponseDTO.class))
-                    .collect(Collectors.toList());
-        } catch (Exception e) {
-            throw new RuntimeException("Error finding all counties: " + e.getMessage());
-        }
+        return countyRepository.findAll()
+                .stream()
+                .map(entity -> modelMapper.map(entity, CountyDTO.CountyResponseDTO.class))
+                .toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<CountyDTO.CountyResponseDTO> findAllByOrderByIdAsc() {
-        try {
-            return countyRepository.findAllByOrderByIdAsc()
-                    .stream()
-                    .map(entity -> modelMapper.map(entity, CountyDTO.CountyResponseDTO.class))
-                    .collect(Collectors.toList());
-        } catch (Exception e) {
-            throw new RuntimeException("Error finding all counties: " + e.getMessage());
-        }
+        return countyRepository.findAllByOrderByIdAsc()
+                .stream()
+                .map(entity -> modelMapper.map(entity, CountyDTO.CountyResponseDTO.class))
+                .toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public CountyDTO.CountyResponseDTO findCountyById(Long id) {
         CountyEntity county = countyRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("County not found with ID: " + id));
-
+                .orElseThrow(() -> new ResourceNotFoundException("County not found with ID: " + id));
         return modelMapper.map(county, CountyDTO.CountyResponseDTO.class);
     }
 

@@ -12,6 +12,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -22,89 +23,34 @@ public class ClientController {
 
     private final ClientServiceImpl clientService;
 
-    @PostMapping()
+    @PostMapping
     @PreAuthorize("hasRole('GESTOR_RRHH')")
-    public ResponseEntity<?> createClient(@Valid @RequestBody ClientDTO.ClientCreateDTO clientDTO, BindingResult bindingResult) {
-
-        if (bindingResult.hasErrors()) {
-            Map<String, String> errors = new HashMap<>();
-            bindingResult.getFieldErrors().forEach(error ->
-                    errors.put(error.getField(), error.getDefaultMessage()));
-            return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
-        }
-
-        try {
-            return new ResponseEntity<>(clientService.saveClient(clientDTO), HttpStatus.CREATED);
-        } catch (Exception e) {
-            Map<String, String> error = new HashMap<>();
-            error.put("Error", e.getMessage());
-            return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
-        }
+    public ResponseEntity<ClientDTO.ClientResponseDTO> createClient(@Valid @RequestBody ClientDTO.ClientCreateDTO clientDTO) {
+        return new ResponseEntity<>(clientService.saveClient(clientDTO), HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('GESTOR_RRHH')")
-    public ResponseEntity<?> updateClient(@Valid @RequestBody ClientDTO.ClientCreateDTO clientDTO,
-                                          BindingResult bindingResult,
-                                          @PathVariable Long id) {
-
-        if (bindingResult.hasErrors()) {
-            Map<String, String> errors = new HashMap<>();
-            bindingResult.getFieldErrors().forEach(error ->
-                    errors.put(error.getField(), error.getDefaultMessage()));
-            return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
-        }
-
-        try {
-            return new ResponseEntity<>(clientService.updateClient(clientDTO, id), HttpStatus.OK);
-        } catch (IllegalArgumentException e) {
-            Map<String, String> error = new HashMap<>();
-            error.put("Error", e.getMessage());
-            return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
-        } catch (RuntimeException e) {
-            Map<String, String> error = new HashMap<>();
-            error.put("Error", e.getMessage());
-            return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
-        }
+    public ResponseEntity<ClientDTO.ClientResponseDTO> updateClient(@Valid @RequestBody ClientDTO.ClientCreateDTO clientDTO,
+                                                                    @PathVariable Long id) {
+        return new ResponseEntity<>(clientService.updateClient(clientDTO, id), HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('GESTOR_RRHH')")
-    public ResponseEntity<?> deleteClient(@PathVariable Long id) {
-        try {
-            return new ResponseEntity<>(clientService.deleteClient(id), HttpStatus.OK);
-        } catch (RuntimeException e) {
-            Map<String, String> error = new HashMap<>();
-            error.put("Error", e.getMessage());
-            return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
-        } catch (Exception e) {
-            Map<String, String> error = new HashMap<>();
-            error.put("Error", e.getMessage());
-            return new ResponseEntity<>(error, HttpStatus.CONFLICT);
-        }
+    public ResponseEntity<String> deleteClient(@PathVariable Long id) {
+        return new ResponseEntity<>(clientService.deleteClient(id), HttpStatus.OK);
     }
 
-    @GetMapping()
+    @GetMapping
     @PreAuthorize("hasRole('GESTOR_RRHH')")
-    public ResponseEntity<?> findAllClient() {
-        try {
-            return new ResponseEntity<>(clientService.findAllByOrderByIdAsc(), HttpStatus.OK);
-        } catch (Exception e) {
-            Map<String, String> error = new HashMap<>();
-            error.put("Error", e.getMessage());
-            return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    public ResponseEntity<List<ClientDTO.ClientResponseDTO>> findAllClient() {
+        return new ResponseEntity<>(clientService.findAllByOrderByIdAsc(), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('GESTOR_RRHH')")
-    public ResponseEntity<?> findClientById(@PathVariable Long id) {
-        try {
-            return new ResponseEntity<>(clientService.findClientById(id), HttpStatus.OK);
-        } catch (RuntimeException e) {
-            Map<String, String> error = new HashMap<>();
-            error.put("Error", e.getMessage());
-            return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
-        }
+    public ResponseEntity<ClientDTO.ClientResponseDTO> findClientById(@PathVariable Long id) {
+        return new ResponseEntity<>(clientService.findClientById(id), HttpStatus.OK);
     }
 }

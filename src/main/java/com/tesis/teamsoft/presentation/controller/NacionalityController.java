@@ -8,11 +8,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -24,87 +22,32 @@ public class NacionalityController {
 
     @PostMapping()
     @PreAuthorize("hasRole('GESTOR_RRHH')")
-    public ResponseEntity<?> createNacionality(@Valid @RequestBody NationalityDTO.NacionalityCreateDTO nacionalityDTO, BindingResult bindingResult) {
-
-        if (bindingResult.hasErrors()) {
-            Map<String, String> errors = new HashMap<>();
-            bindingResult.getFieldErrors().forEach(error ->
-                    errors.put(error.getField(), error.getDefaultMessage()));
-            return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
-        }
-
-        try {
+    public ResponseEntity<NationalityDTO.NacionalityResponseDTO> createNacionality(@Valid @RequestBody NationalityDTO.NacionalityCreateDTO nacionalityDTO) {
             return new ResponseEntity<>(nacionalityService.saveNacionality(nacionalityDTO), HttpStatus.CREATED);
-        } catch (Exception e) {
-            Map<String, String> error = new HashMap<>();
-            error.put("Error", e.getMessage());
-            return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
-        }
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('GESTOR_RRHH')")
-    public ResponseEntity<?> updateNacionality(@Valid @RequestBody NationalityDTO.NacionalityCreateDTO nacionalityDTO,
-                                               BindingResult bindingResult,
+    public ResponseEntity<NationalityDTO.NacionalityResponseDTO> updateNacionality(@Valid @RequestBody NationalityDTO.NacionalityCreateDTO nacionalityDTO,
                                                @PathVariable Long id) {
-
-        if (bindingResult.hasErrors()) {
-            Map<String, String> errors = new HashMap<>();
-            bindingResult.getFieldErrors().forEach(error ->
-                    errors.put(error.getField(), error.getDefaultMessage()));
-            return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
-        }
-
-        try {
             return new ResponseEntity<>(nacionalityService.updateNacionality(nacionalityDTO, id), HttpStatus.OK);
-        } catch (IllegalArgumentException e) {
-            Map<String, String> error = new HashMap<>();
-            error.put("Error", e.getMessage());
-            return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
-        } catch (RuntimeException e) {
-            Map<String, String> error = new HashMap<>();
-            error.put("Error", e.getMessage());
-            return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
-        }
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('GESTOR_RRHH')")
-    public ResponseEntity<?> deleteNacionality(@PathVariable Long id) {
-        try {
+    public ResponseEntity<String> deleteNacionality(@PathVariable Long id) {
             return new ResponseEntity<>(nacionalityService.deleteNacionality(id), HttpStatus.OK);
-        } catch (RuntimeException e) {
-            Map<String, String> error = new HashMap<>();
-            error.put("Error", e.getMessage());
-            return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
-        } catch (Exception e) {
-            Map<String, String> error = new HashMap<>();
-            error.put("Error", e.getMessage());
-            return new ResponseEntity<>(error, HttpStatus.CONFLICT);
-        }
     }
 
     @GetMapping()
     @PreAuthorize("hasRole('GESTOR_RRHH')")
-    public ResponseEntity<?> findAllNacionality() {
-        try {
+    public ResponseEntity<List<NationalityDTO.NacionalityResponseDTO>> findAllNacionality() {
             return new ResponseEntity<>(nacionalityService.findAllByOrderByIdAsc(), HttpStatus.OK);
-        } catch (Exception e) {
-            Map<String, String> error = new HashMap<>();
-            error.put("Error", e.getMessage());
-            return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('GESTOR_RRHH')")
-    public ResponseEntity<?> findNacionalityById(@PathVariable Long id) {
-        try {
+    public ResponseEntity<NationalityDTO.NacionalityResponseDTO> findNacionalityById(@PathVariable Long id) {
             return new ResponseEntity<>(nacionalityService.findNacionalityById(id), HttpStatus.OK);
-        } catch (RuntimeException e) {
-            Map<String, String> error = new HashMap<>();
-            error.put("Error", e.getMessage());
-            return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
-        }
     }
 }

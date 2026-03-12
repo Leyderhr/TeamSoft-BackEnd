@@ -24,7 +24,7 @@ public class OpenApiConfig {
                 .info(new Info()
                         .title("PowerBank API")
                         .version("1.0")
-                        .description("API para el sistema PowerBank"))
+                        .description("API para el sistema TeamSoft+"))
                 .addSecurityItem(new SecurityRequirement()
                         .addList("Bearer Authentication"));
     }

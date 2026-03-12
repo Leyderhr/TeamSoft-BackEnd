@@ -34,7 +34,7 @@ public class UserEntity implements Serializable {
 
     @NotNull(message = "ID card is required")
     @Column(name = "id_card", nullable = false)
-    private String idCard;
+    private String card;
 
     @NotNull(message = "Mail is required")
     @Column(nullable = false, unique = true)

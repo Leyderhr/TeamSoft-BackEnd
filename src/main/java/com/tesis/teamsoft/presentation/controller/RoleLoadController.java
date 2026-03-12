@@ -8,11 +8,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -24,87 +22,32 @@ public class RoleLoadController {
 
     @PostMapping()
     @PreAuthorize("hasRole('GESTOR_RRHH')")
-    public ResponseEntity<?> createRoleLoad(@Valid @RequestBody RoleLoadDTO.RoleLoadCreateDTO roleLoadDTO, BindingResult bindingResult) {
-
-        if (bindingResult.hasErrors()) {
-            Map<String, String> errors = new HashMap<>();
-            bindingResult.getFieldErrors().forEach(error ->
-                    errors.put(error.getField(), error.getDefaultMessage()));
-            return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
-        }
-
-        try {
-            return new ResponseEntity<>(roleLoadService.saveRoleLoad(roleLoadDTO), HttpStatus.CREATED);
-        } catch (Exception e) {
-            Map<String, String> error = new HashMap<>();
-            error.put("Error", e.getMessage());
-            return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
-        }
+    public ResponseEntity<RoleLoadDTO.RoleLoadResponseDTO> createRoleLoad(@Valid @RequestBody RoleLoadDTO.RoleLoadCreateDTO roleLoadDTO) {
+        return new ResponseEntity<>(roleLoadService.saveRoleLoad(roleLoadDTO), HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('GESTOR_RRHH')")
-    public ResponseEntity<?> updateRoleLoad(@Valid @RequestBody RoleLoadDTO.RoleLoadCreateDTO roleLoadDTO,
-                                            BindingResult bindingResult,
-                                            @PathVariable Long id) {
-
-        if (bindingResult.hasErrors()) {
-            Map<String, String> errors = new HashMap<>();
-            bindingResult.getFieldErrors().forEach(error ->
-                    errors.put(error.getField(), error.getDefaultMessage()));
-            return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
-        }
-
-        try {
-            return new ResponseEntity<>(roleLoadService.updateRoleLoad(roleLoadDTO, id), HttpStatus.OK);
-        } catch (IllegalArgumentException e) {
-            Map<String, String> error = new HashMap<>();
-            error.put("Error", e.getMessage());
-            return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
-        } catch (RuntimeException e) {
-            Map<String, String> error = new HashMap<>();
-            error.put("Error", e.getMessage());
-            return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
-        }
+    public ResponseEntity<RoleLoadDTO.RoleLoadResponseDTO> updateRoleLoad(@Valid @RequestBody RoleLoadDTO.RoleLoadCreateDTO roleLoadDTO,
+                                                                          @PathVariable Long id) {
+        return new ResponseEntity<>(roleLoadService.updateRoleLoad(roleLoadDTO, id), HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('GESTOR_RRHH')")
-    public ResponseEntity<?> deleteRoleLoad(@PathVariable Long id) {
-        try {
-            return new ResponseEntity<>(roleLoadService.deleteRoleLoad(id), HttpStatus.OK);
-        } catch (RuntimeException e) {
-            Map<String, String> error = new HashMap<>();
-            error.put("Error", e.getMessage());
-            return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
-        } catch (Exception e) {
-            Map<String, String> error = new HashMap<>();
-            error.put("Error", e.getMessage());
-            return new ResponseEntity<>(error, HttpStatus.CONFLICT);
-        }
+    public ResponseEntity<String> deleteRoleLoad(@PathVariable Long id) {
+        return new ResponseEntity<>(roleLoadService.deleteRoleLoad(id), HttpStatus.OK);
     }
 
     @GetMapping()
     @PreAuthorize("hasRole('GESTOR_RRHH')")
-    public ResponseEntity<?> findAllRoleLoad() {
-        try {
-            return new ResponseEntity<>(roleLoadService.findAllByOrderByIdAsc(), HttpStatus.OK);
-        } catch (Exception e) {
-            Map<String, String> error = new HashMap<>();
-            error.put("Error", e.getMessage());
-            return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    public ResponseEntity<List<RoleLoadDTO.RoleLoadResponseDTO>> findAllRoleLoad() {
+        return new ResponseEntity<>(roleLoadService.findAllByOrderByIdAsc(), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('GESTOR_RRHH')")
-    public ResponseEntity<?> findRoleLoadById(@PathVariable Long id) {
-        try {
-            return new ResponseEntity<>(roleLoadService.findRoleLoadById(id), HttpStatus.OK);
-        } catch (RuntimeException e) {
-            Map<String, String> error = new HashMap<>();
-            error.put("Error", e.getMessage());
-            return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
-        }
+    public ResponseEntity<RoleLoadDTO.RoleLoadResponseDTO> findRoleLoadById(@PathVariable Long id) {
+        return new ResponseEntity<>(roleLoadService.findRoleLoadById(id), HttpStatus.OK);
     }
 }
