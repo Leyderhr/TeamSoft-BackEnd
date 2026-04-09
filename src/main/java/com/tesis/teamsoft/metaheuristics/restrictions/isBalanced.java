@@ -8,15 +8,15 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import metaheurictics.strategy.Strategy;
 import com.tesis.teamsoft.pojos.TeamFormationParameters;
-import com.tesis.teamsoft.metaheuristics.util.ProjectRole;
-import com.tesis.teamsoft.metaheuristics.util.RoleWorker;
-import com.tesis.teamsoft.metaheuristics.util.TeamFormationCodification;
+import com.tesis.teamsoft.metaheuristics.auxiliary.ProjectRole;
+import com.tesis.teamsoft.metaheuristics.auxiliary.RoleWorker;
+import com.tesis.teamsoft.metaheuristics.auxiliary.TeamFormationCodification;
 import problem.definition.State;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.tesis.teamsoft.metaheuristics.util.TeamFormationCodification.actualiceTeam;
+import static com.tesis.teamsoft.metaheuristics.auxiliary.TeamFormationCodification.actualiceTeam;
 
 /**
  * Que en el equipo estén presentes más roles de acción que mentales y más

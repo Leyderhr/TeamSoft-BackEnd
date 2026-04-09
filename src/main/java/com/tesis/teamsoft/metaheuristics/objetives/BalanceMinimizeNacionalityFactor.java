@@ -10,8 +10,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import com.tesis.teamsoft.pojos.TeamFormationParameters;
-import com.tesis.teamsoft.metaheuristics.util.ObjetiveFunctionUtil;
-import com.tesis.teamsoft.metaheuristics.util.ProjectRole;
+import com.tesis.teamsoft.metaheuristics.auxiliary.ObjetiveFunctionUtil;
+import com.tesis.teamsoft.metaheuristics.auxiliary.ProjectRole;
 import problem.definition.ObjetiveFunction;
 import problem.definition.State;
 

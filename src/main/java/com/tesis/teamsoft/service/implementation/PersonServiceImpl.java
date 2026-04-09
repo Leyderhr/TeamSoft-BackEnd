@@ -3,7 +3,7 @@ package com.tesis.teamsoft.service.implementation;
 import com.tesis.teamsoft.exception.BusinessRuleException;
 import com.tesis.teamsoft.exception.ResourceNotFoundException;
 import com.tesis.teamsoft.persistence.entity.*;
-import com.tesis.teamsoft.persistence.entity.auxiliar.Status;
+import com.tesis.teamsoft.persistence.entity.auxiliary.Status;
 import com.tesis.teamsoft.persistence.repository.*;
 import com.tesis.teamsoft.presentation.dto.*;
 import com.tesis.teamsoft.service.interfaces.IPersonService;

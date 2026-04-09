@@ -9,10 +9,10 @@ import com.tesis.teamsoft.persistence.entity.CompetenceValueEntity;
 import com.tesis.teamsoft.persistence.entity.PersonEntity;
 import lombok.Getter;
 import lombok.Setter;
-import com.tesis.teamsoft.metaheuristics.util.ProjectRole;
+import com.tesis.teamsoft.metaheuristics.auxiliary.ProjectRole;
 import problem.definition.ObjetiveFunction;
 import problem.definition.State;
-import com.tesis.teamsoft.metaheuristics.util.ObjetiveFunctionUtil;
+import com.tesis.teamsoft.metaheuristics.auxiliary.ObjetiveFunctionUtil;
 import problem.definition.Problem.ProblemType;
 
 /**

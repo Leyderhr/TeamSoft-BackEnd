@@ -1,7 +1,7 @@
 package com.tesis.teamsoft.metaheuristics.operator;
 
 import com.tesis.teamsoft.persistence.entity.PersonEntity;
-import com.tesis.teamsoft.metaheuristics.util.RoleWorker;
+import com.tesis.teamsoft.metaheuristics.auxiliary.RoleWorker;
 
 import java.util.ArrayList;
 

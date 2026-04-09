@@ -3,7 +3,7 @@ package com.tesis.teamsoft.persistence.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
-import com.tesis.teamsoft.persistence.entity.auxiliar.Roles;
+import com.tesis.teamsoft.persistence.entity.auxiliary.Roles;
 
 import java.io.Serializable;
 

@@ -52,7 +52,6 @@ public class ProjectEntity implements Serializable {
     @JoinColumn(name = "client_entity_fk", nullable = false)
     private ClientEntity client;
 
-    @NotNull(message = "Role evaluation is required")
     @ManyToOne()
     @JoinColumn(name = "role_eval_fk")
     private RoleEvaluationEntity roleEvaluation;

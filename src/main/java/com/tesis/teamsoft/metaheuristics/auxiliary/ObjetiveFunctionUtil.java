@@ -1,4 +1,4 @@
-package com.tesis.teamsoft.metaheuristics.util;
+package com.tesis.teamsoft.metaheuristics.auxiliary;
 
 import com.tesis.teamsoft.pojos.TeamFormationParameters;
 import com.tesis.teamsoft.persistence.entity.*;

@@ -49,6 +49,12 @@
 		</dependency>
 
 		<dependency>
+			<groupId>com.opencsv</groupId>
+			<artifactId>opencsv</artifactId>
+			<version>5.8</version>
+		</dependency>
+
+		<dependency>
 			<groupId>edu.tu-universidad</groupId>
 			<artifactId>BiCIAM</artifactId>
 			<version>1.0</version>

@@ -3,9 +3,9 @@ package com.tesis.teamsoft.metaheuristics.restrictions;
 import com.tesis.teamsoft.persistence.entity.PersonEntity;
 import metaheurictics.strategy.Strategy;
 import com.tesis.teamsoft.metaheuristics.operator.TeamFormationOperator;
-import com.tesis.teamsoft.metaheuristics.util.ProjectRole;
-import com.tesis.teamsoft.metaheuristics.util.RoleWorker;
-import com.tesis.teamsoft.metaheuristics.util.TeamFormationCodification;
+import com.tesis.teamsoft.metaheuristics.auxiliary.ProjectRole;
+import com.tesis.teamsoft.metaheuristics.auxiliary.RoleWorker;
+import com.tesis.teamsoft.metaheuristics.auxiliary.TeamFormationCodification;
 import problem.definition.State;
 
 import java.io.IOException;

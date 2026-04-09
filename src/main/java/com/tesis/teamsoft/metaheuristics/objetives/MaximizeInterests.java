@@ -2,8 +2,8 @@ package com.tesis.teamsoft.metaheuristics.objetives;
 
 import com.tesis.teamsoft.persistence.entity.PersonEntity;
 import com.tesis.teamsoft.persistence.entity.PersonalInterestsEntity;
-import com.tesis.teamsoft.metaheuristics.util.ProjectRole;
-import com.tesis.teamsoft.metaheuristics.util.RoleWorker;
+import com.tesis.teamsoft.metaheuristics.auxiliary.ProjectRole;
+import com.tesis.teamsoft.metaheuristics.auxiliary.RoleWorker;
 import problem.definition.ObjetiveFunction;
 import problem.definition.State;
 

@@ -1,12 +1,12 @@
 package com.tesis.teamsoft.metaheuristics.operator;
 
 import com.tesis.teamsoft.persistence.entity.*;
-import com.tesis.teamsoft.persistence.entity.auxiliar.Status;
+import com.tesis.teamsoft.persistence.entity.auxiliary.Status;
 import com.tesis.teamsoft.pojos.TeamFormationParameters;
 import com.tesis.teamsoft.pojos.FixedWorker;
-import com.tesis.teamsoft.metaheuristics.util.ProjectRole;
-import com.tesis.teamsoft.metaheuristics.util.ProjectRoleState;
-import com.tesis.teamsoft.metaheuristics.util.RoleWorker;
+import com.tesis.teamsoft.metaheuristics.auxiliary.ProjectRole;
+import com.tesis.teamsoft.metaheuristics.auxiliary.ProjectRoleState;
+import com.tesis.teamsoft.metaheuristics.auxiliary.RoleWorker;
 
 import java.util.ArrayList;
 import java.util.List;

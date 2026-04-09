@@ -1,6 +1,6 @@
 package com.tesis.teamsoft.persistence.entity;
 
-import com.tesis.teamsoft.persistence.entity.auxiliar.Status;
+import com.tesis.teamsoft.persistence.entity.auxiliary.Status;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;

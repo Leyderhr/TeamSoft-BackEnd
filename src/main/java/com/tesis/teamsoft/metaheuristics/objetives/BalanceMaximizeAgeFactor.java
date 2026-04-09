@@ -8,7 +8,7 @@ import lombok.Setter;
 import problem.definition.ObjetiveFunction;
 import problem.definition.State;
 
-import static com.tesis.teamsoft.metaheuristics.util.FactorEvaluation.AgeGroupEvaluation.ageGroupBalanceEvaluation;
+import static com.tesis.teamsoft.metaheuristics.auxiliary.FactorEvaluation.ageGroupBalanceEvaluation;
 
 @Getter
 @Setter

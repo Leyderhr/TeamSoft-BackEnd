@@ -1,9 +1,9 @@
 package com.tesis.teamsoft.metaheuristics.operator;
 
 import com.tesis.teamsoft.persistence.entity.PersonEntity;
-import com.tesis.teamsoft.metaheuristics.util.ProjectRole;
-import com.tesis.teamsoft.metaheuristics.util.RoleWorker;
-import com.tesis.teamsoft.metaheuristics.util.TeamFormationCodification;
+import com.tesis.teamsoft.metaheuristics.auxiliary.ProjectRole;
+import com.tesis.teamsoft.metaheuristics.auxiliary.RoleWorker;
+import com.tesis.teamsoft.metaheuristics.auxiliary.TeamFormationCodification;
 
 import java.util.ArrayList;
 import java.util.LinkedList;

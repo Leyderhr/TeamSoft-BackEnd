@@ -6,9 +6,9 @@ import com.tesis.teamsoft.persistence.entity.ProjectRolesEntity;
 import com.tesis.teamsoft.persistence.entity.RoleEntity;
 import lombok.Getter;
 import lombok.Setter;
-import com.tesis.teamsoft.metaheuristics.util.ObjetiveFunctionUtil;
-import com.tesis.teamsoft.metaheuristics.util.ProjectRole;
-import com.tesis.teamsoft.metaheuristics.util.RoleWorker;
+import com.tesis.teamsoft.metaheuristics.auxiliary.ObjetiveFunctionUtil;
+import com.tesis.teamsoft.metaheuristics.auxiliary.ProjectRole;
+import com.tesis.teamsoft.metaheuristics.auxiliary.RoleWorker;
 import problem.definition.ObjetiveFunction;
 import problem.definition.State;
 

@@ -1,6 +1,6 @@
 package com.tesis.teamsoft.metaheuristics.operator;
 
-import com.tesis.teamsoft.metaheuristics.util.ProjectRole;
+import com.tesis.teamsoft.metaheuristics.auxiliary.ProjectRole;
 
 import java.util.ArrayList;
 import java.util.Random;

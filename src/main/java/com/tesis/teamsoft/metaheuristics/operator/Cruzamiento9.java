@@ -3,8 +3,8 @@ package com.tesis.teamsoft.metaheuristics.operator;
 import com.tesis.teamsoft.persistence.entity.PersonEntity;
 import com.tesis.teamsoft.persistence.entity.RoleEntity;
 import com.tesis.teamsoft.persistence.entity.RoleExperienceEntity;
-import com.tesis.teamsoft.metaheuristics.util.ProjectRole;
-import com.tesis.teamsoft.metaheuristics.util.RoleWorker;
+import com.tesis.teamsoft.metaheuristics.auxiliary.ProjectRole;
+import com.tesis.teamsoft.metaheuristics.auxiliary.RoleWorker;
 
 import java.io.IOException;
 import java.util.ArrayList;

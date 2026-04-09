@@ -7,9 +7,9 @@ import lombok.Getter;
 import lombok.Setter;
 import metaheurictics.strategy.Strategy;
 import com.tesis.teamsoft.pojos.TeamFormationParameters;
-import com.tesis.teamsoft.metaheuristics.util.ProjectRole;
-import com.tesis.teamsoft.metaheuristics.util.RoleWorker;
-import com.tesis.teamsoft.metaheuristics.util.TeamFormationCodification;
+import com.tesis.teamsoft.metaheuristics.auxiliary.ProjectRole;
+import com.tesis.teamsoft.metaheuristics.auxiliary.RoleWorker;
+import com.tesis.teamsoft.metaheuristics.auxiliary.TeamFormationCodification;
 import problem.definition.ObjetiveFunction;
 import problem.definition.State;
 

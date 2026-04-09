@@ -1,4 +1,4 @@
-package com.tesis.teamsoft.metaheuristics.util;
+package com.tesis.teamsoft.metaheuristics.auxiliary;
 
 //import metaheurictics.strategy.Strategy;
 //import org.teamsoft.controller.util.CSVUtils;

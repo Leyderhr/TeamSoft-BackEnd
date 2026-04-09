@@ -1,4 +1,4 @@
-package com.tesis.teamsoft.persistence.entity.auxiliar;
+package com.tesis.teamsoft.persistence.entity.auxiliary;
 
 public enum Roles {
     ADMIN,

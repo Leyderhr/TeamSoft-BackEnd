@@ -1,5 +1,6 @@
 package com.tesis.teamsoft.presentation.dto;
 
+import com.opencsv.bean.CsvBindByName;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.AccessLevel;
@@ -49,6 +50,21 @@ public class RoleDTO {
     public static class RoleMinimalDTO {
         private Long id;
         private String roleName;
+    }
+
+    @Data
+    public static class RoleImportExportDTO{
+        @CsvBindByName(column = "name")
+        private String roleName;
+
+        @CsvBindByName(column = "description")
+        private String roleDesc;
+
+        @CsvBindByName(column = "impact")
+        private float impact;
+
+        @CsvBindByName(column = "isBoss")
+        private boolean isBoss;
     }
 
     @Data

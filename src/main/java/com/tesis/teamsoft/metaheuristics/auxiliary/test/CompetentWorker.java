@@ -1,4 +1,4 @@
-package com.tesis.teamsoft.metaheuristics.util.test;
+package com.tesis.teamsoft.metaheuristics.auxiliary.test;
 
 import com.tesis.teamsoft.persistence.entity.PersonEntity;
 import lombok.AllArgsConstructor;

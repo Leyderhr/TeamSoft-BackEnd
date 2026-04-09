@@ -1,5 +1,6 @@
 package com.tesis.teamsoft.presentation.dto;
 
+import com.opencsv.bean.CsvBindByName;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -47,5 +48,17 @@ public class CompetenceDTO {
         private String competitionName;
         private String description;
         private Boolean technical;
+    }
+
+    @Data
+    public static class CompetenceImportExportDTO {
+        @CsvBindByName(column = "name")
+        private String competitionName;
+
+        @CsvBindByName(column = "description")
+        private String description;
+
+        @CsvBindByName(column = "technical")
+        private boolean technical;
     }
 }

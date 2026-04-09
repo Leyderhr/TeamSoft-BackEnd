@@ -1,4 +1,4 @@
-package com.tesis.teamsoft.metaheuristics.util;
+package com.tesis.teamsoft.metaheuristics.auxiliary;
 
 import lombok.Data;
 

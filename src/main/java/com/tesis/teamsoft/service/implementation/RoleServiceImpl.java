@@ -7,10 +7,18 @@ import com.tesis.teamsoft.persistence.repository.*;
 import com.tesis.teamsoft.presentation.dto.*;
 import com.tesis.teamsoft.service.interfaces.IRoleService;
 import lombok.RequiredArgsConstructor;
+import org.apache.tomcat.util.http.fileupload.ByteArrayOutputStream;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.opencsv.bean.CsvToBeanBuilder;
+import com.opencsv.bean.StatefulBeanToCsv;
+import com.opencsv.bean.StatefulBeanToCsvBuilder;
+import com.opencsv.exceptions.CsvDataTypeMismatchException;
+import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -104,6 +112,85 @@ public class RoleServiceImpl implements IRoleService {
         RoleEntity role = roleRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Role not found with ID: " + id));
         return convertToResponseDTO(role);
+    }
+
+    @Transactional
+    @Override
+    public ImportResultDTO importRoles(InputStream inputStream, boolean updateIfExist) {
+        ImportResultDTO result = new ImportResultDTO();
+
+        try (InputStreamReader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)) {
+            List<RoleDTO.RoleImportExportDTO> rows = new CsvToBeanBuilder<RoleDTO.RoleImportExportDTO>(reader)
+                    .withType(RoleDTO.RoleImportExportDTO.class)
+                    .withSeparator(';')
+                    .withIgnoreLeadingWhiteSpace(true)
+                    .build()
+                    .parse();
+
+            for (RoleDTO.RoleImportExportDTO row : rows) {
+                try {
+                    // Validaciones básicas
+                    if (row.getRoleName() == null || row.getRoleName().trim().isEmpty()) {
+                        throw new IllegalArgumentException("El nombre del rol no puede estar vacío");
+                    }
+                    if (row.getRoleDesc() == null || row.getRoleDesc().trim().isEmpty()) {
+                        throw new IllegalArgumentException("La descripción no puede estar vacía");
+                    }
+                    if (row.getImpact() < 0) {
+                        throw new IllegalArgumentException("El impacto debe ser >= 0");
+                    }
+
+                    RoleEntity existing = roleRepository.findByRoleName(row.getRoleName()).orElse(null);
+
+                    if (existing != null) {
+                        if (updateIfExist) {
+                            existing.setRoleDesc(row.getRoleDesc());
+                            existing.setImpact(row.getImpact());
+                            existing.setBoss(row.isBoss());
+                            roleRepository.save(existing);
+                            result.setUpdated(result.getUpdated() + 1);
+                        } else {
+                            result.setSkipped(result.getSkipped() + 1);
+                        }
+                    } else {
+                        // Crear nuevo
+                        RoleEntity newRole = modelMapper.map(row, RoleEntity.class);
+                        roleRepository.save(newRole);
+                        result.setCreated(result.getCreated() + 1);
+                    }
+                } catch (Exception e) {
+                    result.setErrors(result.getErrors() + 1);
+                    result.getErrorMessages().add("Error en fila con nombre '" + row.getRoleName() + "': " + e.getMessage());
+                }
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Error leyendo el archivo", e);
+        }
+        return result;
+    }
+    
+    @Override
+    public InputStream exportRoles() {
+        List<RoleEntity> roles = roleRepository.findAllByOrderByIdAsc();
+        List<RoleDTO.RoleImportExportDTO> exportData = roles.stream()
+                .map(r -> {
+                    return modelMapper.map(r, RoleDTO.RoleImportExportDTO.class);
+                })
+                .toList();
+
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
+             OutputStreamWriter writer = new OutputStreamWriter(baos, StandardCharsets.UTF_8)) {
+
+            StatefulBeanToCsv<RoleDTO.RoleImportExportDTO> beanToCsv = new StatefulBeanToCsvBuilder<RoleDTO.RoleImportExportDTO>(writer)
+                    .withSeparator(';')
+                    .withApplyQuotesToAll(false)
+                    .build();
+            beanToCsv.write(exportData);
+            writer.flush();
+            return new ByteArrayInputStream(baos.toByteArray());
+        } catch (IOException | CsvDataTypeMismatchException | CsvRequiredFieldEmptyException e) {
+            throw new RuntimeException("Error generando el archivo CSV", e);
+        }
     }
 
     private List<RoleCompetitionEntity> processRoleCompetitions(List<RoleDTO.RoleCompetitionCreateDTO> competitionsDTO, RoleEntity role) {

@@ -1,6 +1,6 @@
 package com.tesis.teamsoft.service.implementation;
 
-import com.tesis.teamsoft.persistence.entity.auxiliar.Status;
+import com.tesis.teamsoft.persistence.entity.auxiliary.Status;
 import com.tesis.teamsoft.persistence.repository.*;
 import com.tesis.teamsoft.presentation.dto.*;
 import com.tesis.teamsoft.service.interfaces.ITeamFormationStepThreeService;
@@ -19,7 +19,7 @@ import com.tesis.teamsoft.persistence.entity.*;
 import com.tesis.teamsoft.metaheuristics.operator.TeamBuilder;
 import com.tesis.teamsoft.metaheuristics.operator.TeamFormationOperator;
 import com.tesis.teamsoft.metaheuristics.restrictions.*;
-import com.tesis.teamsoft.metaheuristics.util.*;
+import com.tesis.teamsoft.metaheuristics.auxiliary.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import problem.definition.ObjetiveFunction;
@@ -54,7 +54,7 @@ public class TeamFormationStepThreeImpl implements ITeamFormationStepThreeServic
     public List<TeamProposalDTO>  getTeam(TeamFormationParameters parameters, List<Long> projectsIDs, List<Long> groupIDs) throws Exception {
 
         parameters.setProjects(formatProjects(getUnsavedProjects(projectsIDs)));
-        parameters.setSearchArea(getSearchArea(getGroups(groupIDs)));
+        parameters.setSearchArea(new ArrayList<>(getSearchArea(groupIDs)));
 
         parameters.setMaxLevel(lvlRepository.findFirstByOrderByLevelsDesc());
         parameters.setMinLevel(lvlRepository.findFirstByOrderByLevelsAsc());
@@ -560,28 +560,15 @@ public class TeamFormationStepThreeImpl implements ITeamFormationStepThreeServic
         return compTemplateList;
     }
 
-    public ArrayList<PersonEntity> getSearchArea(List<PersonGroupEntity> groups) {
-        ArrayList<PersonEntity> searchArea = new ArrayList<>();
-        List<PersonEntity> source = personRepository.findAll();
+    private List<PersonEntity> getSearchArea(List<Long> groupIDs) {
+        List<PersonGroupEntity> rootGroups = getGroups(groupIDs);
 
-        for (PersonEntity item : source) { //para cada persona
-            if (item.getStatus() != null && item.getStatus().equals("ACTIVE")) { //si esta activa
-                int i = 0;
-                while (i < groups.size()) // para cada grupo
-                {
-                    if (item.getGroup().equals(groups.get(i))) //si la persona pertenece
-                    {
-                        searchArea.add(item);
-                    }
-                    i++;
-                }
-            }
+        Set<Long> allGroupIds = getAllGroupsRecursively(rootGroups);
 
-        }
-        return searchArea;
+        return getActivePersonsByGroupIds(allGroupIds);
     }
 
-    public List<PersonGroupEntity> getGroups(List<Long> groupsIDs) {
+    private List<PersonGroupEntity> getGroups(List<Long> groupsIDs) {
         List<PersonGroupEntity> groups = new ArrayList<>();
 
         for (Long id : groupsIDs) {
@@ -592,6 +579,30 @@ public class TeamFormationStepThreeImpl implements ITeamFormationStepThreeServic
         }
 
         return groups;
+    }
+
+    private Set<Long> getAllGroupsRecursively(List<PersonGroupEntity> rootGroups) {
+        Set<Long> allGroupIds = new HashSet<>();
+        for (PersonGroupEntity group : rootGroups) {
+            collectGroups(group, allGroupIds);
+        }
+        return allGroupIds;
+    }
+
+    private void collectGroups(PersonGroupEntity group, Set<Long> collector) {
+        if (group == null || collector.contains(group.getId())) {
+            return;
+        }
+        collector.add(group.getId());
+        if (group.getPersonGroupList() != null) {
+            for (PersonGroupEntity child : group.getPersonGroupList()) {
+                collectGroups(child, collector);
+            }
+        }
+    }
+
+    private List<PersonEntity> getActivePersonsByGroupIds(Set<Long> groupIds) {
+        return personRepository.findByGroup_IdInAndStatus(groupIds, Status.ACTIVE);
     }
 
     public List<Constrain> getRestrictions(TeamFormationParameters parameters) {

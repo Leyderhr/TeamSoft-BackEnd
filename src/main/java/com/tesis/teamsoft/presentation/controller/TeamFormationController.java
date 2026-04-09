@@ -1,16 +1,22 @@
 package com.tesis.teamsoft.presentation.controller;
 
+import com.tesis.teamsoft.persistence.entity.PersonEntity;
+import com.tesis.teamsoft.presentation.dto.PersonDTO;
+import com.tesis.teamsoft.presentation.dto.PersonGroupDTO;
 import com.tesis.teamsoft.presentation.dto.TeamProposalDTO;
 import com.tesis.teamsoft.service.implementation.TeamFormationStepThreeImpl;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import com.tesis.teamsoft.presentation.dto.TeamFormationDTO;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -20,6 +26,7 @@ import java.util.Map;
 public class TeamFormationController {
 
     private final TeamFormationStepThreeImpl teamFormationStepThree;
+    private final ModelMapper modelMapper = new ModelMapper();
 
     @PostMapping("teams")
     @PreAuthorize("hasRole('EXPERIMENTADOR') OR hasRole('DIRECTIVO_TECNICO')")

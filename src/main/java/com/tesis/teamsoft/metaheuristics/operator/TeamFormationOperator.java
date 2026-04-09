@@ -1,15 +1,15 @@
 package com.tesis.teamsoft.metaheuristics.operator;
 
 import com.tesis.teamsoft.config.AlgorithmConfig;
-import com.tesis.teamsoft.metaheuristics.util.TeamFormationProblem;
+import com.tesis.teamsoft.metaheuristics.auxiliary.TeamFormationProblem;
 import com.tesis.teamsoft.persistence.entity.PersonEntity;
 import metaheurictics.strategy.Strategy;
 import com.tesis.teamsoft.persistence.entity.*;
-import com.tesis.teamsoft.metaheuristics.util.*;
-import com.tesis.teamsoft.metaheuristics.util.test.BelbinCategoryRole;
-import com.tesis.teamsoft.metaheuristics.util.test.CompetenceProjectRole;
-import com.tesis.teamsoft.metaheuristics.util.test.CompetenceRoleWorker;
-import com.tesis.teamsoft.metaheuristics.util.test.CompetentWorker;
+import com.tesis.teamsoft.metaheuristics.auxiliary.*;
+import com.tesis.teamsoft.metaheuristics.auxiliary.test.BelbinCategoryRole;
+import com.tesis.teamsoft.metaheuristics.auxiliary.test.CompetenceProjectRole;
+import com.tesis.teamsoft.metaheuristics.auxiliary.test.CompetenceRoleWorker;
+import com.tesis.teamsoft.metaheuristics.auxiliary.test.CompetentWorker;
 import problem.definition.Operator;
 import problem.definition.State;
 

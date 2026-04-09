@@ -2,9 +2,9 @@ package com.tesis.teamsoft.metaheuristics.restrictions;
 
 import com.tesis.teamsoft.persistence.entity.AssignedRoleEntity;
 import com.tesis.teamsoft.persistence.entity.PersonEntity;
-import com.tesis.teamsoft.metaheuristics.util.ProjectRole;
-import com.tesis.teamsoft.metaheuristics.util.RoleWorker;
-import com.tesis.teamsoft.persistence.entity.auxiliar.Status;
+import com.tesis.teamsoft.metaheuristics.auxiliary.ProjectRole;
+import com.tesis.teamsoft.metaheuristics.auxiliary.RoleWorker;
+import com.tesis.teamsoft.persistence.entity.auxiliary.Status;
 import problem.definition.State;
 
 import java.util.ArrayList;

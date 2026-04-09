@@ -57,7 +57,7 @@ public class PersonGroupServiceImpl implements IPersonGroupService {
             updatedPersonGroup.setParentGroup(null);
         }
 
-        return modelMapper.map(personGroupRepository.save(updatedPersonGroup), PersonGroupDTO.PersonGroupResponseDTO.class);
+        return convertToResponseDTO(personGroupRepository.save(updatedPersonGroup));
     }
 
     @Override
@@ -117,7 +117,9 @@ public class PersonGroupServiceImpl implements IPersonGroupService {
         PersonGroupDTO.PersonGroupResponseDTO dto;
 
         dto = modelMapper.map(personGroupEntity, PersonGroupDTO.PersonGroupResponseDTO.class);
-        dto.setFather(personGroupEntity.getParentGroup().getName());
+
+        if(personGroupEntity.getParentGroup() != null)
+            dto.setFather(personGroupEntity.getParentGroup().getName());
 
         return dto;
     }

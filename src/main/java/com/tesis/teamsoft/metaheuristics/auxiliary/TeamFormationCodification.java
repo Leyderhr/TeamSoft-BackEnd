@@ -1,6 +1,6 @@
-package com.tesis.teamsoft.metaheuristics.util;
+package com.tesis.teamsoft.metaheuristics.auxiliary;
 
-import com.tesis.teamsoft.persistence.entity.auxiliar.Status;
+import com.tesis.teamsoft.persistence.entity.auxiliary.Status;
 import com.tesis.teamsoft.pojos.ProjectRoleCompetenceTemplate;
 import com.tesis.teamsoft.persistence.entity.AssignedRoleEntity;
 import com.tesis.teamsoft.persistence.entity.CycleEntity;
