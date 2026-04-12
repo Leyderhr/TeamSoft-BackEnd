@@ -10,8 +10,11 @@ public class CorsConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")  // Aplica a todas las rutas
-                .allowedOrigins("http://localhost:5173")  // Dominio de tu frontend
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                .allowedOrigins(
+                    "http://localhost:5173",
+                    "https://teamsoft-frontend.onrender.com"
+                )  // Dominio de tu frontend
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
                 .allowedHeaders("*")
                 .allowCredentials(true)
                 .maxAge(3600);  // Tiempo de cache para preflight
