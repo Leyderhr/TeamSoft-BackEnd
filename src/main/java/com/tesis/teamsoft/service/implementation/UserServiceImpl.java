@@ -60,25 +60,23 @@ public class UserServiceImpl implements IUserService {
     @Override
     @Transactional
     public UserDTO.UserResponseDTO updateUser(UserDTO.UserCreateDTO userDTO, Long id) {
-            UserEntity existingUser = userRepository.findById(id)
-                    .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + id));
+        UserEntity existingUser = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + id));
 
-            existingUser.setPersonName(userDTO.getPersonName());
-            existingUser.setSurname(userDTO.getSurname());
-            existingUser.setCard(userDTO.getCard());
-            existingUser.setMail(userDTO.getMail());
-            existingUser.setEnabled(userDTO.isEnabled());
+        existingUser.setPersonName(userDTO.getPersonName());
+        existingUser.setSurname(userDTO.getSurname());
+        existingUser.setCard(userDTO.getCard());
+        existingUser.setMail(userDTO.getMail());
 
-            Set<UserRoleEntity> roles = new HashSet<>(userRoleRepository.findAllById(userDTO.getRoleIds()));
+        Set<UserRoleEntity> newRoles = new HashSet<>(userRoleRepository.findAllById(userDTO.getRoleIds()));
 
-            if (roles.size() != userDTO.getRoleIds().size()) {
-                throw new IllegalArgumentException("One or more roles not found");
-            }
+        if (newRoles.size() != userDTO.getRoleIds().size())
+            throw new BusinessRuleException("One or more roles not found");
 
-            existingUser.setRoles(roles);
+        existingUser.setRoles(newRoles);
 
-            UserEntity updatedUser = userRepository.save(existingUser);
-            return convertToResponseDTO(updatedUser);
+        UserEntity updatedUser = userRepository.save(existingUser);
+        return convertToResponseDTO(updatedUser);
     }
 
     @Override
