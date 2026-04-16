@@ -31,27 +31,12 @@ public class UserController {
             return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
     }
 
-//    @PutMapping("/{id}")
-//    @Operation(summary = "Update an existing user")
-//    public ResponseEntity<?> updateUser(@PathVariable Long id,
-//                                        @Valid @RequestBody UserDTO.UserUpdateDTO userDTO,
-//                                        BindingResult bindingResult) {
-//        if (bindingResult.hasErrors()) {
-//            return buildValidationErrors(bindingResult);
-//        }
-//
-//        try {
-//            UserDTO.UserResponseDTO updatedUser = userService.updateUser(id, userDTO);
-//            return new ResponseEntity<>(updatedUser, HttpStatus.OK);
-//        } catch (RuntimeException e) {
-//            if (e.getMessage().contains("not found")) {
-//                return buildErrorResponse(e.getMessage(), HttpStatus.NOT_FOUND);
-//            }
-//            return buildErrorResponse(e.getMessage(), HttpStatus.BAD_REQUEST);
-//        } catch (Exception e) {
-//            return buildErrorResponse("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//    }
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<UserDTO.UserResponseDTO> updateUser(@PathVariable Long id, @Valid @RequestBody UserDTO.UserCreateDTO userDTO) {
+        UserDTO.UserResponseDTO updatedUser = userService.updateUser(userDTO, id);
+        return ResponseEntity.ok(updatedUser);
+    }
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete a user")

@@ -44,11 +44,9 @@ public class CompetenceServiceImpl implements ICompetenceService {
     @Override
     @Transactional
     public CompetenceDTO.CompetenceResponseDTO saveCompetence(CompetenceDTO.CompetenceCreateDTO competenceDTO){
-
         CompetenceEntity savedCompetence = modelMapper.map(competenceDTO, CompetenceEntity.class);
         savedCompetence.setCompetenceDimensionList(assingCompetenceDimension(competenceDTO.getDimensionList(), savedCompetence));
         return convertToResponseDTO(competenceRepository.save(savedCompetence));
-
     }
 
     @Override
@@ -210,7 +208,7 @@ public class CompetenceServiceImpl implements ICompetenceService {
             dimensionList.add(dimension);
         }
         if (levelsMap.size() != processedLevelIds.size())
-            throw new IllegalArgumentException(
+            throw new BusinessRuleException(
                     "Level descriptions must be configured for all competency levels before submission. ");
 
         return dimensionList;
