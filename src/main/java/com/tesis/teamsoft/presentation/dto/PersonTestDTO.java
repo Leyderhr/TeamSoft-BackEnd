@@ -20,7 +20,7 @@ public class PersonTestDTO {
         private Character eS;
 
         @NotNull(message = "ID is required")
-        @JsonProperty("i_D")
+        @JsonProperty("i_M")
         private Character iM;
 
         @NotNull(message = "CO is required")
