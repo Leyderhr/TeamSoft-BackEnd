@@ -38,7 +38,7 @@ public class PersonEntity implements Serializable {
 
     @NotNull(message = "ID card is required")
     @Size(min = 1, max = 1024, message = "ID card must be between 1 and 1024 characters")
-    @Column(name = "id_card", nullable = false, length = 1024)
+    @Column(name = "id_card", nullable = false, length = 1024, unique = true)
     private String card;
 
     @NotNull(message = "Surname is required")
@@ -62,7 +62,7 @@ public class PersonEntity implements Serializable {
 
     @NotNull(message = "Email is required")
     @Size(max = 1024, message = "Email cannot exceed 1024 characters")
-    @Column(nullable = false, length = 1024)
+    @Column(nullable = false, length = 1024 , unique = true)
     private String email;
 
     @NotNull(message = "In date is required")
