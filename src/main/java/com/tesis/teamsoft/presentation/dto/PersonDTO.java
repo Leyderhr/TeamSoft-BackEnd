@@ -35,7 +35,6 @@ public class PersonDTO {
         private String phone;
 
         @NotNull(message = "Sex is required")
-        @Pattern(regexp = "^[MFO]$", message = "Sex must be 'M' or 'F'")
         private Character sex;
 
         @NotBlank(message = "Email is required")
@@ -84,6 +83,10 @@ public class PersonDTO {
 
         @Valid
         private List<PersonConflictDTO.PersonConflictCreateDTO> personConflicts;
+
+
+        @AssertTrue(message = "Sex must be 'M' or 'F'")
+        public boolean isSexValid() {return (sex == 'M' || sex == 'F');}
     }
 
     @Data
