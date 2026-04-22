@@ -37,3 +37,6 @@ security:
 server:
   port: ${SERVER_PORT:8081}
 
+algorithm:
+  config:
+    path: ${ALGORITHM_CONFIG_PATH:${user.home}/.teamsoft/config/}

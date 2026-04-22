@@ -1,101 +1,129 @@
 package com.tesis.teamsoft.config;
 
+import jakarta.annotation.PostConstruct;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
-import java.util.MissingResourceException;
-import java.util.ResourceBundle;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Properties;
 
 @Component
 @Slf4j
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public class AlgorithmConfig {
 
-    private static ResourceBundle bundle;
-    private static final String BUNDLE_NAME = "algorithmConf";
+    private static final Properties properties = new Properties();
+    @Getter
+    private static String configFilePath;
 
-    static {
+    @Value("${algorithm.config.path:${user.home}/.teamsoft/config/}")
+    private String externalConfigPath;
+
+    @PostConstruct
+    private void init() {
         try {
-            bundle = ResourceBundle.getBundle(BUNDLE_NAME);
-            log.info("Algorithm configuration loaded successfully from {}.properties", BUNDLE_NAME);
-        } catch (MissingResourceException e) {
-            log.error("CRITICAL: Algorithm configuration file not found: {}.properties", BUNDLE_NAME);
-            log.error("Using default values. Please create the configuration file in src/main/resources/");
+            configFilePath = Paths.get(externalConfigPath, "algorithmConf.properties").toString();
+            ensureConfigFileExists();
+            loadProperties();
+
+            log.info("Algorithm configuration loaded from: {}", configFilePath);
+        } catch (IOException e) {
+            log.error("CRITICAL: Could not initialize algorithm configuration", e);
         }
     }
 
-    public static String getString(String key) {
-        return getString(key, null);
-    }
+    /**
+     * Crea el directorio si no existe y, si el archivo no está presente,
+     * copia la versión por defecto desde el classpath.
+     */
+    private void ensureConfigFileExists() throws IOException {
+        Path configPath = Paths.get(configFilePath);
+        Path parentDir = configPath.getParent();
 
-    public static String getString(String key, String defaultValue) {
-        try {
-            if (bundle != null) {
-                return bundle.getString(key);
+        if (!Files.exists(parentDir)) {
+            Files.createDirectories(parentDir);
+            log.info("Created configuration directory: {}", parentDir);
+        }
+
+        if (!Files.exists(configPath)) {
+            try (InputStream defaultConfigStream = new ClassPathResource("algorithmConf.properties").getInputStream()) {
+                Files.copy(defaultConfigStream, configPath);
+                log.info("Default configuration copied to: {}", configPath);
+            } catch (IOException e) {
+                log.error("Failed to copy default configuration. Does algorithmConf.properties exist in src/main/resources?");
+                throw e;
             }
-        } catch (MissingResourceException e) {
-            log.warn("Configuration key '{}' not found, using default: {}", key, defaultValue);
         }
-        return defaultValue;
     }
 
-    public static int getInt(String key) {
-        return getInt(key, 0);
+    /**
+     * Carga las propiedades desde el archivo externo al objeto estático 'properties'.
+     */
+    private static void loadProperties() throws IOException {
+        try (InputStream input = new FileInputStream(configFilePath)) {
+            properties.load(input);
+        }
+    }
+
+    /**
+     * Recarga la configuración desde el archivo externo.
+     * Debe llamarse después de que el archivo sea modificado externamente (por ejemplo, desde la API).
+     */
+    public static void reload() {
+        try {
+            loadProperties();
+            log.info("Algorithm configuration reloaded from: {}", configFilePath);
+        } catch (IOException e) {
+            log.error("Failed to reload configuration", e);
+        }
+    }
+
+    // ---------- Métodos de acceso a propiedades ----------
+    public static String getString(String key, String defaultValue) {
+        return properties.getProperty(key, defaultValue);
     }
 
     public static int getInt(String key, int defaultValue) {
-        try {
-            String value = getString(key);
-            if (value != null) {
-                return Integer.parseInt(value);
-            }
-        } catch (NumberFormatException e) {
-            log.warn("Configuration key '{}' is not a valid integer, using default: {}", key, defaultValue);
+        String value = properties.getProperty(key);
+        if (value == null) {
+            return defaultValue;
         }
-        return defaultValue;
-    }
-
-    public static float getFloat(String key) {
-        return getFloat(key, 0.0f);
-    }
-
-    public static float getFloat(String key, float defaultValue) {
         try {
-            String value = getString(key);
-            if (value != null) {
-                return Float.parseFloat(value);
-            }
+            return Integer.parseInt(value.trim());
         } catch (NumberFormatException e) {
-            log.warn("Configuration key '{}' is not a valid float, using default: {}", key, defaultValue);
+            log.warn("Invalid integer for key '{}': '{}'. Using default: {}", key, value, defaultValue);
+            return defaultValue;
         }
-        return defaultValue;
-    }
-
-    public static boolean getBoolean(String key) {
-        return getBoolean(key, false);
     }
 
     public static boolean getBoolean(String key, boolean defaultValue) {
-        try {
-            String value = getString(key);
-            if (value != null) {
-                return Boolean.parseBoolean(value);
-            }
-        } catch (Exception e) {
-            log.warn("Configuration key '{}' is not a valid boolean, using default: {}", key, defaultValue);
+        String value = properties.getProperty(key);
+        if (value == null) {
+            return defaultValue;
         }
-        return defaultValue;
+        return Boolean.parseBoolean(value.trim());
     }
 
-    public static void reload() {
+    public static float getFloat(String key, float defaultValue) {
+        String value = properties.getProperty(key);
+        if (value == null) {
+            return defaultValue;
+        }
         try {
-            bundle = ResourceBundle.getBundle(BUNDLE_NAME);
-            log.info("Algorithm configuration reloaded successfully");
-        } catch (MissingResourceException e) {
-            log.error("Failed to reload algorithm configuration");
+            return Float.parseFloat(value.trim());
+        } catch (NumberFormatException e) {
+            log.warn("Invalid float for key '{}': '{}'. Using default: {}", key, value, defaultValue);
+            return defaultValue;
         }
     }
+
 }
