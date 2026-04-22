@@ -39,6 +39,7 @@ public class PersonServiceImpl implements IPersonService {
     public PersonDTO.PersonResponseDTO savePerson(PersonDTO.PersonCreateDTO personDTO) {
         PersonEntity person = modelMapper.map(personDTO, PersonEntity.class);
         person.setStatus(Status.ACTIVE);
+        person.setWorkload(0.0f);
 
         processSimpleRelations(personDTO, person);
         processAgeGroup(personDTO, person);
