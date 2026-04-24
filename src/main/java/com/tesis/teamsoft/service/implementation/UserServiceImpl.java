@@ -206,6 +206,7 @@ public class UserServiceImpl implements IUserService {
 
     private UserDTO.UserResponseDTO convertToResponseDTO(UserEntity user) {
         UserDTO.UserResponseDTO responseDTO = modelMapper.map(user, UserDTO.UserResponseDTO.class);
+        responseDTO.setIdCard(user.getCard());
 
         Set<UserRoleDTO.UserRoleResponseDTO> roleDTOs = user.getRoles().stream()
                 .map(role -> modelMapper.map(role, UserRoleDTO.UserRoleResponseDTO.class))
