@@ -57,6 +57,16 @@ public class ProjectDTO {
         private boolean close;
     }
 
+    @Data
+    @AllArgsConstructor
+    public static class ProjectBossCompetitionsDTO{
+        private Long projectId;
+        private String projectName;
+
+        private List<RoleDTO.RoleCompetitionResponseDTO> technicalCompetitions;
+        private List<RoleDTO.RoleCompetitionResponseDTO> nonTechnicalCompetitions;
+    }
+
     @Getter
     @Setter
     public static class ProjectTeamProposalDTO {

@@ -56,4 +56,11 @@ public class ProjectController {
     public ResponseEntity<ProjectDTO.ProjectResponseDTO> findProjectById(@PathVariable Long id) {
         return new ResponseEntity<>(projectService.findProjectById(id), HttpStatus.OK);
     }
+
+    @GetMapping("/boss-competitions")
+    @PreAuthorize("hasRole('EXPERIMENTADOR') OR hasRole('DIRECTIVO_TECNICO')")
+    public ResponseEntity<List<ProjectDTO.ProjectBossCompetitionsDTO>> getBossCompetitionsByIds(
+            @RequestParam List<Long> ids) {
+        return ResponseEntity.ok(projectService.findBossRoleCompetitionsByProjectIds(ids));
+    }
 }
