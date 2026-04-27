@@ -11,6 +11,7 @@ import evolutionary_algorithms.complement.SelectionType;
 import local_search.complement.StopExecute;
 import local_search.complement.TabuSolutions;
 import local_search.complement.UpdateParameter;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import metaheurictics.strategy.Strategy;
 import metaheuristics.generators.*;
@@ -36,6 +37,7 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import com.tesis.teamsoft.config.AlgorithmConfig;
 
+@Getter
 @Service
 @RequiredArgsConstructor
 public class TeamFormationStepThreeImpl implements ITeamFormationStepThreeService {
@@ -560,7 +562,7 @@ public class TeamFormationStepThreeImpl implements ITeamFormationStepThreeServic
         return compTemplateList;
     }
 
-    private List<PersonEntity> getSearchArea(List<Long> groupIDs) {
+    List<PersonEntity> getSearchArea(List<Long> groupIDs) {
         List<PersonGroupEntity> rootGroups = getGroups(groupIDs);
 
         Set<Long> allGroupIds = getAllGroupsRecursively(rootGroups);
