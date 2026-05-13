@@ -1,5 +1,6 @@
 package com.tesis.teamsoft.persistence.entity;
 
+import com.tesis.teamsoft.persistence.entity.auxiliary.ProjectState;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -30,22 +31,19 @@ public class ProjectEntity implements Serializable {
     @Column(name = "project_name", nullable = false, unique = true)
     private String projectName;
 
-    @NotNull(message = "Close flag is required")
-    @Column(nullable = false)
-    private boolean close;
-
     @NotNull(message = "Initial date is required")
     @Column(name = "initial_date", nullable = false)
     @Temporal(TemporalType.DATE)
     private Date initialDate;
 
-    @NotNull(message = "Finalize flag is required")
-    @Column(nullable = false)
-    private boolean finalize;
-
     @Column(name = "end_date")
     @Temporal(TemporalType.DATE)
     private Date endDate;
+
+    @NotNull(message = "Project state is required")
+    @Enumerated(EnumType.STRING)
+    @Column(name = "state", nullable = false)
+    private ProjectState state = ProjectState.CREATED;
 
     @NotNull(message = "Client is required")
     @ManyToOne(optional = false)

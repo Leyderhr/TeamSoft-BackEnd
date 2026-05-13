@@ -1,5 +1,6 @@
 package com.tesis.teamsoft.presentation.controller;
 
+import com.tesis.teamsoft.persistence.entity.auxiliary.ProjectState;
 import com.tesis.teamsoft.presentation.dto.ProjectDTO;
 import com.tesis.teamsoft.service.implementation.ProjectServiceImpl;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -62,5 +63,18 @@ public class ProjectController {
     public ResponseEntity<List<ProjectDTO.ProjectBossCompetitionsDTO>> getBossCompetitionsByIds(
             @RequestParam List<Long> ids) {
         return ResponseEntity.ok(projectService.findBossRoleCompetitionsByProjectIds(ids));
+    }
+
+    @GetMapping("/state/{state}")
+    @PreAuthorize("hasRole('EXPERIMENTADOR') OR hasRole('DIRECTIVO_TECNICO') OR hasRole('GESTOR_RRHH')")
+    public ResponseEntity<List<ProjectDTO.ProjectSimpleDTO>> findProjectsByState(@PathVariable ProjectState state) {
+        return new ResponseEntity<>(projectService.findAllProjectsByState(state), HttpStatus.OK);
+    }
+
+    @GetMapping("/non-boss-roles")
+    @PreAuthorize("hasRole('EXPERIMENTADOR') OR hasRole('DIRECTIVO_TECNICO')")
+    public ResponseEntity<List<ProjectDTO.ProjectNonBossRolesDTO>> getNonBossRolesByProjectIds(
+            @RequestParam List<Long> ids) {
+        return ResponseEntity.ok(projectService.findNonBossRolesByProjectIds(ids));
     }
 }

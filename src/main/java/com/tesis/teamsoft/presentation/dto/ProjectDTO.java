@@ -1,5 +1,6 @@
 package com.tesis.teamsoft.presentation.dto;
 
+import com.tesis.teamsoft.persistence.entity.auxiliary.ProjectState;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -40,8 +41,7 @@ public class ProjectDTO {
         private String projectName;
         private Date initialDate;
         private Date endDate;
-        private Boolean close;
-        private Boolean finalize;
+        private ProjectState state;
 
         // Relaciones (solo IDs o DTOs mínimos)
         private ClientDTO.ClientResponseDTO client;
@@ -54,7 +54,7 @@ public class ProjectDTO {
         private Long id;
         private String projectName;
         private Date initialDate;
-        private boolean close;
+        private ProjectState state;
     }
 
     @Data
@@ -65,6 +65,14 @@ public class ProjectDTO {
 
         private List<RoleDTO.RoleCompetitionResponseDTO> technicalCompetitions;
         private List<RoleDTO.RoleCompetitionResponseDTO> nonTechnicalCompetitions;
+    }
+
+    @Data
+    @AllArgsConstructor
+    public static class ProjectNonBossRolesDTO {
+        private Long projectId;
+        private String projectName;
+        private List<RoleDTO.RoleMinimalDTO> nonBossRoles;
     }
 
     @Getter
