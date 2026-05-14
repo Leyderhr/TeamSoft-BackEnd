@@ -51,6 +51,7 @@ public class TeamFormationStepThreeImpl implements ITeamFormationStepThreeServic
     private final IPersonGroupRepository iPersonGroupRepository;
     private final IRoleRepository roleRepository;
     private final IAssignedRoleRepository assignedRoleRepository;
+    private final ObjectiveFunctionValidator validator;
 
 
     public List<TeamProposalDTO>  getTeam(TeamFormationParameters parameters, List<Long> projectsIDs, List<Long> groupIDs) throws Exception {
@@ -69,6 +70,7 @@ public class TeamFormationStepThreeImpl implements ITeamFormationStepThreeServic
 
         //Funciones objetivo
         ArrayList<ObjetiveFunction> objectiveFunctions = new ArrayList<>();
+        validator.validate(parameters);
         objectiveFunctions.addAll(ObjetiveFunctionUtil.getObjectiveFunctions(parameters));
         //Restricciones
         ArrayList<Constrain> restrictions = new ArrayList<>();
