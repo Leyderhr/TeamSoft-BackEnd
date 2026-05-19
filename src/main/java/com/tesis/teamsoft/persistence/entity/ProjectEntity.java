@@ -42,7 +42,7 @@ public class ProjectEntity implements Serializable {
 
     @NotNull(message = "Project state is required")
     @Enumerated(EnumType.STRING)
-    @Column(name = "state", nullable = false, columnDefinition = "varchar(255) default 'CREATED'")
+        @Column(name = "state", nullable = false, columnDefinition = "varchar(255) default 'CREATED'")
     private ProjectState state = ProjectState.CREATED;
 
     @NotNull(message = "Client is required")
