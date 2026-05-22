@@ -37,10 +37,12 @@ public class ProjectServiceImpl implements IProjectService {
             projects.add(initializeProject(dto));
         }
 
+        projects = projectRepository.saveAll(projects);
         List<ProjectDTO.ProjectResponseDTO> responses = new ArrayList<>();
-        for(ProjectEntity project : projects) {
-            responses.add(convertToResponseDTO(projectRepository.save(project)));
-        }
+
+        for(ProjectEntity project : projects)
+            responses.add(convertToResponseDTO(project));
+
 
         return responses;
     }
