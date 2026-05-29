@@ -19,7 +19,7 @@ public class ProjectDTO {
     public static class ProjectCreateDTO {
         @NotBlank(message = "Project name is required")
         @Size(max = 1024, message = "Project name max length is 1024")
-        @Pattern(regexp = "^[\\p{L}\\s]+$", message = "Only letters and spaces are allowed")
+        @Pattern(regexp = "^[\\p{L}\\p{N}\\s]+$", message = "Only letters, spaces and digits are allowed")
         private String projectName;
 
         @NotNull(message = "Initial date is required")

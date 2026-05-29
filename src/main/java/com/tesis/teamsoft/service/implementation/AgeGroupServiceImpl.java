@@ -4,7 +4,9 @@ import com.tesis.teamsoft.exception.BusinessRuleException;
 import com.tesis.teamsoft.exception.DuplicateResourceException;
 import com.tesis.teamsoft.exception.ResourceNotFoundException;
 import com.tesis.teamsoft.persistence.entity.AgeGroupEntity;
+import com.tesis.teamsoft.persistence.entity.PersonEntity;
 import com.tesis.teamsoft.persistence.repository.IAgeGroupRepository;
+import com.tesis.teamsoft.persistence.repository.IPersonRepository;
 import com.tesis.teamsoft.presentation.dto.AgeGroupDTO;
 import com.tesis.teamsoft.service.interfaces.IAgeGroupService;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +14,9 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -20,6 +25,7 @@ public class AgeGroupServiceImpl implements IAgeGroupService {
 
 
     private final IAgeGroupRepository ageGroupRepository;
+    private final IPersonRepository personRepository;
     private final ModelMapper modelMapper;
 
 
@@ -29,21 +35,22 @@ public class AgeGroupServiceImpl implements IAgeGroupService {
         AgeGroupEntity savedAgeGroup = modelMapper.map(ageGroupDTO, AgeGroupEntity.class);
         validateNonOverlappingAgeRange(savedAgeGroup);
         return modelMapper.map(ageGroupRepository.save(savedAgeGroup), AgeGroupDTO.AgeGroupResponseDTO.class);
-
     }
 
     @Override
     @Transactional
     public AgeGroupDTO.AgeGroupResponseDTO updateAgeGroup(AgeGroupDTO.AgeGroupCreateDTO ageGroupDTO, Long id){
-        if (!ageGroupRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Age group not found with ID: " + id);
-        }
+        AgeGroupEntity updatedAgeGroup = ageGroupRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Age group not found with ID: " + id));
 
-        AgeGroupEntity updatedAgeGroup = modelMapper.map(ageGroupDTO, AgeGroupEntity.class);
+        boolean isSameAgeRange = checkAgeRangeChange(updatedAgeGroup, ageGroupDTO.getMinAge(), ageGroupDTO.getMaxAge());
+
+        updatedAgeGroup = modelMapper.map(ageGroupDTO, AgeGroupEntity.class);
         updatedAgeGroup.setId(id);
         validateNonOverlappingAgeRange(updatedAgeGroup);
-        return modelMapper.map(ageGroupRepository.save(updatedAgeGroup), AgeGroupDTO.AgeGroupResponseDTO.class);
+        if(!isSameAgeRange) reassignAgeGroupForUpdate(updatedAgeGroup);
 
+        return modelMapper.map(ageGroupRepository.save(updatedAgeGroup), AgeGroupDTO.AgeGroupResponseDTO.class);
     }
 
     @Override
@@ -99,5 +106,32 @@ public class AgeGroupServiceImpl implements IAgeGroupService {
                     "-" + ageGroup.getMaxAge() +
                     ") overlaps with an existing age group");
         }
+    }
+
+    private void reassignAgeGroupForUpdate(AgeGroupEntity updatedGroup) {
+        LocalDate today = LocalDate.now();
+
+        LocalDate newMinBirthDate = today.minusYears(updatedGroup.getMaxAge());
+        LocalDate newMaxBirthDate = today.minusYears(updatedGroup.getMinAge());
+        Date newStartDate = Date.from(newMinBirthDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+        Date newEndDate = Date.from(newMaxBirthDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+
+        List<PersonEntity> personsToRemove = personRepository.findByAgeGroupIdAndBirthDateNotBetween(
+                updatedGroup.getId(), newStartDate, newEndDate);
+
+        if (!personsToRemove.isEmpty()) {
+            personsToRemove.forEach(person -> person.setAgeGroup(null));
+            personRepository.saveAll(personsToRemove);
+        }
+
+        List<PersonEntity> personsToAdd = personRepository.findByAgeGroupIsNullAndBirthDateBetween(newStartDate, newEndDate);
+        if (!personsToAdd.isEmpty()) {
+            personsToAdd.forEach(person -> person.setAgeGroup(updatedGroup));
+            personRepository.saveAll(personsToAdd);
+        }
+    }
+
+    private boolean checkAgeRangeChange(AgeGroupEntity updatedAgeGroup, int newMinAge, int newMaxAge){
+        return updatedAgeGroup.getMinAge() == newMinAge && updatedAgeGroup.getMaxAge() == newMaxAge;
     }
 }

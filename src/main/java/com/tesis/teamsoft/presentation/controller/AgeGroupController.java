@@ -22,14 +22,14 @@ public class AgeGroupController {
     private final AgeGroupServiceImpl ageGroupService;
 
     @PostMapping()
-    @PreAuthorize("hasRole('GESTOR_RRHH')")
+    //@PreAuthorize("hasRole('GESTOR_RRHH')")
     public ResponseEntity<AgeGroupDTO.AgeGroupResponseDTO> createAgeGroup(@Valid @RequestBody AgeGroupDTO.AgeGroupCreateDTO dto) {
         AgeGroupDTO.AgeGroupResponseDTO saved = ageGroupService.saveAgeGroup(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('GESTOR_RRHH')")
+    //@PreAuthorize("hasRole('GESTOR_RRHH')")
     public ResponseEntity<AgeGroupDTO.AgeGroupResponseDTO> updateAgeGroup(@Valid @RequestBody AgeGroupDTO.AgeGroupCreateDTO ageGroupDTO, @PathVariable Long id) {
         return new ResponseEntity<>(ageGroupService.updateAgeGroup(ageGroupDTO, id), HttpStatus.OK);
     }

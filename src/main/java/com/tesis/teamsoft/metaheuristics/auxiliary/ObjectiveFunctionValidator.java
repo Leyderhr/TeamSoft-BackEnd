@@ -19,7 +19,7 @@ public class ObjectiveFunctionValidator {
     private final IReligionRepository religionRepository;
     private final IAgeGroupRepository ageGroupRepository;
 
-    private static final double NULL_THRESHOLD = 0.20; // 20%
+    private static final double NULL_THRESHOLD = 0.20;
 
     public void validate(TeamFormationParameters parameters) {
         if (parameters == null) {
@@ -31,19 +31,16 @@ public class ObjectiveFunctionValidator {
     }
 
     private void validateNomenclatorsExist(TeamFormationParameters parameters) {
-        // Nationality
         if (isAnyNationalityObjectiveActive(parameters) && nacionalityRepository.count() == 0) {
             throw new BusinessRuleException(
                     "No nationalities are defined in the system. Cannot use any nationality objective function.");
         }
 
-        // Religion
         if (isAnyReligionObjectiveActive(parameters) && religionRepository.count() == 0) {
             throw new BusinessRuleException(
                     "No religions are defined in the system. Cannot use any religion objective function.");
         }
 
-        // Age group
         if (isAnyAgeGroupObjectiveActive(parameters) && ageGroupRepository.count() == 0) {
             throw new BusinessRuleException(
                     "No age groups are defined in the system. Cannot use any age group objective function.");
