@@ -4,10 +4,7 @@ import com.tesis.teamsoft.exception.BusinessRuleException;
 import com.tesis.teamsoft.exception.ResourceNotFoundException;
 import com.tesis.teamsoft.persistence.entity.*;
 import com.tesis.teamsoft.persistence.repository.*;
-import com.tesis.teamsoft.presentation.dto.ProjectRoleDTO;
-import com.tesis.teamsoft.presentation.dto.ProjectStructureDTO;
-import com.tesis.teamsoft.presentation.dto.RoleDTO;
-import com.tesis.teamsoft.presentation.dto.RoleLoadDTO;
+import com.tesis.teamsoft.presentation.dto.*;
 import com.tesis.teamsoft.service.interfaces.IProjectStructureService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +22,9 @@ public class ProjectStructureServiceImpl implements IProjectStructureService {
     private final IProjectStructureRepository projectStructureRepository;
     private final IRoleRepository roleRepository;
     private final IRoleLoadRepository roleLoadRepository;
+    private final ICompetenceRepository competenceRepository;
+    private final ICompetenceImportanceRepository competenceImportanceRepository;
+    private final ILevelsRepository levelsRepository;
     private final ModelMapper modelMapper;
 
 
@@ -100,9 +100,21 @@ public class ProjectStructureServiceImpl implements IProjectStructureService {
             return new ArrayList<>();
         }
 
+        final boolean[] alreadyBoss = {false};
+
         return projectRolesDTO.stream().map(dto -> {
             RoleEntity role = roleRepository.findById(dto.getRole())
                     .orElseThrow(() -> new ResourceNotFoundException("Role not found with ID: " + dto.getRole()));
+
+            if(role.isBoss() && alreadyBoss[0]) {
+                throw new BusinessRuleException("A role with 'boss' type already exists in the project structure");
+            } else if (role.isBoss()) {
+                alreadyBoss[0] = true;
+
+                if(dto.getAmountWorkersRole() != 1) {
+                    throw new BusinessRuleException("A role with 'boss' type must have exactly 1 worker");
+                }
+            }
 
             RoleLoadEntity roleLoad = roleLoadRepository.findById(dto.getRoleLoad())
                     .orElseThrow(() -> new ResourceNotFoundException("RoleLoad not found with ID: " + dto.getRoleLoad()));
@@ -112,6 +124,10 @@ public class ProjectStructureServiceImpl implements IProjectStructureService {
             projectRole.setProjectStructure(projectStructure);
             projectRole.setRole(role);
             projectRole.setRoleLoad(roleLoad);
+
+            List<ProjectTechCompetenceEntity> techCompetences =
+                    validateAndCreateTechCompetencesForRole(dto, projectRole);
+            projectRole.setProjectTechCompetenceList(techCompetences);
 
             return projectRole;
         }).toList();
@@ -135,6 +151,9 @@ public class ProjectStructureServiceImpl implements IProjectStructureService {
                 ProjectRolesEntity existing = existingMap.get(roleId);
                 existing.setAmountWorkersRole(validatePR.getAmountWorkersRole());
                 existing.setRoleLoad(validatePR.getRoleLoad());
+
+                syncTechCompetencesForRole(existing, validatePR.getProjectTechCompetenceList());
+
                 updatedList.add(existing);
             } else
                 updatedList.add(validatePR);
@@ -142,6 +161,70 @@ public class ProjectStructureServiceImpl implements IProjectStructureService {
 
         projectStructure.getProjectRolesList().clear();
         projectStructure.getProjectRolesList().addAll(updatedList);
+    }
+
+    private List<ProjectTechCompetenceEntity> validateAndCreateTechCompetencesForRole(
+            ProjectRoleDTO.ProjectRoleCreateDTO dto,
+            ProjectRolesEntity projectRole) {
+
+        if (dto.getTechCompetences() == null || dto.getTechCompetences().isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        return dto.getTechCompetences().stream().map(tcDto -> {
+            CompetenceEntity competence = competenceRepository.findById(tcDto.getCompetenceId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Competence not found with ID: " + tcDto.getCompetenceId()));
+            CompetenceImportanceEntity importance = competenceImportanceRepository.findById(tcDto.getCompetenceImportanceId())
+                    .orElseThrow(() -> new ResourceNotFoundException("CompetenceImportance not found with ID: " + tcDto.getCompetenceImportanceId()));
+            LevelsEntity level = levelsRepository.findById(tcDto.getLevelId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Level not found with ID: " + tcDto.getLevelId()));
+
+            ProjectTechCompetenceEntity ptc = new ProjectTechCompetenceEntity();
+            ptc.setCompetence(competence);
+            ptc.setCompetenceImportance(importance);
+            ptc.setLevel(level);
+            ptc.setProjectRoles(projectRole); // relación inversa
+            return ptc;
+        }).toList();
+    }
+
+    private void syncTechCompetencesForRole(ProjectRolesEntity existingRole,
+                                            List<ProjectTechCompetenceEntity> newTechList) {
+        if (newTechList == null || newTechList.isEmpty()) {
+            existingRole.getProjectTechCompetenceList().clear();
+            return;
+        }
+
+        // Mapa de competencias existentes, clave única: competenceId-importanceId-levelId
+        Map<String, ProjectTechCompetenceEntity> existingMap = existingRole.getProjectTechCompetenceList()
+                .stream()
+                .collect(Collectors.toMap(
+                        this::buildTechCompetenceKey,
+                        ptc -> ptc
+                ));
+
+        List<ProjectTechCompetenceEntity> updatedList = new ArrayList<>();
+
+        for (ProjectTechCompetenceEntity newPtc : newTechList) {
+            String key = buildTechCompetenceKey(newPtc);
+            if (existingMap.containsKey(key)) {
+                // Se reutiliza la existente (ya tiene ID)
+                updatedList.add(existingMap.get(key));
+            } else {
+                // Es una nueva competencia, se vincula al rol
+                newPtc.setProjectRoles(existingRole);
+                updatedList.add(newPtc);
+            }
+        }
+
+        existingRole.getProjectTechCompetenceList().clear();
+        existingRole.getProjectTechCompetenceList().addAll(updatedList);
+    }
+
+    private String buildTechCompetenceKey(ProjectTechCompetenceEntity ptc) {
+        return ptc.getCompetence().getId() + "-"
+                + ptc.getCompetenceImportance().getId() + "-"
+                + ptc.getLevel().getId();
     }
 
     private ProjectStructureDTO.ProjectStructureResponseDTO convertToResponseDTO(ProjectStructureEntity entity) {
@@ -157,6 +240,13 @@ public class ProjectStructureServiceImpl implements IProjectStructureService {
                         dto.setAmountWorkersRole(proR.getAmountWorkersRole());
                         dto.setRole(modelMapper.map(proR.getRole(), RoleDTO.RoleMinimalDTO.class));
                         dto.setRoleLoad(modelMapper.map(proR.getRoleLoad(), RoleLoadDTO.RoleLoadResponseDTO.class));
+
+                        if (proR.getProjectTechCompetenceList() != null) {
+                            dto.setTechCompetences(proR.getProjectTechCompetenceList().stream()
+                                    .map(this::convertToTechCompetenceResponseDTO)
+                                    .toList());
+                        }
+
                         return dto;
                     })
                     .toList());
@@ -171,6 +261,17 @@ public class ProjectStructureServiceImpl implements IProjectStructureService {
         dto.setId(entity.getId());
         dto.setName(entity.getName());
 
+        return dto;
+    }
+
+    private ProjectTechCompetenceDTO.ProjectTechCompetenceResponseDTO convertToTechCompetenceResponseDTO(
+            ProjectTechCompetenceEntity ptc) {
+        ProjectTechCompetenceDTO.ProjectTechCompetenceResponseDTO dto =
+                new ProjectTechCompetenceDTO.ProjectTechCompetenceResponseDTO();
+        dto.setId(ptc.getId());
+        dto.setCompetence(modelMapper.map(ptc.getCompetence(), CompetenceDTO.CompetenceMinimalDTO.class));
+        dto.setImportance(modelMapper.map(ptc.getCompetenceImportance(), CompetenceImportanceDTO.CompetenceImportanceResponseDTO.class)      );
+        dto.setLevel(modelMapper.map(ptc.getLevel(), LevelsDTO.LevelsResponseDTO.class));
         return dto;
     }
 }

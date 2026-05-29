@@ -2,6 +2,7 @@ package com.tesis.teamsoft.presentation.controller;
 
 import com.tesis.teamsoft.exception.*;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.MessageSourceResolvable;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,9 +13,11 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.HandlerMethodValidationException;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -42,6 +45,21 @@ public class GlobalExceptionHandler {
         response.put("message", "The request body contains invalid JSON. Please check syntax (e.g., missing braces, commas, or quotes).");
         response.put("details", ex.getMostSpecificCause().getMessage());
 
+        return ResponseEntity.badRequest().body(response);
+    }
+
+    @ExceptionHandler(HandlerMethodValidationException.class)
+    public ResponseEntity<Map<String, Object>> handleHandlerMethodValidation(HandlerMethodValidationException ex) {
+        List<String> errors = ex.getParameterValidationResults()  // ← no deprecated
+                .stream()
+                .flatMap(result -> result.getResolvableErrors().stream())
+                .map(MessageSourceResolvable::getDefaultMessage)   // ← usa la interfaz, no la clase concreta
+                .toList();
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("status", HttpStatus.BAD_REQUEST.value());
+        response.put("error", "Validation failed");
+        response.put("messages", errors);
         return ResponseEntity.badRequest().body(response);
     }
 

@@ -59,7 +59,7 @@ public class MaximizeNacionalityFactor extends ObjetiveFunction{
         //Cantidad de nacionalidades diferentes del searchArea
         for (int i = 1; i < organizationWorkerList.size(); i++) {
             PersonEntity worker = organizationWorkerList.get(i);
-            if (!ObjetiveFunctionUtil.foundNacionality(worker.getNacionality(), nacionalityList)) {
+            if (worker.getNacionality() != null && !ObjetiveFunctionUtil.foundNacionality(worker.getNacionality(), nacionalityList)) {
                 nacionalityList.add(worker.getNacionality());
             }
         }
@@ -77,7 +77,8 @@ public class MaximizeNacionalityFactor extends ObjetiveFunction{
             //iterar por todos los trabajadores del equipos
             for (int i = 1; i < teamWorkerList.size(); i++) {
                 PersonEntity worker = teamWorkerList.get(i);
-                if (!ObjetiveFunctionUtil.foundNacionality(worker.getNacionality(), nacionalityList)) {
+
+                if (worker.getNacionality() != null && !ObjetiveFunctionUtil.foundNacionality(worker.getNacionality(), nacionalityList)) {
                     nacionalityList.add(worker.getNacionality());
                 }
             }

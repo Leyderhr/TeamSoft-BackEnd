@@ -55,7 +55,7 @@ public class MinimizeNacionalityFactor extends ObjetiveFunction{
 
         //Cantidad de nacionalidades diferentes del searchArea
         for (PersonEntity worker : organizationWorkerList) {
-            if (!ObjetiveFunctionUtil.foundNacionality(worker.getNacionality(), nacionalityList)) {
+            if (worker.getNacionality() != null && !ObjetiveFunctionUtil.foundNacionality(worker.getNacionality(), nacionalityList)) {
                 nacionalityList.add(worker.getNacionality());
             }
         }
@@ -70,7 +70,7 @@ public class MinimizeNacionalityFactor extends ObjetiveFunction{
 
             //iterar por todos los trabajadores del equipos
             for (PersonEntity worker : teamWorkerList) {
-                if (!ObjetiveFunctionUtil.foundNacionality(worker.getNacionality(), nacionalityList)) {
+                if (worker.getNacionality() != null && !ObjetiveFunctionUtil.foundNacionality(worker.getNacionality(), nacionalityList)) {
                     nacionalityList.add(worker.getNacionality());
                 }
             }

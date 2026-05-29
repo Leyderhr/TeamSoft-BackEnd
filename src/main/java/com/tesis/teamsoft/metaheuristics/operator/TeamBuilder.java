@@ -35,10 +35,9 @@ public class TeamBuilder {
                 while (i < parameters.getProjects().size() && !found) { //para cada proyecto
                     project = new ProjectEntity(); //para evitar actualizar referencias
                     project.setClient(parameters.getProjects().get(i).getProject().getClient());
-                    project.setClose(parameters.getProjects().get(i).getProject().isClose());
+                    project.setState(parameters.getProjects().get(i).getProject().getState());
                     project.setCycleList(parameters.getProjects().get(i).getProject().getCycleList());
                     project.setEndDate(parameters.getProjects().get(i).getProject().getEndDate());
-                    project.setFinalize(parameters.getProjects().get(i).getProject().isFinalize());
                     project.setId(parameters.getProjects().get(i).getProject().getId());
                     project.setInitialDate(parameters.getProjects().get(i).getProject().getInitialDate());
                     project.setProjectName(parameters.getProjects().get(i).getProject().getProjectName());

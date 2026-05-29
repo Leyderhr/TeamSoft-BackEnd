@@ -59,8 +59,14 @@ public class CompetenceController {
         return new ResponseEntity<>(competenceService.findCompetenceById(id), HttpStatus.OK);
     }
 
+    @GetMapping("/technical")
+    @PreAuthorize("hasRole('EXPERIMENTADOR') OR hasRole('DIRECTIVO_TECNICO')")
+    public ResponseEntity<List<CompetenceDTO.CompetenceResponseDTO>> findAllTechnicalCompetences() {
+        return new ResponseEntity<>(competenceService.findAllTechnicalCompetences(), HttpStatus.OK);
+    }
+
     @PostMapping(value = "/import", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    //@PreAuthorize("hasRole('GESTOR_RRHH')")
+    @PreAuthorize("hasRole('GESTOR_RRHH')")
     public ResponseEntity<ImportResultDTO> importCompetences(
             @RequestParam("file") MultipartFile file,
             @RequestParam(defaultValue = "false") boolean updateIfExist) {
@@ -73,7 +79,7 @@ public class CompetenceController {
     }
 
     @GetMapping(value = "/export", produces = "text/csv")
-    //@PreAuthorize("hasRole('GESTOR_RRHH')")
+    @PreAuthorize("hasRole('GESTOR_RRHH')")
     public ResponseEntity<byte[]> exportCompetences() {
         InputStream is = competenceService.exportCompetences();
         byte[] bytes;

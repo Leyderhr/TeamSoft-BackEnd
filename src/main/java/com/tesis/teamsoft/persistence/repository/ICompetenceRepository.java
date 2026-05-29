@@ -13,4 +13,6 @@ public interface ICompetenceRepository extends JpaRepository<CompetenceEntity, L
     List<CompetenceEntity> findAllByOrderByIdAsc();
 
     Optional<CompetenceEntity> findByCompetitionName(String competitionName);
+
+    List<CompetenceEntity> findAllByTechnicalOrderByIdAsc(Boolean technical);
 }

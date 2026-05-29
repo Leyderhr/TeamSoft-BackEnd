@@ -1,5 +1,6 @@
 package com.tesis.teamsoft.service.implementation;
 
+import com.tesis.teamsoft.exception.ResourceNotFoundException;
 import com.tesis.teamsoft.persistence.entity.auxiliary.Status;
 import com.tesis.teamsoft.persistence.repository.*;
 import com.tesis.teamsoft.presentation.dto.*;
@@ -11,6 +12,7 @@ import evolutionary_algorithms.complement.SelectionType;
 import local_search.complement.StopExecute;
 import local_search.complement.TabuSolutions;
 import local_search.complement.UpdateParameter;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import metaheurictics.strategy.Strategy;
 import metaheuristics.generators.*;
@@ -22,6 +24,7 @@ import com.tesis.teamsoft.metaheuristics.restrictions.*;
 import com.tesis.teamsoft.metaheuristics.auxiliary.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import problem.definition.ObjetiveFunction;
 import problem.definition.Problem;
 import problem.definition.State;
@@ -36,6 +39,7 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import com.tesis.teamsoft.config.AlgorithmConfig;
 
+@Getter
 @Service
 @RequiredArgsConstructor
 public class TeamFormationStepThreeImpl implements ITeamFormationStepThreeService {
@@ -49,6 +53,8 @@ public class TeamFormationStepThreeImpl implements ITeamFormationStepThreeServic
     private final IPersonGroupRepository iPersonGroupRepository;
     private final IRoleRepository roleRepository;
     private final IAssignedRoleRepository assignedRoleRepository;
+    private final ObjectiveFunctionValidator validator;
+    private final UpdateAgeGroupUtil updateAgeGroupUtil;
 
 
     public List<TeamProposalDTO>  getTeam(TeamFormationParameters parameters, List<Long> projectsIDs, List<Long> groupIDs) throws Exception {
@@ -67,6 +73,8 @@ public class TeamFormationStepThreeImpl implements ITeamFormationStepThreeServic
 
         //Funciones objetivo
         ArrayList<ObjetiveFunction> objectiveFunctions = new ArrayList<>();
+        validator.validate(parameters);
+        checkAgeGroupUpdate(parameters);
         objectiveFunctions.addAll(ObjetiveFunctionUtil.getObjectiveFunctions(parameters));
         //Restricciones
         ArrayList<Constrain> restrictions = new ArrayList<>();
@@ -222,29 +230,23 @@ public class TeamFormationStepThreeImpl implements ITeamFormationStepThreeServic
             for (ProjectDTO.ProjectTeamProposalDTO projectProposal : teamProposalDTO.getProjectsProposal()) {
                 ProjectRole projectRole = new ProjectRole();
 
-                List<ProjectEntity> allProjects = projectRepository.findAll();
-                Map<Long, ProjectEntity> projectMap = allProjects.stream()
-                        .collect(Collectors.toMap(ProjectEntity::getId, Function.identity()));
-                ProjectEntity project = projectMap.get(projectProposal.getProject().getId());
-                if (project == null) {
-                    throw new RuntimeException("Project not found with ID: " + projectProposal.getProject().getId());
-                }
+                ProjectEntity project = projectRepository.findById(projectProposal.getProject().getId())
+                        .orElseThrow(() -> new ResourceNotFoundException("Project not found with ID: " + projectProposal.getProject().getId()));
+
                 projectRole.setProject(project);
                 List<RoleWorker> roleWorkers = new ArrayList<>();
 
                 for (AssignedRoleDTO assignedRole : projectProposal.getAssignedRoles()) {
                     RoleWorker roleWorker = new RoleWorker();
 
-                    // Obtener la entidad Role completa usando el ID del DTO
                     RoleEntity role = roleRepository.findById(assignedRole.getRole().getId())
-                            .orElseThrow(() -> new RuntimeException("Role not found with id: " + assignedRole.getRole().getId()));
+                            .orElseThrow(() -> new ResourceNotFoundException("Role not found with id: " + assignedRole.getRole().getId()));
                     roleWorker.setRole(role);
 
                     List<PersonEntity> workers = new ArrayList<>();
                     for (PersonDTO.PersonMinimalDTO personMinimal : assignedRole.getPersons()) {
-                        // Obtener la entidad PersonEntity completa usando el ID del DTO
                         PersonEntity person = personRepository.findById(personMinimal.getId())
-                                .orElseThrow(() -> new RuntimeException("Person not found with id: " + personMinimal.getId()));
+                                .orElseThrow(() -> new ResourceNotFoundException("Person not found with id: " + personMinimal.getId()));
                         workers.add(person);
                     }
                     roleWorker.setWorkers(workers);
@@ -257,39 +259,60 @@ public class TeamFormationStepThreeImpl implements ITeamFormationStepThreeServic
         return projectRoles;
     }
 
-
-    public TeamProposalDTO saveTeamProposal(TeamProposalDTO teamProposalDTO) throws Exception {
+    @Transactional
+    public TeamProposalDTO saveTeamProposal(TeamProposalDTO teamProposalDTO){
         if (teamProposalDTO == null) {
             throw new IllegalArgumentException("Team proposal is null");
         }
 
-        // Obtener la lista de ProjectRole a partir del DTO
         List<ProjectRole> projectRoles = getProjectRolesForSaveTeam(teamProposalDTO);
         Date currentDate = new Date();
 
         for (ProjectRole projectRole : projectRoles) {
-            // Obtener el último ciclo del proyecto (similar a como se hacía en TeamBuilder.lastProjectCycle)
             CycleEntity lastCycle = TeamBuilder.lastProjectCycle(projectRole.getProject());
 
             for (RoleWorker roleWorker : projectRole.getRoleWorkers()) {
                 RoleEntity role = roleWorker.getRole();
                 for (PersonEntity person : roleWorker.getWorkers()) {
-                    // Crear y guardar la asignación
                     AssignedRoleEntity assignedRole = new AssignedRoleEntity();
-                    assignedRole.setStatus(Status.ACTIVE); // o el status que corresponda
+                    assignedRole.setStatus(Status.ACTIVE);
                     assignedRole.setObservation("Assigned by team formation algorithm");
                     assignedRole.setBeginDate(currentDate);
                     assignedRole.setCycles(lastCycle);
                     assignedRole.setRole(role);
-                    assignedRole.setPerson(person); // Asumiendo que la entidad AssignedRoleEntity tiene una relación con PersonEntity
+                    assignedRole.setPerson(person);
 
-                    // Guardar la asignación
                     assignedRoleRepository.save(assignedRole);
+                    updatePersonWorkloadForRole(lastCycle, role, person);
                 }
             }
         }
 
         return teamProposalDTO;
+    }
+
+    private void updatePersonWorkloadForRole(CycleEntity lastCycle, RoleEntity role, PersonEntity person) {
+        if (lastCycle == null) {
+            throw new ResourceNotFoundException("Project does not have an active cycle");
+        }
+
+        ProjectStructureEntity projectStructure = lastCycle.getProjectStructure();
+        if (projectStructure == null) {
+            throw new ResourceNotFoundException("Project cycle has no associated structure");
+        }
+
+        Float roleLoadValue = projectStructure.getProjectRolesList().stream()
+                .filter(pr -> pr.getRole().equals(role))
+                .findFirst()
+                .map(pr -> pr.getRoleLoad().getValue())
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Role load not found for role '" + role.getRoleName() +
+                                "' in project structure of project '" + lastCycle.getProject().getProjectName() + "'"));
+
+        float newWorkload = person.getWorkload() + roleLoadValue;
+        person.setWorkload(newWorkload);
+
+        personRepository.save(person);
     }
 
 
@@ -560,7 +583,7 @@ public class TeamFormationStepThreeImpl implements ITeamFormationStepThreeServic
         return compTemplateList;
     }
 
-    private List<PersonEntity> getSearchArea(List<Long> groupIDs) {
+    List<PersonEntity> getSearchArea(List<Long> groupIDs) {
         List<PersonGroupEntity> rootGroups = getGroups(groupIDs);
 
         Set<Long> allGroupIds = getAllGroupsRecursively(rootGroups);
@@ -1580,6 +1603,13 @@ public class TeamFormationStepThreeImpl implements ITeamFormationStepThreeServic
             }
         }
         return sol;
+    }
+
+    private void checkAgeGroupUpdate(TeamFormationParameters params){
+        if(params.isMaxAgeHeterogeneity() || params.isMinAgeHomogeneity() ||
+                params.isBalanceMaximizeAgeHeterogeneity() || params.isBalanceMinimizeAgeHomogeneity()){
+            updateAgeGroupUtil.assignAgeGroups();
+        }
     }
 }
 

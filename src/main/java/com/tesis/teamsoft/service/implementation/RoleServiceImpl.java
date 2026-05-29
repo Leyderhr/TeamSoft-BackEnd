@@ -255,7 +255,7 @@ public class RoleServiceImpl implements IRoleService {
                 })
                 .map(roleId -> roleRepository.findById(roleId)
                         .orElseThrow(() -> new ResourceNotFoundException("Incompatible role not found with ID: " + roleId)))
-                .toList();
+                .collect(Collectors.toList()); //NOSONAR
     }
 
     private RoleDTO.RoleResponseDTO convertToResponseDTO(RoleEntity role) {

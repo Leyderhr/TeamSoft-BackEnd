@@ -98,6 +98,14 @@ public class CompetenceServiceImpl implements ICompetenceService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
+    public List<CompetenceDTO.CompetenceResponseDTO> findAllTechnicalCompetences() {
+        return competenceRepository.findAllByTechnicalOrderByIdAsc(true)
+                .stream()
+                .map(this::convertToResponseDTO)
+                .toList();
+    }
+
     @Override
     @Transactional(readOnly = true)
     public CompetenceDTO.CompetenceResponseDTO findCompetenceById(Long id){

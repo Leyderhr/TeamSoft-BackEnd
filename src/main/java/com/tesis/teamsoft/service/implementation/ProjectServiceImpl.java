@@ -3,17 +3,18 @@ package com.tesis.teamsoft.service.implementation;
 import com.tesis.teamsoft.exception.BusinessRuleException;
 import com.tesis.teamsoft.exception.ResourceNotFoundException;
 import com.tesis.teamsoft.persistence.entity.*;
+import com.tesis.teamsoft.persistence.entity.auxiliary.ProjectState;
 import com.tesis.teamsoft.persistence.repository.*;
-import com.tesis.teamsoft.presentation.dto.ClientDTO;
-import com.tesis.teamsoft.presentation.dto.CountyDTO;
-import com.tesis.teamsoft.presentation.dto.ProjectDTO;
-import com.tesis.teamsoft.presentation.dto.ProjectStructureDTO;
+import com.tesis.teamsoft.pojos.ProjectStructureInfo;
+import com.tesis.teamsoft.presentation.dto.*;
 import com.tesis.teamsoft.service.interfaces.IProjectService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -36,10 +37,12 @@ public class ProjectServiceImpl implements IProjectService {
             projects.add(initializeProject(dto));
         }
 
+        projects = projectRepository.saveAll(projects);
         List<ProjectDTO.ProjectResponseDTO> responses = new ArrayList<>();
-        for(ProjectEntity project : projects) {
-            responses.add(convertToResponseDTO(projectRepository.save(project)));
-        }
+
+        for(ProjectEntity project : projects)
+            responses.add(convertToResponseDTO(project));
+
 
         return responses;
     }
@@ -60,7 +63,6 @@ public class ProjectServiceImpl implements IProjectService {
         ProjectEntity updatedProject = projectRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Project not found with ID: " + id));
 
-        updatedProject.setClose(true);
         return convertToResponseDTO(projectRepository.save(updatedProject));
     }
 
@@ -94,11 +96,74 @@ public class ProjectServiceImpl implements IProjectService {
         return convertToResponseDTO(project);
     }
 
+    public List<ProjectDTO.ProjectSimpleDTO> findAllProjectsByState(ProjectState state) {
+        return projectRepository.findByState(state)
+                .stream()
+                .map(entity -> modelMapper.map(entity, ProjectDTO.ProjectSimpleDTO.class))
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<ProjectDTO.ProjectBossCompetitionsDTO> findBossRoleCompetitionsByProjectIds(List<Long> projectIds) {
+        List<ProjectDTO.ProjectBossCompetitionsDTO> result = new ArrayList<>();
+
+        for (Long projectId : projectIds) {
+            ProjectStructureInfo info = findProjectStructureInfo(projectId);
+
+            RoleEntity bossRole = info.getProjectStructure().getProjectRolesList().stream()
+                    .map(ProjectRolesEntity::getRole)
+                    .filter(role -> role != null && role.isBoss())
+                    .findFirst()
+                    .orElseThrow(() -> new BusinessRuleException("No boss role found in project structure for project ID: " + projectId));
+
+            List<RoleDTO.RoleCompetitionResponseDTO> technical = new ArrayList<>();
+            List<RoleDTO.RoleCompetitionResponseDTO> nonTechnical = new ArrayList<>();
+
+            for(RoleCompetitionEntity rc: bossRole.getRoleCompetitionList()){
+                boolean isTechnical;
+                if (rc.getCompetence() != null)
+                    isTechnical = rc.getCompetence().getTechnical();
+                else
+                    throw new BusinessRuleException("Competence is null in role competition");
+
+                if(isTechnical)
+                    technical.add(toRoleCompetitionResponseDTO(rc));
+                else
+                    nonTechnical.add(toRoleCompetitionResponseDTO(rc));
+            }
+            ProjectDTO.ProjectBossCompetitionsDTO dto = new ProjectDTO.ProjectBossCompetitionsDTO(info.getProject().getId(), info.getProject().getProjectName(), technical, nonTechnical);
+            result.add(dto);
+        }
+
+        return result;
+    }
+
+    @Transactional(readOnly = true)
+    public List<ProjectDTO.ProjectNonBossRolesDTO> findNonBossRolesByProjectIds(List<Long> projectIds) {
+        List<ProjectDTO.ProjectNonBossRolesDTO> result = new ArrayList<>();
+
+        for (Long projectId : projectIds) {
+            ProjectStructureInfo info = findProjectStructureInfo(projectId);//NOSONAR
+
+            List<RoleDTO.RoleMinimalDTO> nonBossRoles = info.getProjectStructure().getProjectRolesList().stream()//NOSONAR
+                    .map(ProjectRolesEntity::getRole)
+                    .filter(role -> role != null && !role.isBoss())   // solo no jefe
+                    .map(role -> modelMapper.map(role, RoleDTO.RoleMinimalDTO.class))
+                    .collect(Collectors.toList());
+
+            result.add(new ProjectDTO.ProjectNonBossRolesDTO(
+                    info.getProject().getId(),
+                    info.getProject().getProjectName(),
+                    nonBossRoles
+            ));
+        }
+
+        return result;
+    }
+
     private ProjectEntity initializeProject(ProjectDTO.ProjectCreateDTO dto) {
         ProjectEntity project = modelMapper.map(dto, ProjectEntity.class);
 
-        project.setClose(false);
-        project.setFinalize(false);
         project.setRoleEvaluation(null);
         project.setCycleList(new ArrayList<>());
         project.getCycleList().add(new CycleEntity(project, processSimpleRelations(dto, project)));
@@ -148,5 +213,29 @@ public class ProjectServiceImpl implements IProjectService {
         dto.setProjectStructure(modelMapper.map(project.getCycleList().getFirst().getProjectStructure(), ProjectStructureDTO.ProjectStructureSimpleDTO.class));
 
         return dto;
+    }
+
+    private RoleDTO.RoleCompetitionResponseDTO toRoleCompetitionResponseDTO(RoleCompetitionEntity entity) {
+        RoleDTO.RoleCompetitionResponseDTO dto = new RoleDTO.RoleCompetitionResponseDTO();
+        dto.setId(entity.getId());
+        dto.setCompetence(modelMapper.map(entity.getCompetence(), CompetenceDTO.CompetenceMinimalDTO.class));
+        dto.setCompetenceImportance(modelMapper.map(entity.getCompetenceImportance(), CompetenceImportanceDTO.CompetenceImportanceResponseDTO.class));
+        dto.setLevel(modelMapper.map(entity.getLevel(), LevelsDTO.LevelsResponseDTO.class));
+
+        return dto;
+    }
+
+    private ProjectStructureInfo findProjectStructureInfo(Long projectId){
+        ProjectEntity project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found with ID: " + projectId));
+
+        if (project.getCycleList() == null || project.getCycleList().isEmpty())
+            throw new BusinessRuleException("Project with ID " + projectId + " has no cycles defined");
+
+        ProjectStructureEntity structure = project.getCycleList().getFirst().getProjectStructure();
+        if (structure == null || structure.getProjectRolesList() == null)
+            throw new BusinessRuleException("Project structure or roles not found for project ID: " + projectId);
+
+        return new ProjectStructureInfo(project, structure);
     }
 }
