@@ -59,6 +59,7 @@ public class TeamFormationStepThreeImpl implements ITeamFormationStepThreeServic
 
     public List<TeamProposalDTO>  getTeam(TeamFormationParameters parameters, List<Long> projectsIDs, List<Long> groupIDs) throws Exception {
 
+        hydrateFixedWorkers(parameters);
         parameters.setProjects(formatProjects(getUnsavedProjects(projectsIDs)));
         parameters.setSearchArea(new ArrayList<>(getSearchArea(groupIDs)));
 
@@ -222,6 +223,36 @@ public class TeamFormationStepThreeImpl implements ITeamFormationStepThreeServic
         return teamProposal;
     }
 
+
+    /**
+     * Re-hidrata las entidades fijadas (boss/role/project) que llegan desde el
+     * frontend como "esqueletos" (solo el id). La metaheurística necesita las
+     * entidades completas (competencias, carga, grupo, etc.); sin esto los
+     * objetivos/restricciones desreferencian atributos nulos y lanzan excepción,
+     * lo que terminaba devolviendo un 404 al regenerar con personas fijadas.
+     */
+    public void hydrateFixedWorkers(TeamFormationParameters parameters) {
+        if (parameters == null || parameters.getFixedWorkers() == null) {
+            return;
+        }
+        for (FixedWorker fixedWorker : parameters.getFixedWorkers()) {
+            if (fixedWorker.getBoss() != null && fixedWorker.getBoss().getId() != null) {
+                Long personId = fixedWorker.getBoss().getId();
+                fixedWorker.setBoss(personRepository.findById(personId)
+                        .orElseThrow(() -> new ResourceNotFoundException("Person not found with id: " + personId)));
+            }
+            if (fixedWorker.getRole() != null && fixedWorker.getRole().getId() != null) {
+                Long roleId = fixedWorker.getRole().getId();
+                fixedWorker.setRole(roleRepository.findById(roleId)
+                        .orElseThrow(() -> new ResourceNotFoundException("Role not found with id: " + roleId)));
+            }
+            if (fixedWorker.getProject() != null && fixedWorker.getProject().getId() != null) {
+                Long projectId = fixedWorker.getProject().getId();
+                fixedWorker.setProject(projectRepository.findById(projectId)
+                        .orElseThrow(() -> new ResourceNotFoundException("Project not found with id: " + projectId)));
+            }
+        }
+    }
 
     public List<ProjectRole> getProjectRolesForSaveTeam(TeamProposalDTO teamProposalDTO) {
         List<ProjectRole> projectRoles = new ArrayList<>();

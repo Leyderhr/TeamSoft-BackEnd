@@ -559,14 +559,19 @@ public class TeamFormationCodification extends Codification {
 
         ProjectRole rp;
         RoleWorker rw;
-        PersonEntity workerB = new PersonEntity();
+        // Por defecto devolver al propio trabajador: si no se encuentra en la lista
+        // de "workers" (p.ej. es un trabajador FIJADO, que no debe sustituirse) se
+        // retorna una persona válida en lugar de un PersonEntity vacío con id nulo,
+        // que rompía las validaciones posteriores (NullPointerException en getId()).
+        PersonEntity workerB = invalidWorker;
 
         rp = ((ProjectRole) projects.get(i));
 
         rw = rp.getRoleWorkers().get(j);
         for (int k = 0; k < rw.getWorkers().size(); k++) {
 
-            if (rw.getWorkers().get(k).getId().equals(invalidWorker.getId())) {
+            if (rw.getWorkers().get(k).getId() != null
+                    && rw.getWorkers().get(k).getId().equals(invalidWorker.getId())) {
                 int personIndexB = generator.nextInt(codification.getSearchArea().size());
                 workerB = codification.getSearchArea().get(personIndexB);
                 ((ProjectRole) state.getCode().get(i)).getRoleWorkers().get(j).getWorkers().set(k, workerB);

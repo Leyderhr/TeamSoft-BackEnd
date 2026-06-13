@@ -39,6 +39,8 @@ public class TeamFormationStepTwoServiceImpl implements ITeamFormationStepTwoSer
             throw new IllegalArgumentException("La suma de los pesos de las funciones objetivo debe ser 1.");
         }
 
+        stepThreeService.hydrateFixedWorkers(parameters);
+
         List<ProjectEntity> projects = projectRepository.findAllById(request.getProjectIDs());
         if (projects.isEmpty()) {
             throw new ResourceNotFoundException("No se encontraron proyectos con los IDs proporcionados.");
@@ -76,6 +78,7 @@ public class TeamFormationStepTwoServiceImpl implements ITeamFormationStepTwoSer
 
             BossProposalDTO.ProjectBossDTO projectBoss = new BossProposalDTO.ProjectBossDTO();
             projectBoss.setProject(modelMapper.map(project, ProjectDTO.ProjectSimpleDTO.class));
+            projectBoss.setRole(modelMapper.map(bossRole, RoleDTO.RoleMinimalDTO.class));
             projectBoss.setCandidates(candidates);
             response.getProposals().add(projectBoss);
         }
@@ -91,6 +94,8 @@ public class TeamFormationStepTwoServiceImpl implements ITeamFormationStepTwoSer
         if (!stepThreeService.ensureGeneralFactorWeightSummatory(parameters)) {
             throw new IllegalArgumentException("La suma de los pesos de las funciones objetivo debe ser 1.");
         }
+
+        stepThreeService.hydrateFixedWorkers(parameters);
 
         // 2. Cargar el proyecto y el rol
         ProjectEntity project = projectRepository.findById(request.getProjectId())

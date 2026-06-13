@@ -18,6 +18,7 @@ public class BossProposalDTO {
     @Data
     public static class ProjectBossDTO {
         private ProjectDTO.ProjectSimpleDTO project;
+        private RoleDTO.RoleMinimalDTO role;
         private List<BossCandidateDTO> candidates;
     }
 
