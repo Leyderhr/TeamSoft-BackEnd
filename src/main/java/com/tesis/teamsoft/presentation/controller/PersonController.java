@@ -41,14 +41,21 @@ public class PersonController {
     }
 
     @GetMapping()
-    @PreAuthorize("hasRole('GESTOR_RRHH')")
+    @PreAuthorize("hasRole('GESTOR_RRHH') OR hasRole('EXPERIMENTADOR') OR hasRole('DIRECTIVO_TECNICO')")
     public ResponseEntity<List<PersonDTO.PersonResponseDTO>> findAllPerson() {
             return new ResponseEntity<>(personService.findAllByOrderByIdAsc(), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasRole('GESTOR_RRHH')")
+    @PreAuthorize("hasRole('GESTOR_RRHH') OR hasRole('EXPERIMENTADOR') OR hasRole('DIRECTIVO_TECNICO')")
     public ResponseEntity<PersonDTO.PersonResponseDTO> findPersonById(@PathVariable Long id) {
             return new ResponseEntity<>(personService.findPersonById(id), HttpStatus.OK);
+    }
+
+    @PatchMapping("/{id}")
+    @PreAuthorize("hasRole('GESTOR_RRHH') OR hasRole('EXPERIMENTADOR') OR hasRole('DIRECTIVO_TECNICO')")
+    public ResponseEntity<PersonDTO.PersonResponseDTO> patchCompetencesAndConflicts(
+            @PathVariable Long id, @Valid @RequestBody PersonDTO.PersonCompetenceConflictPatchDTO patchDTO) {
+            return new ResponseEntity<>(personService.patchCompetencesAndConflicts(patchDTO, id), HttpStatus.OK);
     }
 }

@@ -30,28 +30,18 @@ public class TeamFormationController {
 
     @PostMapping("teams")
     @PreAuthorize("hasRole('EXPERIMENTADOR') OR hasRole('DIRECTIVO_TECNICO')")
-    public ResponseEntity<?> getTeams(@RequestBody TeamFormationDTO dto) {
-
-        try {
-            return new ResponseEntity<>(teamFormationStepThree.getTeam(dto.getTeamFormationParameters()
-                    , dto.getProjectsIDs(), dto.getGroupIDs()), HttpStatus.OK);
-
-        } catch (RuntimeException e) {
-            Map<String, String> error = new HashMap<>();
-            error.put("Error: ", e.getMessage());
-            return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+    public ResponseEntity<?> getTeams(@RequestBody TeamFormationDTO dto) throws Exception {
+        // Las excepciones se delegan al GlobalExceptionHandler para devolver
+        // códigos coherentes: IllegalArgumentException -> 400, ResourceNotFoundException -> 404.
+        return new ResponseEntity<>(teamFormationStepThree.getTeam(dto.getTeamFormationParameters()
+                , dto.getProjectsIDs(), dto.getGroupIDs()), HttpStatus.OK);
     }
 
     @PostMapping("save_teams")
     @PreAuthorize("hasRole('EXPERIMENTADOR') OR hasRole('DIRECTIVO_TECNICO')")
     public ResponseEntity<?> saveTeams(@RequestBody TeamProposalDTO dto) {
-        try{
-            return new ResponseEntity<>(teamFormationStepThree.saveTeamProposal(dto), HttpStatus.OK);
-        }catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        // Igual que arriba: dejar que el GlobalExceptionHandler traduzca el error
+        // y conserve el mensaje (antes se envolvía en RuntimeException -> 500 genérico).
+        return new ResponseEntity<>(teamFormationStepThree.saveTeamProposal(dto), HttpStatus.OK);
     }
 }

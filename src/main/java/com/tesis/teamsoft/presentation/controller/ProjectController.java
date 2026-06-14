@@ -1,7 +1,10 @@
 package com.tesis.teamsoft.presentation.controller;
 
 import com.tesis.teamsoft.persistence.entity.auxiliary.ProjectState;
+import com.tesis.teamsoft.presentation.dto.AssignedRoleDTO;
+import com.tesis.teamsoft.presentation.dto.CloseProjectDTO;
 import com.tesis.teamsoft.presentation.dto.ProjectDTO;
+import com.tesis.teamsoft.presentation.dto.RolePersonEvaluationDTO;
 import com.tesis.teamsoft.service.implementation.ProjectServiceImpl;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -35,9 +38,10 @@ public class ProjectController {
     }
 
     @PutMapping("close/{id}")
-    @PreAuthorize("hasRole('EXPERIMENTADOR') OR hasRole('DIRECTIVO_TECNICO')")
-    public ResponseEntity<ProjectDTO.ProjectResponseDTO> closeProject(@PathVariable Long id){
-        return new ResponseEntity<>(projectService.closeProject(id), HttpStatus.CREATED);
+    @PreAuthorize("hasRole('JEFE_DE_EQUIPO') OR hasRole('DIRECTIVO_TECNICO')")
+    public ResponseEntity<ProjectDTO.ProjectResponseDTO> closeProject(
+            @PathVariable Long id, @Valid @RequestBody CloseProjectDTO dto){
+        return new ResponseEntity<>(projectService.closeProject(id, dto), HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
@@ -66,7 +70,7 @@ public class ProjectController {
     }
 
     @GetMapping("/state/{state}")
-    @PreAuthorize("hasRole('EXPERIMENTADOR') OR hasRole('DIRECTIVO_TECNICO') OR hasRole('GESTOR_RRHH')")
+    @PreAuthorize("hasRole('EXPERIMENTADOR') OR hasRole('DIRECTIVO_TECNICO') OR hasRole('GESTOR_RRHH') OR hasRole('JEFE_DE_EQUIPO')")
     public ResponseEntity<List<ProjectDTO.ProjectSimpleDTO>> findProjectsByState(@PathVariable ProjectState state) {
         return new ResponseEntity<>(projectService.findAllProjectsByState(state), HttpStatus.OK);
     }
@@ -76,5 +80,24 @@ public class ProjectController {
     public ResponseEntity<List<ProjectDTO.ProjectNonBossRolesDTO>> getNonBossRolesByProjectIds(
             @RequestParam List<Long> ids) {
         return ResponseEntity.ok(projectService.findNonBossRolesByProjectIds(ids));
+    }
+
+    @GetMapping("/{id}/non-boss-assigned-roles")
+    @PreAuthorize("hasRole('JEFE_DE_EQUIPO') OR hasRole('DIRECTIVO_TECNICO')")
+    public ResponseEntity<List<AssignedRoleDTO>> getNonBossAssignedRoles(@PathVariable Long id) {
+        return new ResponseEntity<>(projectService.findNonBossAssignedRoles(id), HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}/boss-assigned-role")
+    @PreAuthorize("hasRole('JEFE_DE_EQUIPO') OR hasRole('DIRECTIVO_TECNICO')")
+    public ResponseEntity<AssignedRoleDTO> getBossAssignedRole(@PathVariable Long id) {
+        return new ResponseEntity<>(projectService.findBossAssignedRole(id), HttpStatus.OK);
+    }
+
+    @PutMapping("finalize/{id}")
+    @PreAuthorize("hasRole('JEFE_DE_EQUIPO') OR hasRole('DIRECTIVO_TECNICO')")
+    public ResponseEntity<ProjectDTO.ProjectResponseDTO> finalizeProject(
+            @PathVariable Long id, @Valid @RequestBody List<RolePersonEvaluationDTO> evaluations) {
+        return new ResponseEntity<>(projectService.finalizeProject(id, evaluations), HttpStatus.OK);
     }
 }

@@ -1,5 +1,6 @@
 package com.tesis.teamsoft.presentation.dto;
 
+import com.tesis.teamsoft.persistence.entity.auxiliary.Status;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.AccessLevel;
@@ -34,8 +35,10 @@ public class PersonDTO {
         @Pattern(regexp = "^\\d{8,}$", message = "Phone must contain at least 8 digits")
         private String phone;
 
-        @NotNull(message = "Sex is required")
         private Character sex;
+
+        @NotNull(message = "Status is required")
+        private Status status;
 
         @NotBlank(message = "Email is required")
         @Email(message = "Email should be valid")
@@ -51,22 +54,13 @@ public class PersonDTO {
         @Past(message = "Birth date must be in the past")
         private Date birthDate;
 
-
-        @NotNull(message = "County ID is required")
-        private Long county;
-
-        @NotNull(message = "Race ID is required")
-        private Long race;
-
         @NotNull(message = "Person group ID is required")
         private Long group;
 
-        @NotNull(message = "Nacionality ID is required")
+        private Long county;
+        private Long race;
         private Long nacionality;
-
-        @NotNull(message = "Religion ID is required")
         private Long religion;
-
 
         @Valid
         private List<CompetenceValueDTO.CompetenceValueCreateDTO> competenceValues;
@@ -84,9 +78,12 @@ public class PersonDTO {
         @Valid
         private List<PersonConflictDTO.PersonConflictCreateDTO> personConflicts;
 
-
         @AssertTrue(message = "Sex must be 'M' or 'F'")
-        public boolean isSexValid() {return (sex == 'M' || sex == 'F');}
+        public boolean isSexValid() {
+            if(sex == null)
+                return true;
+            return (sex == 'M' || sex == 'F');
+        }
     }
 
     @Data
@@ -124,5 +121,18 @@ public class PersonDTO {
         private String personName;
         private String surName;
         private String card;
+    }
+
+    /**
+     * DTO para edición parcial (PATCH): solo competencias e incompatibilidades.
+     * Cada lista es opcional; null significa "no modificar".
+     */
+    @Data
+    public static class PersonCompetenceConflictPatchDTO {
+        @Valid
+        private List<CompetenceValueDTO.CompetenceValueCreateDTO> competenceValues;
+
+        @Valid
+        private List<PersonConflictDTO.PersonConflictCreateDTO> personConflicts;
     }
 }

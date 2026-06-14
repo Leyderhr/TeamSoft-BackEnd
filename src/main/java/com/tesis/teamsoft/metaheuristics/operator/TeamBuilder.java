@@ -62,16 +62,23 @@ public class TeamBuilder {
                         List<AssignedRoleEntity> as = lastCycle.getAssignedRoleList(); //obtener lista de roles que ya fueron asignados al ciclo actual
                         for (AssignedRoleEntity ar : as) { //para cada rol asignado al ciclo actual
                             if (ar.getStatus().equals(Status.ACTIVE)) { //si se encuentra activo el proyecto
-                                roleWorker.getFixedWorkers().add(ar.getPerson()); //agregar la persona a la lista
-                                roleWorker.setNeededWorkers(roleWorker.getNeededWorkers() - 1);//decrementar las personas requeridas
+                                if (!containsPersonId(roleWorker.getFixedWorkers(), ar.getPerson())) { //evitar duplicados
+                                    roleWorker.getFixedWorkers().add(ar.getPerson()); //agregar la persona a la lista
+                                    roleWorker.setNeededWorkers(roleWorker.getNeededWorkers() - 1);//decrementar las personas requeridas
+                                }
                             }
                         }
 
                         for (FixedWorker fixedWorker : parameters.getFixedWorkers()) {
                             if (fixedWorker.getProject().getId().equals(project.getId())) { //es el projecto al que se fijo?
                                 if (fixedWorker.getRole().getId().equals(item.getRole().getId())) { //es el rol ?
-                                    roleWorker.getFixedWorkers().add(fixedWorker.getBoss()); //agregar la persona a la lista 
-                                    roleWorker.setNeededWorkers(roleWorker.getNeededWorkers() - 1); //decrementar las personas requeridas
+                                    // No agregar dos veces a la misma persona (p.ej. si ya estaba asignada
+                                    // activamente Y se fija desde la pantalla): un duplicado provoca que
+                                    // WorkerNotRepeatedInSameRole la marque inválida y la reparación falle.
+                                    if (!containsPersonId(roleWorker.getFixedWorkers(), fixedWorker.getBoss())) {
+                                        roleWorker.getFixedWorkers().add(fixedWorker.getBoss()); //agregar la persona a la lista
+                                        roleWorker.setNeededWorkers(roleWorker.getNeededWorkers() - 1); //decrementar las personas requeridas
+                                    }
                                 }
                             }
                         }
@@ -87,6 +94,22 @@ public class TeamBuilder {
             }
         }
         return initialSolution;
+    }
+
+    /**
+     * Indica si una persona (por id) ya está presente en la lista dada.
+     * Se usa para evitar fijar a la misma persona más de una vez en un rol.
+     */
+    private static boolean containsPersonId(List<PersonEntity> people, PersonEntity person) {
+        if (person == null || person.getId() == null) {
+            return false;
+        }
+        for (PersonEntity p : people) {
+            if (p != null && person.getId().equals(p.getId())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

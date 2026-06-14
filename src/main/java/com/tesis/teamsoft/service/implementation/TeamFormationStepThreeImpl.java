@@ -1,6 +1,8 @@
 package com.tesis.teamsoft.service.implementation;
 
+import com.tesis.teamsoft.exception.BusinessRuleException;
 import com.tesis.teamsoft.exception.ResourceNotFoundException;
+import com.tesis.teamsoft.persistence.entity.auxiliary.ProjectState;
 import com.tesis.teamsoft.persistence.entity.auxiliary.Status;
 import com.tesis.teamsoft.persistence.repository.*;
 import com.tesis.teamsoft.presentation.dto.*;
@@ -59,6 +61,7 @@ public class TeamFormationStepThreeImpl implements ITeamFormationStepThreeServic
 
     public List<TeamProposalDTO>  getTeam(TeamFormationParameters parameters, List<Long> projectsIDs, List<Long> groupIDs) throws Exception {
 
+        hydrateFixedWorkers(parameters);
         parameters.setProjects(formatProjects(getUnsavedProjects(projectsIDs)));
         parameters.setSearchArea(new ArrayList<>(getSearchArea(groupIDs)));
 
@@ -223,6 +226,36 @@ public class TeamFormationStepThreeImpl implements ITeamFormationStepThreeServic
     }
 
 
+    /**
+     * Re-hidrata las entidades fijadas (boss/role/project) que llegan desde el
+     * frontend como "esqueletos" (solo el id). La metaheurística necesita las
+     * entidades completas (competencias, carga, grupo, etc.); sin esto los
+     * objetivos/restricciones desreferencian atributos nulos y lanzan excepción,
+     * lo que terminaba devolviendo un 404 al regenerar con personas fijadas.
+     */
+    public void hydrateFixedWorkers(TeamFormationParameters parameters) {
+        if (parameters == null || parameters.getFixedWorkers() == null) {
+            return;
+        }
+        for (FixedWorker fixedWorker : parameters.getFixedWorkers()) {
+            if (fixedWorker.getBoss() != null && fixedWorker.getBoss().getId() != null) {
+                Long personId = fixedWorker.getBoss().getId();
+                fixedWorker.setBoss(personRepository.findById(personId)
+                        .orElseThrow(() -> new ResourceNotFoundException("Person not found with id: " + personId)));
+            }
+            if (fixedWorker.getRole() != null && fixedWorker.getRole().getId() != null) {
+                Long roleId = fixedWorker.getRole().getId();
+                fixedWorker.setRole(roleRepository.findById(roleId)
+                        .orElseThrow(() -> new ResourceNotFoundException("Role not found with id: " + roleId)));
+            }
+            if (fixedWorker.getProject() != null && fixedWorker.getProject().getId() != null) {
+                Long projectId = fixedWorker.getProject().getId();
+                fixedWorker.setProject(projectRepository.findById(projectId)
+                        .orElseThrow(() -> new ResourceNotFoundException("Project not found with id: " + projectId)));
+            }
+        }
+    }
+
     public List<ProjectRole> getProjectRolesForSaveTeam(TeamProposalDTO teamProposalDTO) {
         List<ProjectRole> projectRoles = new ArrayList<>();
 
@@ -232,6 +265,9 @@ public class TeamFormationStepThreeImpl implements ITeamFormationStepThreeServic
 
                 ProjectEntity project = projectRepository.findById(projectProposal.getProject().getId())
                         .orElseThrow(() -> new ResourceNotFoundException("Project not found with ID: " + projectProposal.getProject().getId()));
+
+                if(project.getState() != ProjectState.CREATED)
+                    throw new BusinessRuleException("You can only save projects with the status CREATED");
 
                 projectRole.setProject(project);
                 List<RoleWorker> roleWorkers = new ArrayList<>();
@@ -266,10 +302,15 @@ public class TeamFormationStepThreeImpl implements ITeamFormationStepThreeServic
         }
 
         List<ProjectRole> projectRoles = getProjectRolesForSaveTeam(teamProposalDTO);
+        List<ProjectEntity> projects = new ArrayList<>();
+        List<PersonEntity> persons = new ArrayList<>();
         Date currentDate = new Date();
 
         for (ProjectRole projectRole : projectRoles) {
             CycleEntity lastCycle = TeamBuilder.lastProjectCycle(projectRole.getProject());
+            ProjectEntity project = projectRole.getProject();
+            project.setStateToNext();
+            projects.add(project);
 
             for (RoleWorker roleWorker : projectRole.getRoleWorkers()) {
                 RoleEntity role = roleWorker.getRole();
@@ -283,15 +324,16 @@ public class TeamFormationStepThreeImpl implements ITeamFormationStepThreeServic
                     assignedRole.setPerson(person);
 
                     assignedRoleRepository.save(assignedRole);
-                    updatePersonWorkloadForRole(lastCycle, role, person);
+                    persons.add(updatePersonWorkloadForRole(lastCycle, role, person));
                 }
             }
         }
+        projectRepository.saveAll(projects);
 
         return teamProposalDTO;
     }
 
-    private void updatePersonWorkloadForRole(CycleEntity lastCycle, RoleEntity role, PersonEntity person) {
+    private PersonEntity updatePersonWorkloadForRole(CycleEntity lastCycle, RoleEntity role, PersonEntity person) {
         if (lastCycle == null) {
             throw new ResourceNotFoundException("Project does not have an active cycle");
         }
@@ -312,7 +354,7 @@ public class TeamFormationStepThreeImpl implements ITeamFormationStepThreeServic
         float newWorkload = person.getWorkload() + roleLoadValue;
         person.setWorkload(newWorkload);
 
-        personRepository.save(person);
+        return person;
     }
 
 
@@ -490,13 +532,13 @@ public class TeamFormationStepThreeImpl implements ITeamFormationStepThreeServic
 
     public List<ProjectEntity> getUnsavedProjects(List<Long> projectsIDs) {
         List<ProjectEntity> projects = new ArrayList<>();
-
-        List<ProjectEntity> allProjects = projectRepository.findAll();
-        Map<Long, ProjectEntity> projectMap = allProjects.stream()
-                .collect(Collectors.toMap(ProjectEntity::getId, Function.identity()));
-
+        
         for(Long projectsID : projectsIDs) {
-            ProjectEntity project = projectMap.get(projectsID);
+            ProjectEntity project = projectRepository.findById(projectsID)
+                    .orElseThrow(() -> new ResourceNotFoundException("Project not found with ID: " + projectsID));
+            if(project.getState() != ProjectState.CREATED)
+                throw new BusinessRuleException("Project with ID: " + projectsID + " is not in CREATED state");
+
             projects.add(project);
         }
         return projects;
