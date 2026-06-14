@@ -52,7 +52,7 @@ public class PersonController {
             return new ResponseEntity<>(personService.findPersonById(id), HttpStatus.OK);
     }
 
-    @PatchMapping("/{id}/competences-conflicts")
+    @PatchMapping("/{id}")
     @PreAuthorize("hasRole('GESTOR_RRHH') OR hasRole('EXPERIMENTADOR') OR hasRole('DIRECTIVO_TECNICO')")
     public ResponseEntity<PersonDTO.PersonResponseDTO> patchCompetencesAndConflicts(
             @PathVariable Long id, @Valid @RequestBody PersonDTO.PersonCompetenceConflictPatchDTO patchDTO) {
