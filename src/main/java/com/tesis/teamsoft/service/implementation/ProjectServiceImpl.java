@@ -221,11 +221,51 @@ public class ProjectServiceImpl implements IProjectService {
             cycle.setRoleEvaluationList(new ArrayList<>());
         cycle.getRoleEvaluationList().clear();
         cycle.getRoleEvaluationList().addAll(roleEvaluations);
+        cycle.deactivateAllAssignedRoles();
 
         project.setStateToNext(); // FORMED -> FINALIZED
+        subtractWorkloadForActiveAssignments(cycle);
 
         return convertToResponseDTO(projectRepository.save(project));
     }
+
+    private void subtractWorkloadForActiveAssignments(CycleEntity cycle) {
+        List<AssignedRoleEntity> assignedRoles = cycle.getAssignedRoleList();
+        if (assignedRoles == null || assignedRoles.isEmpty()) {
+            return;
+        }
+        List<PersonEntity> personsToUpdate = new ArrayList<>();
+        for (AssignedRoleEntity assignedRole : assignedRoles) {
+            if (assignedRole.getStatus() == Status.ACTIVE) {
+                PersonEntity person = assignedRole.getPerson();
+                RoleEntity role = assignedRole.getRole();
+                Float roleLoadValue = getRoleLoadValueForCycle(cycle, role);
+                float newWorkload = person.getWorkload() - roleLoadValue;
+                if (newWorkload < 0) newWorkload = 0; // por seguridad
+                person.setWorkload(newWorkload);
+                personsToUpdate.add(person);
+            }
+        }
+        if (!personsToUpdate.isEmpty()) {
+            personRepository.saveAll(personsToUpdate);
+        }
+    }
+
+    private Float getRoleLoadValueForCycle(CycleEntity cycle, RoleEntity role) {
+        ProjectStructureEntity projectStructure = cycle.getProjectStructure();
+        if (projectStructure == null) {
+            throw new BusinessRuleException("Cycle has no associated project structure");
+        }
+        return projectStructure.getProjectRolesList().stream()
+                .filter(pr -> pr.getRole().equals(role))
+                .findFirst()
+                .map(pr -> pr.getRoleLoad().getValue())
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Role load not found for role '" + role.getRoleName() +
+                                "' in project structure of project '" + cycle.getProject().getProjectName() + "'"));
+    }
+
+
 
     private List<RolePersonEvalEntity> buildRolePersonEvaluations(List<RolePersonEvaluationDTO> evaluations, CycleEntity cycle) {
         List<RolePersonEvalEntity> result = new ArrayList<>();
