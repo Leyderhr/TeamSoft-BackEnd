@@ -4,6 +4,7 @@ import com.tesis.teamsoft.exception.BusinessRuleException;
 import com.tesis.teamsoft.exception.ResourceNotFoundException;
 import com.tesis.teamsoft.persistence.entity.*;
 import com.tesis.teamsoft.persistence.entity.auxiliary.ProjectState;
+import com.tesis.teamsoft.persistence.entity.auxiliary.Status;
 import com.tesis.teamsoft.persistence.repository.*;
 import com.tesis.teamsoft.pojos.ProjectStructureInfo;
 import com.tesis.teamsoft.presentation.dto.*;
@@ -25,6 +26,9 @@ public class ProjectServiceImpl implements IProjectService {
     private final IClientRepository clientRepository;
     private final ICountyRepository countyRepository;
     private final IProjectStructureRepository projectStructureRepository;
+    private final IPersonRepository personRepository;
+    private final IRoleRepository roleRepository;
+    private final IRoleEvaluationRepository roleEvaluationRepository;
     private final ModelMapper modelMapper;
 
 
@@ -156,6 +160,92 @@ public class ProjectServiceImpl implements IProjectService {
                     info.getProject().getProjectName(),
                     nonBossRoles
             ));
+        }
+
+        return result;
+    }
+
+    /**
+     * Devuelve los roles asignados (agrupados por rol) de un proyecto para las
+     * personas que NO son jefe. Se usa en la vista de "Finalizar equipo" para
+     * listar a los miembros a evaluar.
+     */
+    @Transactional(readOnly = true)
+    public List<AssignedRoleDTO> findNonBossAssignedRoles(Long projectId) {
+        ProjectEntity project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found with ID: " + projectId));
+
+        if (project.getCycleList() == null || project.getCycleList().isEmpty())
+            throw new BusinessRuleException("Project with ID " + projectId + " has no cycle defined");
+
+        CycleEntity cycle = project.getCycleList().getFirst();
+        Map<Long, AssignedRoleDTO> byRole = new LinkedHashMap<>();
+
+        List<AssignedRoleEntity> assignedRoles = cycle.getAssignedRoleList();
+        if (assignedRoles != null) {
+            for (AssignedRoleEntity assignedRole : assignedRoles) {
+                RoleEntity role = assignedRole.getRole();
+                if (role != null && !role.isBoss() && assignedRole.getStatus() == Status.ACTIVE) {
+                    AssignedRoleDTO dto = byRole.computeIfAbsent(role.getId(),
+                            k -> new AssignedRoleDTO(modelMapper.map(role, RoleDTO.RoleMinimalDTO.class)));
+                    dto.getPersons().add(modelMapper.map(assignedRole.getPerson(), PersonDTO.PersonMinimalDTO.class));
+                }
+            }
+        }
+
+        return new ArrayList<>(byRole.values());
+    }
+
+    /**
+     * Finaliza un proyecto en estado FORMED: registra la evaluación de cada
+     * persona en su rol y cambia el estado a FINALIZED.
+     */
+    @Transactional
+    public ProjectDTO.ProjectResponseDTO finalizeProject(Long id, List<RolePersonEvaluationDTO> evaluations) {
+        ProjectEntity project = projectRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found with ID: " + id));
+
+        if (project.getState() != ProjectState.FORMED)
+            throw new BusinessRuleException("Only projects in FORMED state can be finalized. Current state: " + project.getState());
+
+        if (project.getCycleList() == null || project.getCycleList().isEmpty())
+            throw new BusinessRuleException("Project with ID " + id + " has no cycle defined");
+
+        CycleEntity cycle = project.getCycleList().getFirst();
+        if (cycle == null)
+            throw new BusinessRuleException("Project with ID " + id + " has no cycle defined");
+
+        List<RolePersonEvalEntity> roleEvaluations = buildRolePersonEvaluations(evaluations, cycle);
+
+        if (cycle.getRoleEvaluationList() == null)
+            cycle.setRoleEvaluationList(new ArrayList<>());
+        cycle.getRoleEvaluationList().clear();
+        cycle.getRoleEvaluationList().addAll(roleEvaluations);
+
+        project.setStateToNext(); // FORMED -> FINALIZED
+
+        return convertToResponseDTO(projectRepository.save(project));
+    }
+
+    private List<RolePersonEvalEntity> buildRolePersonEvaluations(List<RolePersonEvaluationDTO> evaluations, CycleEntity cycle) {
+        List<RolePersonEvalEntity> result = new ArrayList<>();
+        if (evaluations == null)
+            return result;
+
+        for (RolePersonEvaluationDTO dto : evaluations) {
+            PersonEntity person = personRepository.findById(dto.getPerson())
+                    .orElseThrow(() -> new ResourceNotFoundException("Person not found with ID: " + dto.getPerson()));
+            RoleEntity role = roleRepository.findById(dto.getRole())
+                    .orElseThrow(() -> new ResourceNotFoundException("Role not found with ID: " + dto.getRole()));
+            RoleEvaluationEntity roleEvaluation = roleEvaluationRepository.findById(dto.getRoleEvaluation())
+                    .orElseThrow(() -> new ResourceNotFoundException("Role evaluation not found with ID: " + dto.getRoleEvaluation()));
+
+            RolePersonEvalEntity entity = new RolePersonEvalEntity();
+            entity.setCycles(cycle);
+            entity.setPerson(person);
+            entity.setRoles(role);
+            entity.setRoleEvaluation(roleEvaluation);
+            result.add(entity);
         }
 
         return result;

@@ -1,7 +1,9 @@
 package com.tesis.teamsoft.presentation.controller;
 
 import com.tesis.teamsoft.persistence.entity.auxiliary.ProjectState;
+import com.tesis.teamsoft.presentation.dto.AssignedRoleDTO;
 import com.tesis.teamsoft.presentation.dto.ProjectDTO;
+import com.tesis.teamsoft.presentation.dto.RolePersonEvaluationDTO;
 import com.tesis.teamsoft.service.implementation.ProjectServiceImpl;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -76,5 +78,18 @@ public class ProjectController {
     public ResponseEntity<List<ProjectDTO.ProjectNonBossRolesDTO>> getNonBossRolesByProjectIds(
             @RequestParam List<Long> ids) {
         return ResponseEntity.ok(projectService.findNonBossRolesByProjectIds(ids));
+    }
+
+    @GetMapping("/{id}/non-boss-assigned-roles")
+    @PreAuthorize("hasRole('EXPERIMENTADOR') OR hasRole('DIRECTIVO_TECNICO')")
+    public ResponseEntity<List<AssignedRoleDTO>> getNonBossAssignedRoles(@PathVariable Long id) {
+        return new ResponseEntity<>(projectService.findNonBossAssignedRoles(id), HttpStatus.OK);
+    }
+
+    @PutMapping("finalize/{id}")
+    @PreAuthorize("hasRole('EXPERIMENTADOR') OR hasRole('DIRECTIVO_TECNICO')")
+    public ResponseEntity<ProjectDTO.ProjectResponseDTO> finalizeProject(
+            @PathVariable Long id, @Valid @RequestBody List<RolePersonEvaluationDTO> evaluations) {
+        return new ResponseEntity<>(projectService.finalizeProject(id, evaluations), HttpStatus.OK);
     }
 }

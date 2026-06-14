@@ -125,4 +125,17 @@ public class PersonDTO {
         private String surName;
         private String card;
     }
+
+    /**
+     * DTO para edición parcial (PATCH): solo competencias e incompatibilidades.
+     * Cada lista es opcional; null significa "no modificar".
+     */
+    @Data
+    public static class PersonCompetenceConflictPatchDTO {
+        @Valid
+        private List<CompetenceValueDTO.CompetenceValueCreateDTO> competenceValues;
+
+        @Valid
+        private List<PersonConflictDTO.PersonConflictCreateDTO> personConflicts;
+    }
 }

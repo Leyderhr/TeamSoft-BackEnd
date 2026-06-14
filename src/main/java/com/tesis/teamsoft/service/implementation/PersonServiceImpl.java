@@ -149,6 +149,29 @@ public class PersonServiceImpl implements IPersonService {
         return convertToResponseDTO(person);
     }
 
+    /**
+     * Edición parcial (PATCH): actualiza únicamente las competencias y/o las
+     * incompatibilidades de una persona. Cada lista es opcional; si llega null
+     * no se modifica esa colección (a diferencia de updatePerson, que la limpia).
+     */
+    @Transactional
+    public PersonDTO.PersonResponseDTO patchCompetencesAndConflicts(PersonDTO.PersonCompetenceConflictPatchDTO patchDTO, Long id) {
+        PersonEntity existingPerson = personRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Person not found with ID: " + id));
+
+        if (patchDTO.getCompetenceValues() != null) {
+            List<CompetenceValueEntity> validatedCompetenceValues = processCompetenceValues(patchDTO.getCompetenceValues(), existingPerson);
+            syncCompetenceValues(existingPerson, validatedCompetenceValues);
+        }
+
+        if (patchDTO.getPersonConflicts() != null) {
+            List<PersonConflictEntity> validatedPersonConflicts = processPersonConflicts(patchDTO.getPersonConflicts(), existingPerson);
+            syncPersonConflicts(existingPerson, validatedPersonConflicts);
+        }
+
+        return convertToResponseDTO(personRepository.save(existingPerson));
+    }
+
     // ========== MÉTODOS PRIVADOS ==========
     private void mapBasicFields(PersonEntity entity, PersonDTO.PersonCreateDTO dto, Long id) {
         entity.setId(id);
