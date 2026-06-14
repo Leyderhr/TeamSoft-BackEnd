@@ -68,7 +68,7 @@ public class ProjectController {
     }
 
     @GetMapping("/state/{state}")
-    @PreAuthorize("hasRole('EXPERIMENTADOR') OR hasRole('DIRECTIVO_TECNICO') OR hasRole('GESTOR_RRHH')")
+    @PreAuthorize("hasRole('EXPERIMENTADOR') OR hasRole('DIRECTIVO_TECNICO') OR hasRole('GESTOR_RRHH') OR hasRole('JEFE_DE_EQUIPO')")
     public ResponseEntity<List<ProjectDTO.ProjectSimpleDTO>> findProjectsByState(@PathVariable ProjectState state) {
         return new ResponseEntity<>(projectService.findAllProjectsByState(state), HttpStatus.OK);
     }
@@ -81,13 +81,13 @@ public class ProjectController {
     }
 
     @GetMapping("/{id}/non-boss-assigned-roles")
-    @PreAuthorize("hasRole('EXPERIMENTADOR') OR hasRole('DIRECTIVO_TECNICO')")
+    @PreAuthorize("hasRole('JEFE_DE_EQUIPO') OR hasRole('DIRECTIVO_TECNICO')")
     public ResponseEntity<List<AssignedRoleDTO>> getNonBossAssignedRoles(@PathVariable Long id) {
         return new ResponseEntity<>(projectService.findNonBossAssignedRoles(id), HttpStatus.OK);
     }
 
     @PutMapping("finalize/{id}")
-    @PreAuthorize("hasRole('EXPERIMENTADOR') OR hasRole('DIRECTIVO_TECNICO')")
+    @PreAuthorize("hasRole('JEFE_DE_EQUIPO') OR hasRole('DIRECTIVO_TECNICO')")
     public ResponseEntity<ProjectDTO.ProjectResponseDTO> finalizeProject(
             @PathVariable Long id, @Valid @RequestBody List<RolePersonEvaluationDTO> evaluations) {
         return new ResponseEntity<>(projectService.finalizeProject(id, evaluations), HttpStatus.OK);
