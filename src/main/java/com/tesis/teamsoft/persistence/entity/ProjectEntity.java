@@ -1,5 +1,6 @@
 package com.tesis.teamsoft.persistence.entity;
 
+import com.tesis.teamsoft.exception.BusinessRuleException;
 import com.tesis.teamsoft.persistence.entity.auxiliary.ProjectState;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -83,5 +84,27 @@ public class ProjectEntity implements Serializable {
         update.setBeginDate(getInitialDate());
         update.setEndDate(getEndDate());
         update.setProjectStructure(projectStructure);
+    }
+
+    public void setStateToNext() {
+        ProjectState nextState = getNextState();
+        if (nextState != null) {
+            this.state = nextState;
+        }
+    }
+
+    private ProjectState getNextState() {
+        switch (this.state) {
+            case CREATED:
+                return ProjectState.FORMED;
+            case FORMED:
+                return ProjectState.FINALIZED;
+            case FINALIZED:
+                return ProjectState.CLOSED;
+            case CLOSED:
+                return null; // no hay siguiente estado
+            default:
+                throw new BusinessRuleException("Unknown state: " + this.state);
+        }
     }
 }
