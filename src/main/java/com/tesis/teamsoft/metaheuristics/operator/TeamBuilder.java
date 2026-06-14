@@ -61,12 +61,7 @@ public class TeamBuilder {
 
                         List<AssignedRoleEntity> as = lastCycle.getAssignedRoleList(); //obtener lista de roles que ya fueron asignados al ciclo actual
                         for (AssignedRoleEntity ar : as) { //para cada rol asignado al ciclo actual
-                            // Solo fijar a la persona en ESTE rol si su asignación activa es para el MISMO rol.
-                            // Sin este filtro se agregaba cada persona activa a TODOS los roles, dejando
-                            // neededWorkers negativo y bloqueando la plantilla (siempre la misma propuesta).
-                            if (ar.getStatus().equals(Status.ACTIVE)
-                                    && ar.getRole() != null
-                                    && ar.getRole().getId().equals(item.getRole().getId())) {
+                            if (ar.getStatus().equals(Status.ACTIVE)) { //si se encuentra activo el proyecto
                                 if (!containsPersonId(roleWorker.getFixedWorkers(), ar.getPerson())) { //evitar duplicados
                                     roleWorker.getFixedWorkers().add(ar.getPerson()); //agregar la persona a la lista
                                     roleWorker.setNeededWorkers(roleWorker.getNeededWorkers() - 1);//decrementar las personas requeridas
