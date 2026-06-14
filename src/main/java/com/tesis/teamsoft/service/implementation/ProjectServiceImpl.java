@@ -183,9 +183,11 @@ public class ProjectServiceImpl implements IProjectService {
 
         List<AssignedRoleEntity> assignedRoles = cycle.getAssignedRoleList();
         if (assignedRoles != null) {
+            // No se filtra por estado ACTIVE: al finalizar se desactivan las asignaciones,
+            // pero siguen representando al equipo (necesario para finalizar y cerrar).
             for (AssignedRoleEntity assignedRole : assignedRoles) {
                 RoleEntity role = assignedRole.getRole();
-                if (role != null && !role.isBoss() && assignedRole.getStatus() == Status.ACTIVE) {
+                if (role != null && !role.isBoss() && assignedRole.getPerson() != null) {
                     AssignedRoleDTO dto = byRole.computeIfAbsent(role.getId(),
                             k -> new AssignedRoleDTO(modelMapper.map(role, RoleDTO.RoleMinimalDTO.class)));
                     dto.getPersons().add(modelMapper.map(assignedRole.getPerson(), PersonDTO.PersonMinimalDTO.class));
@@ -194,6 +196,74 @@ public class ProjectServiceImpl implements IProjectService {
         }
 
         return new ArrayList<>(byRole.values());
+    }
+
+    /**
+     * Devuelve el rol de jefe (isBoss = true) del equipo con la(s) persona(s)
+     * asignada(s). Se usa en la vista de "Cerrar equipo" para evaluar al jefe.
+     */
+    @Transactional(readOnly = true)
+    public AssignedRoleDTO findBossAssignedRole(Long projectId) {
+        ProjectEntity project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found with ID: " + projectId));
+
+        if (project.getCycleList() == null || project.getCycleList().isEmpty())
+            throw new BusinessRuleException("Project with ID " + projectId + " has no cycle defined");
+
+        CycleEntity cycle = project.getCycleList().getFirst();
+        AssignedRoleDTO dto = null;
+        Set<Long> seenPersons = new HashSet<>();
+
+        List<AssignedRoleEntity> assignedRoles = cycle.getAssignedRoleList();
+        if (assignedRoles != null) {
+            for (AssignedRoleEntity assignedRole : assignedRoles) {
+                RoleEntity role = assignedRole.getRole();
+                PersonEntity person = assignedRole.getPerson();
+                if (role == null || person == null || !role.isBoss())
+                    continue;
+                if (dto == null)
+                    dto = new AssignedRoleDTO(modelMapper.map(role, RoleDTO.RoleMinimalDTO.class));
+                if (seenPersons.add(person.getId()))
+                    dto.getPersons().add(modelMapper.map(person, PersonDTO.PersonMinimalDTO.class));
+            }
+        }
+
+        return dto;
+    }
+
+    /**
+     * Cierra un proyecto en estado FINALIZED: registra la evaluación del jefe,
+     * asigna la evaluación del proyecto y cambia el estado a CLOSED.
+     */
+    @Transactional
+    public ProjectDTO.ProjectResponseDTO closeProject(Long id, CloseProjectDTO dto) {
+        ProjectEntity project = projectRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found with ID: " + id));
+
+        if (project.getState() != ProjectState.FINALIZED)
+            throw new BusinessRuleException("Only projects in FINALIZED state can be closed. Current state: " + project.getState());
+
+        if (project.getCycleList() == null || project.getCycleList().isEmpty())
+            throw new BusinessRuleException("Project with ID " + id + " has no cycle defined");
+
+        CycleEntity cycle = project.getCycleList().getFirst();
+        if (cycle == null)
+            throw new BusinessRuleException("Project with ID " + id + " has no cycle defined");
+
+        // Evaluación del jefe -> se agrega a las evaluaciones del ciclo (sin borrar las de los miembros)
+        if (cycle.getRoleEvaluationList() == null)
+            cycle.setRoleEvaluationList(new ArrayList<>());
+        cycle.getRoleEvaluationList().addAll(
+                buildRolePersonEvaluations(List.of(dto.getBossEvaluation()), cycle));
+
+        // Evaluación del proyecto
+        RoleEvaluationEntity projectEvaluation = roleEvaluationRepository.findById(dto.getRoleEvaluation())
+                .orElseThrow(() -> new ResourceNotFoundException("Role evaluation not found with ID: " + dto.getRoleEvaluation()));
+        project.setRoleEvaluation(projectEvaluation);
+
+        project.setStateToNext(); // FINALIZED -> CLOSED
+
+        return convertToResponseDTO(projectRepository.save(project));
     }
 
     /**

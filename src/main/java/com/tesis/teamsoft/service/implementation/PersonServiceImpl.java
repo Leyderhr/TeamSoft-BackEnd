@@ -180,6 +180,8 @@ public class PersonServiceImpl implements IPersonService {
         entity.setPhone(dto.getPhone());
         entity.setSex(dto.getSex());
         entity.setSurName(dto.getSurName());
+        if (dto.getStatus() != null)
+            entity.setStatus(dto.getStatus());
     }
 
     private void processSimpleRelations(PersonDTO.PersonCreateDTO personDTO, PersonEntity person) {
@@ -199,7 +201,7 @@ public class PersonServiceImpl implements IPersonService {
             person.setNacionality(nacionalityRepository.findById(personDTO.getNacionality())
                     .orElseThrow(() -> new ResourceNotFoundException("Nacionality not found with ID: " + personDTO.getNacionality())));}
 
-        if(personDTO.getCounty() != null){
+        if(personDTO.getReligion() != null){
             person.setReligion(religionRepository.findById(personDTO.getReligion())
                     .orElseThrow(() -> new ResourceNotFoundException("Religion not found with ID: " + personDTO.getReligion())));}
     }

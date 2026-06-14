@@ -35,10 +35,9 @@ public class PersonDTO {
         @Pattern(regexp = "^\\d{8,}$", message = "Phone must contain at least 8 digits")
         private String phone;
 
-        @NotNull(message = "Sex is required")
         private Character sex;
 
-        @NotNull(message = "Status is required" )
+        @NotNull(message = "Status is required")
         private Status status;
 
         @NotBlank(message = "Email is required")
