@@ -94,17 +94,12 @@ public class ProjectEntity implements Serializable {
     }
 
     private ProjectState getNextState() {
-        switch (this.state) {
-            case CREATED:
-                return ProjectState.FORMED;
-            case FORMED:
-                return ProjectState.FINALIZED;
-            case FINALIZED:
-                return ProjectState.CLOSED;
-            case CLOSED:
-                return null; // no hay siguiente estado
-            default:
-                throw new BusinessRuleException("Unknown state: " + this.state);
-        }
+        return switch (this.state) {
+            case CREATED -> ProjectState.FORMED;
+            case FORMED -> ProjectState.FINALIZED;
+            case FINALIZED -> ProjectState.CLOSED;
+            case CLOSED -> null; // no hay siguiente estado
+            default -> throw new BusinessRuleException("Unknown state: " + this.state);
+        };
     }
 }

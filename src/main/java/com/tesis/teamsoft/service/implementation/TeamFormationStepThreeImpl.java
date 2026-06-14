@@ -1,6 +1,8 @@
 package com.tesis.teamsoft.service.implementation;
 
+import com.tesis.teamsoft.exception.BusinessRuleException;
 import com.tesis.teamsoft.exception.ResourceNotFoundException;
+import com.tesis.teamsoft.persistence.entity.auxiliary.ProjectState;
 import com.tesis.teamsoft.persistence.entity.auxiliary.Status;
 import com.tesis.teamsoft.persistence.repository.*;
 import com.tesis.teamsoft.presentation.dto.*;
@@ -264,6 +266,9 @@ public class TeamFormationStepThreeImpl implements ITeamFormationStepThreeServic
                 ProjectEntity project = projectRepository.findById(projectProposal.getProject().getId())
                         .orElseThrow(() -> new ResourceNotFoundException("Project not found with ID: " + projectProposal.getProject().getId()));
 
+                if(project.getState() != ProjectState.CREATED)
+                    throw new BusinessRuleException("You can only save projects with the status CREATED");
+
                 projectRole.setProject(project);
                 List<RoleWorker> roleWorkers = new ArrayList<>();
 
@@ -297,10 +302,14 @@ public class TeamFormationStepThreeImpl implements ITeamFormationStepThreeServic
         }
 
         List<ProjectRole> projectRoles = getProjectRolesForSaveTeam(teamProposalDTO);
+        List<ProjectEntity> projects = new ArrayList<>();
         Date currentDate = new Date();
 
         for (ProjectRole projectRole : projectRoles) {
             CycleEntity lastCycle = TeamBuilder.lastProjectCycle(projectRole.getProject());
+            ProjectEntity project = projectRole.getProject();
+            project.setStateToNext();
+            projects.add(project);
 
             for (RoleWorker roleWorker : projectRole.getRoleWorkers()) {
                 RoleEntity role = roleWorker.getRole();
@@ -318,6 +327,7 @@ public class TeamFormationStepThreeImpl implements ITeamFormationStepThreeServic
                 }
             }
         }
+        projectRepository.saveAll(projects);
 
         return teamProposalDTO;
     }
@@ -521,13 +531,13 @@ public class TeamFormationStepThreeImpl implements ITeamFormationStepThreeServic
 
     public List<ProjectEntity> getUnsavedProjects(List<Long> projectsIDs) {
         List<ProjectEntity> projects = new ArrayList<>();
-
-        List<ProjectEntity> allProjects = projectRepository.findAll();
-        Map<Long, ProjectEntity> projectMap = allProjects.stream()
-                .collect(Collectors.toMap(ProjectEntity::getId, Function.identity()));
-
+        
         for(Long projectsID : projectsIDs) {
-            ProjectEntity project = projectMap.get(projectsID);
+            ProjectEntity project = projectRepository.findById(projectsID)
+                    .orElseThrow(() -> new ResourceNotFoundException("Project not found with ID: " + projectsID));
+            if(project.getState() != ProjectState.CREATED)
+                throw new BusinessRuleException("Project with ID: " + projectsID + " is not in CREATED state");
+
             projects.add(project);
         }
         return projects;
