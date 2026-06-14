@@ -41,7 +41,7 @@ public class PersonController {
     }
 
     @GetMapping()
-    @PreAuthorize("hasRole('GESTOR_RRHH')")
+    @PreAuthorize("hasRole('GESTOR_RRHH') OR hasRole('EXPERIMENTADOR') OR hasRole('DIRECTIVO_TECNICO')")
     public ResponseEntity<List<PersonDTO.PersonResponseDTO>> findAllPerson() {
             return new ResponseEntity<>(personService.findAllByOrderByIdAsc(), HttpStatus.OK);
     }
