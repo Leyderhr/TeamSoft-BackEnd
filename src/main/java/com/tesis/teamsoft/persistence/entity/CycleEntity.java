@@ -1,5 +1,6 @@
 package com.tesis.teamsoft.persistence.entity;
 
+import com.tesis.teamsoft.persistence.entity.auxiliary.Status;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -68,6 +69,21 @@ public class CycleEntity implements Serializable {
             return this.id != null && other.id != null && this.id.equals(other.id);
         }
         return false;
+    }
+
+    // Agrega este método al final de tu clase CycleEntity.java antes del cierre del último corchete
+
+    /**
+     * Recorre todos los roles asignados a este ciclo y cambia su estado de ACTIVE a INACTIVE.
+     */
+    public void deactivateAllAssignedRoles() {
+        if (this.assignedRoleList != null) {
+            for (AssignedRoleEntity assignedRole : this.assignedRoleList) {
+                if (assignedRole.getStatus() == Status.ACTIVE) {
+                    assignedRole.setStatus(Status.INACTIVE);
+                }
+            }
+        }
     }
 
     @Override

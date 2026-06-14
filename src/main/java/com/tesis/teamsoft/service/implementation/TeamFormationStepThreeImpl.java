@@ -303,6 +303,7 @@ public class TeamFormationStepThreeImpl implements ITeamFormationStepThreeServic
 
         List<ProjectRole> projectRoles = getProjectRolesForSaveTeam(teamProposalDTO);
         List<ProjectEntity> projects = new ArrayList<>();
+        List<PersonEntity> persons = new ArrayList<>();
         Date currentDate = new Date();
 
         for (ProjectRole projectRole : projectRoles) {
@@ -323,7 +324,7 @@ public class TeamFormationStepThreeImpl implements ITeamFormationStepThreeServic
                     assignedRole.setPerson(person);
 
                     assignedRoleRepository.save(assignedRole);
-                    updatePersonWorkloadForRole(lastCycle, role, person);
+                    persons.add(updatePersonWorkloadForRole(lastCycle, role, person));
                 }
             }
         }
@@ -332,7 +333,7 @@ public class TeamFormationStepThreeImpl implements ITeamFormationStepThreeServic
         return teamProposalDTO;
     }
 
-    private void updatePersonWorkloadForRole(CycleEntity lastCycle, RoleEntity role, PersonEntity person) {
+    private PersonEntity updatePersonWorkloadForRole(CycleEntity lastCycle, RoleEntity role, PersonEntity person) {
         if (lastCycle == null) {
             throw new ResourceNotFoundException("Project does not have an active cycle");
         }
@@ -353,7 +354,7 @@ public class TeamFormationStepThreeImpl implements ITeamFormationStepThreeServic
         float newWorkload = person.getWorkload() + roleLoadValue;
         person.setWorkload(newWorkload);
 
-        personRepository.save(person);
+        return person;
     }
 
 

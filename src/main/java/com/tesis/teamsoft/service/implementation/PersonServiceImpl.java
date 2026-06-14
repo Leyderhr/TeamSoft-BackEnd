@@ -149,11 +149,6 @@ public class PersonServiceImpl implements IPersonService {
         return convertToResponseDTO(person);
     }
 
-    /**
-     * Edición parcial (PATCH): actualiza únicamente las competencias y/o las
-     * incompatibilidades de una persona. Cada lista es opcional; si llega null
-     * no se modifica esa colección (a diferencia de updatePerson, que la limpia).
-     */
     @Transactional
     public PersonDTO.PersonResponseDTO patchCompetencesAndConflicts(PersonDTO.PersonCompetenceConflictPatchDTO patchDTO, Long id) {
         PersonEntity existingPerson = personRepository.findById(id)
@@ -188,16 +183,25 @@ public class PersonServiceImpl implements IPersonService {
     }
 
     private void processSimpleRelations(PersonDTO.PersonCreateDTO personDTO, PersonEntity person) {
-        person.setCounty(countyRepository.findById(personDTO.getCounty())
-                .orElseThrow(() -> new ResourceNotFoundException("County not found with ID: " + personDTO.getCounty())));
-        person.setRace(raceRepository.findById(personDTO.getRace())
-                .orElseThrow(() -> new ResourceNotFoundException("Race not found with ID: " + personDTO.getRace())));
+
         person.setGroup(personGroupRepository.findById(personDTO.getGroup())
                 .orElseThrow(() -> new ResourceNotFoundException("Person group not found with ID: " + personDTO.getGroup())));
-        person.setNacionality(nacionalityRepository.findById(personDTO.getNacionality())
-                .orElseThrow(() -> new ResourceNotFoundException("Nacionality not found with ID: " + personDTO.getNacionality())));
-        person.setReligion(religionRepository.findById(personDTO.getReligion())
-                .orElseThrow(() -> new ResourceNotFoundException("Religion not found with ID: " + personDTO.getReligion())));
+
+        if(personDTO.getCounty() != null){
+            person.setCounty(countyRepository.findById(personDTO.getCounty())
+                    .orElseThrow(() -> new ResourceNotFoundException("County not found with ID: " + personDTO.getCounty())));}
+
+        if(personDTO.getRace() != null){
+            person.setRace(raceRepository.findById(personDTO.getRace())
+                    .orElseThrow(() -> new ResourceNotFoundException("Race not found with ID: " + personDTO.getRace())));}
+
+        if(personDTO.getNacionality() != null){
+            person.setNacionality(nacionalityRepository.findById(personDTO.getNacionality())
+                    .orElseThrow(() -> new ResourceNotFoundException("Nacionality not found with ID: " + personDTO.getNacionality())));}
+
+        if(personDTO.getCounty() != null){
+            person.setReligion(religionRepository.findById(personDTO.getReligion())
+                    .orElseThrow(() -> new ResourceNotFoundException("Religion not found with ID: " + personDTO.getReligion())));}
     }
 
     private void processAgeGroup(PersonDTO.PersonCreateDTO personDTO, PersonEntity person) {
