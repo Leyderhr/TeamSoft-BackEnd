@@ -361,6 +361,39 @@ public class ProjectServiceImpl implements IProjectService {
         return result;
     }
 
+    /**
+     * Reporte de un equipo: datos del proyecto y los miembros que trabajaron en
+     * él (persona, rol y evaluación), obtenidos de las evaluaciones del ciclo.
+     */
+    @Transactional(readOnly = true)
+    public ProjectReportDTO getProjectReport(Long id) {
+        ProjectEntity project = projectRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found with ID: " + id));
+
+        ProjectReportDTO dto = new ProjectReportDTO();
+        dto.setId(project.getId());
+        dto.setProjectName(project.getProjectName());
+        dto.setInitialDate(project.getInitialDate());
+        dto.setEndDate(project.getEndDate());
+        dto.setState(project.getState());
+
+        List<ProjectReportDTO.MemberDTO> members = new ArrayList<>();
+        if (project.getCycleList() != null && !project.getCycleList().isEmpty()) {
+            CycleEntity cycle = project.getCycleList().getFirst();
+            if (cycle.getRoleEvaluationList() != null) {
+                for (RolePersonEvalEntity rpe : cycle.getRoleEvaluationList()) {
+                    members.add(new ProjectReportDTO.MemberDTO(
+                            rpe.getPerson() != null ? modelMapper.map(rpe.getPerson(), PersonDTO.PersonMinimalDTO.class) : null,
+                            rpe.getRoles() != null ? modelMapper.map(rpe.getRoles(), RoleDTO.RoleMinimalDTO.class) : null,
+                            rpe.getRoleEvaluation() != null ? rpe.getRoleEvaluation().getSignificance() : null
+                    ));
+                }
+            }
+        }
+        dto.setMembers(members);
+        return dto;
+    }
+
     private ProjectEntity initializeProject(ProjectDTO.ProjectCreateDTO dto) {
         ProjectEntity project = modelMapper.map(dto, ProjectEntity.class);
 

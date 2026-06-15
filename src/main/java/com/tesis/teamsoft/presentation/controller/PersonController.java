@@ -1,6 +1,7 @@
 package com.tesis.teamsoft.presentation.controller;
 
 import com.tesis.teamsoft.presentation.dto.PersonDTO;
+import com.tesis.teamsoft.presentation.dto.PersonReportDTO;
 import com.tesis.teamsoft.service.implementation.PersonServiceImpl;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -50,6 +51,12 @@ public class PersonController {
     @PreAuthorize("hasRole('GESTOR_RRHH') OR hasRole('EXPERIMENTADOR') OR hasRole('DIRECTIVO_TECNICO')")
     public ResponseEntity<PersonDTO.PersonResponseDTO> findPersonById(@PathVariable Long id) {
             return new ResponseEntity<>(personService.findPersonById(id), HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}/report")
+    @PreAuthorize("hasRole('ADMIN') OR hasRole('GESTOR_RRHH') OR hasRole('DIRECTIVO_TECNICO')")
+    public ResponseEntity<PersonReportDTO> getPersonReport(@PathVariable Long id) {
+            return new ResponseEntity<>(personService.getPersonReport(id), HttpStatus.OK);
     }
 
     @PatchMapping("/{id}")
