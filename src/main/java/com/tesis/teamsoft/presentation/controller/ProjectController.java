@@ -4,6 +4,7 @@ import com.tesis.teamsoft.persistence.entity.auxiliary.ProjectState;
 import com.tesis.teamsoft.presentation.dto.AssignedRoleDTO;
 import com.tesis.teamsoft.presentation.dto.CloseProjectDTO;
 import com.tesis.teamsoft.presentation.dto.ProjectDTO;
+import com.tesis.teamsoft.presentation.dto.ProjectReportDTO;
 import com.tesis.teamsoft.presentation.dto.RolePersonEvaluationDTO;
 import com.tesis.teamsoft.service.implementation.ProjectServiceImpl;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -92,6 +93,12 @@ public class ProjectController {
     @PreAuthorize("hasRole('JEFE_DE_EQUIPO') OR hasRole('DIRECTIVO_TECNICO')")
     public ResponseEntity<AssignedRoleDTO> getBossAssignedRole(@PathVariable Long id) {
         return new ResponseEntity<>(projectService.findBossAssignedRole(id), HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}/report")
+    @PreAuthorize("hasRole('ADMIN') OR hasRole('DIRECTIVO_TECNICO') OR hasRole('EXPERIMENTADOR')")
+    public ResponseEntity<ProjectReportDTO> getProjectReport(@PathVariable Long id) {
+        return new ResponseEntity<>(projectService.getProjectReport(id), HttpStatus.OK);
     }
 
     @PutMapping("finalize/{id}")

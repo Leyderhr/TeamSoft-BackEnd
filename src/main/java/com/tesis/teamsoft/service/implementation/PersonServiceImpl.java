@@ -167,6 +167,34 @@ public class PersonServiceImpl implements IPersonService {
         return convertToResponseDTO(personRepository.save(existingPerson));
     }
 
+    /**
+     * Reporte de una persona: todos sus datos y los proyectos en los que ha
+     * participado, con el rol desempeñado y la evaluación en cada uno.
+     */
+    @Transactional(readOnly = true)
+    public PersonReportDTO getPersonReport(Long id) {
+        PersonEntity person = personRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Person not found with ID: " + id));
+
+        PersonReportDTO dto = new PersonReportDTO();
+        dto.setPerson(convertToResponseDTO(person));
+
+        List<PersonReportDTO.ParticipationDTO> participations = new ArrayList<>();
+        if (person.getRoleEvaluationList() != null) {
+            for (RolePersonEvalEntity rpe : person.getRoleEvaluationList()) {
+                CycleEntity cycle = rpe.getCycles();
+                ProjectEntity project = cycle != null ? cycle.getProject() : null;
+                participations.add(new PersonReportDTO.ParticipationDTO(
+                        project != null ? modelMapper.map(project, ProjectDTO.ProjectSimpleDTO.class) : null,
+                        rpe.getRoles() != null ? modelMapper.map(rpe.getRoles(), RoleDTO.RoleMinimalDTO.class) : null,
+                        rpe.getRoleEvaluation() != null ? rpe.getRoleEvaluation().getSignificance() : null
+                ));
+            }
+        }
+        dto.setParticipations(participations);
+        return dto;
+    }
+
     // ========== MÉTODOS PRIVADOS ==========
     private void mapBasicFields(PersonEntity entity, PersonDTO.PersonCreateDTO dto, Long id) {
         entity.setId(id);
