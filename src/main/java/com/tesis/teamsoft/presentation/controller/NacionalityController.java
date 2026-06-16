@@ -36,7 +36,7 @@ public class NacionalityController {
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('GESTOR_RRHH')")
     public ResponseEntity<String> deleteNacionality(@PathVariable Long id) {
-            return new ResponseEntity<>(nacionalityService.deleteNacionality(id), HttpStatus.OK);
+        return new ResponseEntity<>(nacionalityService.deleteNacionality(id), HttpStatus.OK);
     }
 
     @GetMapping()

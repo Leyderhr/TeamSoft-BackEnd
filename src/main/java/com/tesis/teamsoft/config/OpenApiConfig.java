@@ -22,7 +22,7 @@ public class OpenApiConfig {
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
                 .info(new Info()
-                        .title("PowerBank API")
+                        .title("Teamsoft+ API")
                         .version("1.0")
                         .description("API para el sistema TeamSoft+"))
                 .addSecurityItem(new SecurityRequirement()
