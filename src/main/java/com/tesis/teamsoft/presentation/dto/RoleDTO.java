@@ -16,11 +16,11 @@ public class RoleDTO {
     @Data
     public static class RoleCreateDTO {
         @NotBlank(message = "Role name is required")
-        @Pattern(regexp = "^[\\p{L}\\s]+$", message = "Only letters and spaces are allowed")
+        @Pattern(regexp = "^[\\p{L}\\p{N}\\s]+$", message = "Only letters, numbers and spaces are allowed")
         private String roleName;
 
         @NotBlank(message = "Role description is required")
-        @Pattern(regexp = "^[\\p{L}\\s]+$", message = "Only letters and spaces are allowed")
+        @Pattern(regexp = "^[\\p{L}\\p{N}\\s]+$", message = "Only letters, numbers and spaces are allowed")
         private String roleDesc;
 
         @NotNull(message = "Impact is required")

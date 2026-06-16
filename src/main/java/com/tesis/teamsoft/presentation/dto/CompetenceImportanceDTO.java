@@ -20,7 +20,7 @@ public class CompetenceImportanceDTO {
         private Long levels;
 
         @NotBlank(message = "Significance is required")
-        @Pattern(regexp = "^[\\p{L}\\s]+$", message = "Only letters and spaces are allowed")
+        @Pattern(regexp = "^[\\p{L}\\p{N}\\s]+$", message = "Only letters, numbers and spaces are allowed")
         private String significance;
     }
 

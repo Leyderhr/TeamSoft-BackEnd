@@ -28,7 +28,7 @@ public class ConflictIndexEntity implements Serializable {
     private String description;
 
     @NotNull(message = "Weight is required")
-    @Column(nullable = false, columnDefinition = "bigint check (weight >= 0)")
+    @Column(nullable = false, columnDefinition = "bigint check (weight >= 0)", unique = true)
     private long weight;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "index")

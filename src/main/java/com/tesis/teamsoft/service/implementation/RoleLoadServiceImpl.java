@@ -2,7 +2,8 @@ package com.tesis.teamsoft.service.implementation;
 
 import com.tesis.teamsoft.exception.BusinessRuleException;
 import com.tesis.teamsoft.exception.ResourceNotFoundException;
-import com.tesis.teamsoft.persistence.entity.RoleLoadEntity;
+import com.tesis.teamsoft.persistence.entity.*;
+import com.tesis.teamsoft.persistence.entity.auxiliary.ProjectState;
 import com.tesis.teamsoft.persistence.repository.IRoleLoadRepository;
 import com.tesis.teamsoft.presentation.dto.RoleLoadDTO;
 import com.tesis.teamsoft.service.interfaces.IRoleLoadService;
@@ -12,6 +13,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -31,8 +35,11 @@ public class RoleLoadServiceImpl implements IRoleLoadService {
     @Override
     @Transactional
     public RoleLoadDTO.RoleLoadResponseDTO updateRoleLoad(RoleLoadDTO.RoleLoadCreateDTO roleLoadDTO, Long id) {
-        if (!roleLoadRepository.existsById(id))
-            throw new ResourceNotFoundException("Role load not found with ID: " + id);
+        RoleLoadEntity existing = roleLoadRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Role load not found with ID: " + id));
+
+        if (existing.getValue() != roleLoadDTO.getValue()) {
+            validateRoleLoadNotInActiveProjects(existing);}
 
         RoleLoadEntity updatedRoleLoad = modelMapper.map(roleLoadDTO, RoleLoadEntity.class);
         updatedRoleLoad.setId(id);
@@ -78,5 +85,35 @@ public class RoleLoadServiceImpl implements IRoleLoadService {
                 .orElseThrow(() -> new ResourceNotFoundException("Role load not found with ID: " + id));
 
         return modelMapper.map(roleLoad, RoleLoadDTO.RoleLoadResponseDTO.class);
+    }
+
+    private void validateRoleLoadNotInActiveProjects(RoleLoadEntity roleLoad) {
+        List<ProjectRolesEntity> projectRolesList = roleLoad.getProjectRolesList();
+        if (projectRolesList == null || projectRolesList.isEmpty()) {
+            return;
+        }
+
+        Optional<ProjectEntity> offendingProject = projectRolesList.stream()
+                .map(ProjectRolesEntity::getProjectStructure) // 1. Obtener la estructura del proyecto a partir de cada ProjectRoles
+                .filter(Objects::nonNull)
+                .flatMap(structure -> Stream.ofNullable(structure.getCycleList())// 2. Obtener los ciclos asociados a esa estructura (si existen)
+                        .flatMap(List::stream))
+                .filter(Objects::nonNull)                 // 3. Obtener el proyecto de cada ciclo
+                .map(CycleEntity::getProject)
+                .filter(Objects::nonNull)
+                .filter(project -> {                 // 4. Quedarnos solo con aquellos cuyo estado sea FORMED o FINALIZED
+                    ProjectState state = project.getState();
+                    return state == ProjectState.FORMED || state == ProjectState.FINALIZED;
+                })
+                .findFirst();                 // 5. Tomar el primero que cumpla (si existe)
+        // Si se encontró algún proyecto infractor, lanzar excepción con detalles
+        offendingProject.ifPresent(project -> {
+            throw new BusinessRuleException(String.format(
+                    "Cannot update the load value because it is being used in project '%s' (ID: %d) with state %s",
+                    project.getProjectName(),
+                    project.getId(),
+                    project.getState()
+            ));
+        });
     }
 }

@@ -17,7 +17,7 @@ public class CountyDTO {
         private String countyName;
 
         @NotBlank(message = "Code is required")
-        @Pattern(regexp = "^\\d{8,}$", message = "Code must contain at least 8 digits")
+        @Pattern(regexp = "^\\d{1,}$", message = "Code must contain at least 8 digits")
         private String code;
     }
 

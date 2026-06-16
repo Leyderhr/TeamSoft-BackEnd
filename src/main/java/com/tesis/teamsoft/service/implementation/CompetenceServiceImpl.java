@@ -195,6 +195,9 @@ public class CompetenceServiceImpl implements ICompetenceService {
     private List<CompetenceDimensionEntity> assingCompetenceDimension(
             List<CompetenceDimensionDTO.CompetenceDimensionCreateDTO> dimensionsDTOList,
             CompetenceEntity savedCompetence) {
+
+        validateUniqueDimensionNames(dimensionsDTOList);
+
         Map<Long, LevelsEntity> levelsMap = levelsRepository.findAll()
                 .stream()
                 .collect(Collectors.toMap(LevelsEntity::getId, Function.identity()));
@@ -252,5 +255,14 @@ public class CompetenceServiceImpl implements ICompetenceService {
         }
         responseDTO.setDimensionList(dimensionDTOList);
         return responseDTO;
+    }
+
+    private void validateUniqueDimensionNames(List<CompetenceDimensionDTO.CompetenceDimensionCreateDTO> dimensionsDTOList) {
+        Set<String> names = new HashSet<>();
+        for (CompetenceDimensionDTO.CompetenceDimensionCreateDTO dto : dimensionsDTOList) {
+            if (!names.add(dto.getName())) {
+                throw new BusinessRuleException("Duplicate dimension name: " + dto.getName());
+            }
+        }
     }
 }

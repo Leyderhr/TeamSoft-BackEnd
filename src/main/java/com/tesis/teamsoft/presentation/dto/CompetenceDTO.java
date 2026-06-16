@@ -18,11 +18,11 @@ public class CompetenceDTO {
     @Data
     public static class CompetenceCreateDTO{
         @NotBlank(message = "Competence name is required")
-        @Pattern(regexp = "^[\\p{L}\\s]+$", message = "Only letters and spaces are allowed")
+        @Pattern(regexp = "^[\\p{L}\\p{N}\\s]+$", message = "Only letters, numbers and spaces are allowed")
         private String competitionName;
 
         @NotBlank(message = "Competence description is required")
-        @Pattern(regexp = "^[\\p{L}\\s]+$", message = "Only letters and spaces are allowed")
+        @Pattern(regexp = "^[\\p{L}\\p{N}\\s]+$", message = "Only letters, numbers and spaces are allowed")
         private String description;
 
         @NotNull(message = "Define if technical competency")

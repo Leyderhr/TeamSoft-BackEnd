@@ -15,7 +15,7 @@ public class ConflictIndexDTO {
     @Data
     public static class ConflictIndexCreateDTO {
         @NotBlank(message = "Description is required")
-        @Pattern(regexp = "^[\\p{L}\\s]+$", message = "Only letters and spaces are allowed")
+        @Pattern(regexp = "^[\\p{L}\\p{N}\\s]+$", message = "Only letters, numbers and spaces are allowed")
         private String description;
 
         @NotNull(message = "Weight is required")

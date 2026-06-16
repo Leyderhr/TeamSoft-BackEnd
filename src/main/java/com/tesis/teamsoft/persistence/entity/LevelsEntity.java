@@ -24,7 +24,7 @@ public class LevelsEntity implements Serializable {
     private Long id;
 
     @NotNull(message = "Levels is required")
-    @Column(nullable = false, columnDefinition = "bigint check (levels >= 0)")
+    @Column(nullable = false, columnDefinition = "bigint check (levels >= 0)", unique = true)
     private long levels;
 
     @NotNull(message = "Significance is required")

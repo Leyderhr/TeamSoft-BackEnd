@@ -13,7 +13,7 @@ public class ClientDTO {
     @Data
     public static class ClientCreateDTO {
         @NotBlank(message = "Entity name is required")
-        @Pattern(regexp = "^[\\p{L}\\s]+$", message = "Only letters and spaces are allowed")
+        @Pattern(regexp = "^[\\p{L}\\p{N}\\s]+$", message = "Only letters, numbers and spaces are allowed")
         private String entityName;
 
         @NotBlank(message = "Address is required")
