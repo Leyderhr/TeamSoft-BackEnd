@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -45,9 +44,11 @@ public class CountyServiceImpl implements ICountyService {
         CountyEntity county = countyRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("County not found with ID: " + id));
 
-        StringBuilder errorMessage = canByDeleted(county);
-        if (!errorMessage.isEmpty()) {
-            throw new BusinessRuleException(errorMessage.toString().trim());
+        if (county.getProjectList() != null && !county.getProjectList().isEmpty()
+                || county.getPersonList() != null && !county.getPersonList().isEmpty()
+                || (county.getCostDistanceListA() != null && !county.getCostDistanceListA().isEmpty())
+                || (county.getCostDistanceListB() != null && !county.getCostDistanceListB().isEmpty())) {
+            throw new BusinessRuleException("Cannot delete County because it has associated relations");
         }
 
         countyRepository.deleteById(id);
@@ -78,24 +79,5 @@ public class CountyServiceImpl implements ICountyService {
         CountyEntity county = countyRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("County not found with ID: " + id));
         return modelMapper.map(county, CountyDTO.CountyResponseDTO.class);
-    }
-
-    private StringBuilder canByDeleted(CountyEntity county){
-        StringBuilder errorMessage = new StringBuilder();
-
-        if (county.getProjectList() != null && !county.getProjectList().isEmpty()) {
-            errorMessage.append("Cannot delete county because it has associated projects. ");
-        }
-
-        if (county.getPersonList() != null && !county.getPersonList().isEmpty()) {
-            errorMessage.append("Cannot delete county because it has associated persons. ");
-        }
-
-        if ((county.getCostDistanceListA() != null && !county.getCostDistanceListA().isEmpty())
-                || (county.getCostDistanceListB() != null && !county.getCostDistanceListB().isEmpty())) {
-            errorMessage.append("Cannot delete county because it has associated cost distances");
-        }
-
-        return errorMessage;
     }
 }

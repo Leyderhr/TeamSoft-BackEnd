@@ -119,21 +119,6 @@ public class AuthServiceImpl implements IAuthService {
     @Transactional
     public void processForgotPassword(String email) {
 
-//        try{
-//            UserEntity user = userRepository.findByEmail(email)
-//                    .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
-//
-//            String token = passwordResetTokenService.createPasswordResetToken(user);
-//            String resetLink = "http://localhost:8080/api/auth/reset-password?token=" + token;
-//
-//            emailService.sendPasswordResetEmail(email, user.getUsername(), resetLink);
-//
-//            log.info("Password reset token created for user {}", user.getUsername());
-//
-//        } catch (UsernameNotFoundException e) {
-//            // Por seguridad, no revelamos si el email existe o no
-//            log.info("Password reset requested for non-existing email: {}", email);
-//        }
     }
 
     @Override

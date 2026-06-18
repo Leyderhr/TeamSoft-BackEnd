@@ -1,6 +1,7 @@
 package com.tesis.teamsoft.presentation.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,6 +14,7 @@ public class PersonGroupDTO {
     public static class PersonGroupCreateDTO {
 
         @NotBlank(message = "Name is required")
+        @Pattern(regexp = "^[\\p{L}\\p{N}\\s]+$", message = "Only letters, spaces and digits are allowed")
         private String name;
 
         private Long parentGroupId; // ID del grupo padre (opcional para grupos raíz)

@@ -154,7 +154,6 @@ public class CompetenceServiceImpl implements ICompetenceService {
                     }
                 } catch (Exception e) {
                     result.setErrors(result.getErrors() + 1);
-                    result.getErrorMessages().add("Error en fila con nombre '" + row.getCompetitionName() + "': " + e.getMessage());
                 }
             }
         } catch (IOException e) {

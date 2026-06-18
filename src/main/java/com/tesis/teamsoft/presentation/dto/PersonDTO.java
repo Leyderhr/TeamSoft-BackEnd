@@ -21,7 +21,7 @@ public class PersonDTO {
         private String personName;
 
         @NotBlank(message = "ID card is required")
-        @Pattern(regexp = "^\\d{8,}$", message = "Card must contain at least 8 digits")
+        @Pattern(regexp = "^\\d+$", message = "Card must contain only digits, at least one")
         private String card;
 
         @NotBlank(message = "Surname is required")
@@ -32,7 +32,8 @@ public class PersonDTO {
         private String address;
 
         @NotBlank(message = "Phone is required")
-        @Pattern(regexp = "^\\d{8,}$", message = "Phone must contain at least 8 digits")
+        @Pattern(regexp = "^(?=(?:\\D*\\d){8})[\\d+\\-\\s]+$",
+                message = "Phone can only contain digits, spaces, plus and hyphen and must have at least 8 digits")
         private String phone;
 
         private Character sex;

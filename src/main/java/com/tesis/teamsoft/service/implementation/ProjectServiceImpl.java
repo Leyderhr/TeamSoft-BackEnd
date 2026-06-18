@@ -63,13 +63,6 @@ public class ProjectServiceImpl implements IProjectService {
         return convertToResponseDTO(projectRepository.save(updatedProject));
     }
 
-    public ProjectDTO.ProjectResponseDTO closeProject(Long id){
-        ProjectEntity updatedProject = projectRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Project not found with ID: " + id));
-
-        return convertToResponseDTO(projectRepository.save(updatedProject));
-    }
-
     @Override
     public String deleteProject(Long id) {
         ProjectEntity project = projectRepository.findById(id)

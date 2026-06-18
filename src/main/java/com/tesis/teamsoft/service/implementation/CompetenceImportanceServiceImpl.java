@@ -36,7 +36,7 @@ public class CompetenceImportanceServiceImpl implements ICompetenceImportanceSer
             CompetenceImportanceDTO.CompetenceImportanceCreateDTO competenceImportanceDTO, Long id) {
 
         if (!competenceImportanceRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Competence importance not found with ID: " + id);
+            throw new ResourceNotFoundException("ERR_COMP_IMPORTANCE_NOT_FOUND", id);
         }
 
         CompetenceImportanceEntity updatedCompetenceImportance = modelMapper.map(competenceImportanceDTO, CompetenceImportanceEntity.class);
@@ -49,15 +49,15 @@ public class CompetenceImportanceServiceImpl implements ICompetenceImportanceSer
     @Transactional
     public String deleteCompetenceImportance(Long id) {
         CompetenceImportanceEntity competenceImportance = competenceImportanceRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Competence importance not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("ERR_COMP_IMPORTANCE_NOT_FOUND", id));
 
         if ((competenceImportance.getRoleCompetitionList() != null && !competenceImportance.getRoleCompetitionList().isEmpty()) ||
                 (competenceImportance.getProjectTechCompetenceList() != null && !competenceImportance.getProjectTechCompetenceList().isEmpty())) {
-            throw new BusinessRuleException("Cannot delete competence importance because it has associated relations");
+            throw new BusinessRuleException("ERR_COMP_IMPORTANCE_CANT_BE_DELETED", id);
         }
 
         competenceImportanceRepository.deleteById(id);
-        return "Competence importance deleted successfully";
+        return "COMPIMPORTANCE_SUCCESSFULLY_DELETED";
     }
 
     @Override
@@ -82,7 +82,7 @@ public class CompetenceImportanceServiceImpl implements ICompetenceImportanceSer
     @Transactional(readOnly = true)
     public CompetenceImportanceDTO.CompetenceImportanceResponseDTO findCompetenceImportanceById(Long id) {
         CompetenceImportanceEntity competenceImportance = competenceImportanceRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Competence importance not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("ERR_COMP_IMPORTANCE_NOT_FOUND", id));
         return modelMapper.map(competenceImportance, CompetenceImportanceDTO.CompetenceImportanceResponseDTO.class);
     }
 }

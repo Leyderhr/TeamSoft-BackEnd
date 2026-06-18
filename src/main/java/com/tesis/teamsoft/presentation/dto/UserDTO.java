@@ -22,7 +22,7 @@ public class UserDTO {
         private String surname;
 
         @NotBlank(message = "ID card is required")
-        @Pattern(regexp = "^[0-9+\\-\\s]+$", message = "Phone can only contain digits, spaces, plus and hyphen")
+        @Pattern(regexp = "^\\d{8,}$", message = "Card must contain only digits, at least 8")
         private String card;
 
         @NotBlank(message = "Email is required")

@@ -160,7 +160,6 @@ public class RoleServiceImpl implements IRoleService {
                     }
                 } catch (Exception e) {
                     result.setErrors(result.getErrors() + 1);
-                    result.getErrorMessages().add("Error en fila con nombre '" + row.getRoleName() + "': " + e.getMessage());
                 }
             }
         } catch (IOException e) {
