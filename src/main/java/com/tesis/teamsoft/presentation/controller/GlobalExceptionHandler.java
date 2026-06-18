@@ -3,6 +3,7 @@ package com.tesis.teamsoft.presentation.controller;
 import com.tesis.teamsoft.exception.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSourceResolvable;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -44,12 +45,11 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, Object>> handleValidation(MethodArgumentNotValidException ex) {
-        Map<String, String> fieldErrors = new HashMap<>();
-        ex.getBindingResult().getFieldErrors().forEach(error ->
-                fieldErrors.put(error.getField(), error.getDefaultMessage())
-        );
+        List<String> errorMessages = ex.getBindingResult().getFieldErrors().stream()
+                .map(DefaultMessageSourceResolvable::getDefaultMessage)
+                .toList();
         // Enviamos el mapa de errores en los campos dentro de la propiedad 'parameters'
-        return buildErrorResponse(HttpStatus.BAD_REQUEST, "VALIDATION_FAILED", fieldErrors);
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, "VALIDATION_FAILED", errorMessages);
     }
 
     @ExceptionHandler(HandlerMethodValidationException.class)

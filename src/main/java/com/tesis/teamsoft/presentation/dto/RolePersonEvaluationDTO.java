@@ -6,12 +6,12 @@ import lombok.Data;
 @Data
 public class RolePersonEvaluationDTO {
 
-    @NotNull(message = "Person id is required")
+    @NotNull(message = "ERR_VAL_PERSON_REQUIRED")
     private Long person;
 
-    @NotNull(message = "Role id is required")
+    @NotNull(message = "ERR_VAL_ROLE_EVAL_REQUIRED")
     private Long role;
 
-    @NotNull(message = "Role evaluation id is required")
+    @NotNull(message = "ERR_VAL_ROLE_EVAL_REQUIRED")
     private Long roleEvaluation;
 }

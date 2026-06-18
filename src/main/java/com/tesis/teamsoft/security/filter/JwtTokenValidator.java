@@ -66,8 +66,8 @@ public class JwtTokenValidator extends OncePerRequestFilter {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding("UTF-8");
-        String safeMessage = message == null ? "Token inválido o expirado" : message.replace("\"", "'");
+        String safeMessage = message == null ? "ERR_TOKEN_INVALID" : message.replace("\"", "'");
         response.getWriter().write(
-                "{\"status\":401,\"error\":\"Token inválido o expirado\",\"message\":\"" + safeMessage + "\"}");
+                "{\"status\":404,\"errorCode\":\"ERR_COUNTY_NOT_FOUND\",\"parameters\":[],\"timestamp\":\"" + java.time.LocalDateTime.now().toString() + "\"}");
     }
 }

@@ -14,12 +14,12 @@ public class RoleLoadDTO {
 
     @Data
     public static class RoleLoadCreateDTO {
-        @NotNull(message = "Value is required")
-        @Min(value = 0, message = "Value must be at least 0")
+        @NotNull(message = "ERR_VAL_ROLE_LOAD_VALUE")
+        @Min(value = 0, message = "ERR_VAL_ROLE_LOAD_VALUE")
         private Float value;
 
-        @NotBlank(message = "Significance is required")
-        @Pattern(regexp = "^[\\p{L}\\p{N}\\s]+$", message = "Only letters, numbers and spaces are allowed")
+        @NotBlank(message = "ERR_VAL_ROLE_LOAD_SIGNIFICANCE")
+        @Pattern(regexp = "^[\\p{L}\\p{N}\\s]+$", message = "ERR_VAL_ROLE_LOAD_SIGNIFICANCE")
         private String significance;
     }
 

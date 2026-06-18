@@ -11,13 +11,13 @@ public class ProjectTechCompetenceDTO {
 
     @Data
     public static class ProjectTechCompetenceCreateDTO {
-        @NotNull(message = "Competence ID is required")
+        @NotNull(message = "ERR_VAL_COMPETENCE_REQUIRED")
         private Long competenceId;
 
-        @NotNull(message = "Competence Importance ID is required")
+        @NotNull(message = "ERR_VAL_COMPETENCE_IMPORTANCE_REQUIRED")
         private Long competenceImportanceId;
 
-        @NotNull(message = "Level ID is required")
+        @NotNull(message = "ERR_VAL_LEVEL_REQUIRED")
         private Long levelId;
     }
 

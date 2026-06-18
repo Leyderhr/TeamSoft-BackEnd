@@ -7,13 +7,13 @@ import lombok.Data;
 @Data
 public class ChangePasswordDTO {
 
-    @NotBlank(message = "Current password is required")
+    @NotBlank(message = "ERR_VAL_CHANGE_PASSWORD_CURRENT_REQUIRED")
     private String currentPassword;
 
-    @NotBlank(message = "New password is required")
-    @Size(min = 6, message = "New password must be at least 6 characters")
+    @NotBlank(message = "ERR_VAL_CHANGE_PASSWORD_NEW")
+    @Size(min = 6, message = "ERR_VAL_CHANGE_PASSWORD_NEW")
     private String newPassword;
 
-    @NotBlank(message = "Confirm password is required")
+    @NotBlank(message = "ERR_VAL_CHANGE_PASSWORD_CONFIRM_REQUIRED")
     private String confirmPassword;
 }

@@ -12,16 +12,16 @@ public class ClientDTO {
 
     @Data
     public static class ClientCreateDTO {
-        @NotBlank(message = "Entity name is required")
-        @Pattern(regexp = "^[\\p{L}\\p{N}\\s]+$", message = "Only letters, numbers and spaces are allowed")
+        @NotBlank(message = "ERR_VAL_CLIENT_NAME")
+        @Pattern(regexp = "^[\\p{L}\\p{N}\\s]+$", message = "ERR_VAL_CLIENT_NAME")
         private String entityName;
 
-        @NotBlank(message = "Address is required")
+        @NotBlank(message = "ERR_VAL_CLIENT_ADDRESS")
         private String address;
 
-        @NotBlank(message = "Phone is required")
+        @NotBlank(message = "ERR_VAL_CLIENT_PHONE")
         @Pattern(regexp = "^(?=(?:\\D*\\d){8})[\\d+\\-\\s]+$",
-                message = "Phone can only contain digits, spaces, plus and hyphen and must have at least 8 digits")
+                message = "ERR_VAL_CLIENT_PHONE")
         private String phone;
     }
 

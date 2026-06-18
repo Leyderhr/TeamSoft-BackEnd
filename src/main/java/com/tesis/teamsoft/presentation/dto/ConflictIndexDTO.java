@@ -14,12 +14,12 @@ public class ConflictIndexDTO {
 
     @Data
     public static class ConflictIndexCreateDTO {
-        @NotBlank(message = "Description is required")
-        @Pattern(regexp = "^[\\p{L}\\p{N}\\s]+$", message = "Only letters, numbers and spaces are allowed")
+        @NotBlank(message = "ERR_VAL_CONFLICT_INDEX_DESCRIPTION")
+        @Pattern(regexp = "^[\\p{L}\\p{N}\\s]+$", message = "ERR_VAL_CONFLICT_INDEX_DESCRIPTION")
         private String description;
 
-        @NotNull(message = "Weight is required")
-        @Min(value = 0, message = "Weight must be at least 0")
+        @NotNull(message = "ERR_VAL_CONFLICT_INDEX_WEIGHT")
+        @Min(value = 0, message = "ERR_VAL_CONFLICT_INDEX_WEIGHT")
         private Long weight;
     }
 

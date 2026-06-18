@@ -16,12 +16,12 @@ public class LevelsDTO {
     @Data
     public static class LevelsCreateDTO {
 
-        @Min(value = 0, message = "Level must be at least 0")
-        @NotNull(message = "Level is required")
+        @Min(value = 0, message = "ERR_VAL_LEVELS_VALUE")
+        @NotNull(message = "ERR_VAL_LEVELS_VALUE")
         private Long levels;
 
-        @NotBlank(message = "Significance is required")
-        @Pattern(regexp = "^[\\p{L}\\p{N}\\s]+$", message = "Only letters, numbers and spaces are allowed")
+        @NotBlank(message = "ERR_VAL_LEVELS_SIGNIFICANCE")
+        @Pattern(regexp = "^[\\p{L}\\p{N}\\s]+$", message = "ERR_VAL_LEVELS_SIGNIFICANCE")
         private String significance;
     }
 

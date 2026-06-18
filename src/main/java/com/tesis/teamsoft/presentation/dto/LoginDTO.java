@@ -18,12 +18,12 @@ public class LoginDTO {
     @AllArgsConstructor
     public static class LoginRequestDTO {
 
-        @NotBlank(message = "Username is required")
-        @Size(min = 3, max = 50, message = "Username must be between 3 and 50 characters")
+        @NotBlank(message = "ERR_VAL_LOGIN_USERNAME")
+        @Size(min = 3, max = 50, message = "ERR_VAL_LOGIN_USERNAME")
         private String username;
 
-        @NotBlank(message = "Password is required")
-        @Size(min = 6, message = "Password must be at least 6 characters")
+        @NotBlank(message = "ERR_VAL_LOGIN_PASSWORD")
+        @Size(min = 6, message = "ERR_VAL_LOGIN_PASSWORD")
         private String password;
     }
 
@@ -45,7 +45,7 @@ public class LoginDTO {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class RefreshTokenRequestDTO {
-        @NotBlank(message = "Refresh token is required")
+        @NotBlank(message = "ERR_VAL_LOGIN_REFRESH_TOKEN_REQUIRED")
         private String refreshToken;
     }
 

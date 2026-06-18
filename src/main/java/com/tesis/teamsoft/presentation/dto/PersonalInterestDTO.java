@@ -7,10 +7,10 @@ public class PersonalInterestDTO {
 
     @Data
     public static class PersonalInterestCreateDTO {
-        @NotNull(message = "Role ID is required")
+        @NotNull(message = "ERR_VAL_PERSONAL_INTEREST_ROLE_ID")
         private Long roleId;
 
-        @NotNull(message = "Preference is required")
+        @NotNull(message = "ERR_VAL_PERSONAL_INTEREST_PREFERENCE")
         private Boolean preference;
     }
 

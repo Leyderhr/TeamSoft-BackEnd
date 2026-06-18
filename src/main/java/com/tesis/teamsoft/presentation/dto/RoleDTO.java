@@ -15,19 +15,19 @@ public class RoleDTO {
 
     @Data
     public static class RoleCreateDTO {
-        @NotBlank(message = "Role name is required")
-        @Pattern(regexp = "^[\\p{L}\\p{N}\\s]+$", message = "Only letters, numbers and spaces are allowed")
+        @NotBlank(message = "ERR_VAL_ROLE_NAME")
+        @Pattern(regexp = "^[\\p{L}\\p{N}\\s]+$", message = "ERR_VAL_ROLE_NAME")
         private String roleName;
 
-        @NotBlank(message = "Role description is required")
-        @Pattern(regexp = "^[\\p{L}\\p{N}\\s]+$", message = "Only letters, numbers and spaces are allowed")
+        @NotBlank(message = "VAL_ROLE_DESCRIPTION")
+        @Pattern(regexp = "^[\\p{L}\\p{N}\\s]+$", message = "VAL_ROLE_DESCRIPTION")
         private String roleDesc;
 
-        @NotNull(message = "Impact is required")
-        @Min(value = 0, message = "Impact must be at least 0")
+        @NotNull(message = "ERR_VAL_ROLE_IMPACT")
+        @Min(value = 0, message = "ERR_VAL_ROLE_IMPACT")
         private Float impact;
 
-        @NotNull(message = "Is boss is required")
+        @NotNull(message = "ERR_VAL_ROLE_IS_BOSS")
         private Boolean isBoss;
 
         @Valid
@@ -69,13 +69,13 @@ public class RoleDTO {
 
     @Data
     public static class RoleCompetitionCreateDTO {
-        @NotNull(message = "Competence ID is required")
+        @NotNull(message = "ERR_VAL_COMPETENCE_REQUIRED")
         private Long competenceId;
 
-        @NotNull(message = "Competence Importance ID is required")
+        @NotNull(message = "ERR_VAL_COMPETENCE_IMPORTANCE_REQUIRED")
         private Long competenceImportanceId;
 
-        @NotNull(message = "Levels ID is required")
+        @NotNull(message = "ERR_VAL_LEVEL_REQUIRED")
         private Long levelsId;
     }
 

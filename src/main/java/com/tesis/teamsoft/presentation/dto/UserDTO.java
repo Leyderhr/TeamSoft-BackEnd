@@ -13,27 +13,27 @@ public class UserDTO {
 
     @Data
     public static class UserCreateDTO {
-        @NotBlank(message = "Person name is required")
-        @Size(min = 1, message = "Person name must be at least 3 characters")
+        @NotBlank(message = "ERR_VAL_USER_PERSON_NAME")
+        @Size(min = 1, message = "ERR_VAL_USER_PERSON_NAME")
         private String personName;
 
-        @NotBlank(message = "Surname is required")
-        @Size(min = 1, message = "Person surname must be at least 3 characters")
+        @NotBlank(message = "ERR_VAL_USER_SURNAME")
+        @Size(min = 1, message = "ERR_VAL_USER_SURNAME")
         private String surname;
 
-        @NotBlank(message = "ID card is required")
-        @Pattern(regexp = "^\\d{8,}$", message = "Card must contain only digits, at least 8")
+        @NotBlank(message = "ERR_VAL_USER_ID_CARD")
+        @Pattern(regexp = "^\\d{8,}$", message = "ERR_VAL_USER_ID_CARD")
         private String card;
 
-        @NotBlank(message = "Email is required")
-        @Email(message = "Email should be valid")
+        @NotBlank(message = "ERR_VAL_USER_EMAIL")
+        @Email(message = "ERR_VAL_USER_EMAIL")
         private String mail;
 
-        @NotNull(message = "Enabled status is required")
+        @NotNull(message = "ERR_VAL_USER_ENABLED_STATUS")
         private boolean enabled;
 
-        @NotNull(message = "At least one role is required")
-        @Size(min = 1, message = "At least one role must be selected")
+        @NotNull(message = "ERR_VAL_USER_ROLES")
+        @Size(min = 1, message = "ERR_VAL_USER_ROLES")
         private Set<Long> roleIds;
     }
 

@@ -34,6 +34,7 @@ public class AgeGroupServiceImpl implements IAgeGroupService {
     public AgeGroupDTO.AgeGroupResponseDTO saveAgeGroup(AgeGroupDTO.AgeGroupCreateDTO ageGroupDTO) {
         AgeGroupEntity savedAgeGroup = modelMapper.map(ageGroupDTO, AgeGroupEntity.class);
         validateNonOverlappingAgeRange(savedAgeGroup);
+
         return modelMapper.map(ageGroupRepository.save(savedAgeGroup), AgeGroupDTO.AgeGroupResponseDTO.class);
     }
 

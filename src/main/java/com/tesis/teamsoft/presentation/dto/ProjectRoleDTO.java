@@ -15,14 +15,14 @@ public class ProjectRoleDTO {
 
     @Data
     public static class ProjectRoleCreateDTO {
-        @NotNull(message = "Role ID is required")
+        @NotNull(message = "ERR_VAL_PROJECT_ROLE_ID")
         private Long role;
 
-        @NotNull(message = "Role Load ID is required")
+        @NotNull(message = "ERR_VAL_PROJECT_ROLE_LOAD_ID")
         private Long roleLoad;
 
-        @NotNull(message = "Amount of workers is required")
-        @Min(value = 1, message = "Amount of workers must be at least 1")
+        @NotNull(message = "ERR_VAL_PROJECT_ROLE_WORKERS")
+        @Min(value = 1, message = "ERR_VAL_PROJECT_ROLE_WORKERS")
         private Long amountWorkersRole;
 
         @Valid

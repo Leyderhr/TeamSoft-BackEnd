@@ -12,12 +12,12 @@ public class CountyDTO {
 
     @Data
     public static class CountyCreateDTO {
-        @NotBlank(message = "County name is required")
-        @Pattern(regexp = "^[\\p{L}\\s]+$", message = "Only letters and spaces are allowed")
+        @NotBlank(message = "ERR_VAL_COUNTY_NAME")
+        @Pattern(regexp = "^[\\p{L}\\s]+$", message = "ERR_VAL_COUNTY_NAME")
         private String countyName;
 
-        @NotBlank(message = "Code is required")
-        @Pattern(regexp = "^\\d{1,}$", message = "Code must contain at least 8 digits")
+        @NotBlank(message = "ERR_VAL_COUNTY_CODE")
+        @Pattern(regexp = "^\\d{1,}$", message = "ERR_VAL_COUNTY_CODE")
         private String code;
     }
 

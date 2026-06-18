@@ -16,8 +16,8 @@ public class ReligionDTO {
 
     @Data
     public static class ReligionCreateDTO {
-        @NotBlank(message = "Religion name is required")
-        @Pattern(regexp = "^[\\p{L}\\s]+$", message = "Only letters and spaces are allowed")
+        @NotBlank(message = "ERR_VAL_RELIGION_NAME")
+        @Pattern(regexp = "^[\\p{L}\\s]+$", message = "ERR_VAL_RELIGION_NAME")
         private String religionName;
 
     }
