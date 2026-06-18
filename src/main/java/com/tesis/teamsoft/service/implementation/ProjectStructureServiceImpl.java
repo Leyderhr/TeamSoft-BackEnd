@@ -48,7 +48,7 @@ public class ProjectStructureServiceImpl implements IProjectStructureService {
 
         ProjectStructureEntity existingProjectStructure =
                 projectStructureRepository.findById(id)
-                        .orElseThrow(() -> new ResourceNotFoundException("ProjectStructure not found with ID: " + id));
+                        .orElseThrow(() -> new ResourceNotFoundException("ERR_PROJECT_STRUCTURE_NOT_FOUND", id));
 
         existingProjectStructure.setName(projectStructureDTO.getName());
 
@@ -65,14 +65,14 @@ public class ProjectStructureServiceImpl implements IProjectStructureService {
     @Transactional
     public String deleteProjectStructure(Long id) {
         ProjectStructureEntity projectStructure = projectStructureRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("ProjectStructure not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("ERR_PROJECT_STRUCTURE_NOT_FOUND", id));
 
         if (projectStructure.getCycleList() != null && !projectStructure.getCycleList().isEmpty()) {
-            throw new BusinessRuleException("Cannot delete project structure because it has associated cycles");
+            throw new BusinessRuleException("ERR_PROJECT_STRUCTURE_CANT_BE_DELETED");
         }
 
         projectStructureRepository.deleteById(id);
-        return "Project structure deleted successfully";
+        return "PROJECT_STRUCTURE_SUCCESSFULLY_DELETED";
     }
 
     @Override
@@ -87,7 +87,7 @@ public class ProjectStructureServiceImpl implements IProjectStructureService {
     @Transactional(readOnly = true)
     public ProjectStructureDTO.ProjectStructureResponseDTO findProjectStructureById(Long id) {
         ProjectStructureEntity projectStructure = projectStructureRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("ProjectStructure not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("ERR_PROJECT_STRUCTURE_NOT_FOUND", id));
 
         return convertToResponseDTO(projectStructure);
     }
@@ -104,20 +104,20 @@ public class ProjectStructureServiceImpl implements IProjectStructureService {
 
         return projectRolesDTO.stream().map(dto -> {
             RoleEntity role = roleRepository.findById(dto.getRole())
-                    .orElseThrow(() -> new ResourceNotFoundException("Role not found with ID: " + dto.getRole()));
+                    .orElseThrow(() -> new ResourceNotFoundException("ERR_ROLE_NOT_FOUND", dto.getRole()));
 
             if(role.isBoss() && alreadyBoss[0]) {
-                throw new BusinessRuleException("A role with 'boss' type already exists in the project structure");
+                throw new BusinessRuleException("ERR_PROJECT_STRUCTURE_DUPLICATE_BOSS");
             } else if (role.isBoss()) {
                 alreadyBoss[0] = true;
 
                 if(dto.getAmountWorkersRole() != 1) {
-                    throw new BusinessRuleException("A role with 'boss' type must have exactly 1 worker");
+                    throw new BusinessRuleException("ERR_PROJECT_STRUCTURE_BOSS_WORKERS_LIMIT");
                 }
             }
 
             RoleLoadEntity roleLoad = roleLoadRepository.findById(dto.getRoleLoad())
-                    .orElseThrow(() -> new ResourceNotFoundException("RoleLoad not found with ID: " + dto.getRoleLoad()));
+                    .orElseThrow(() -> new ResourceNotFoundException("ERR_ROLE_LOAD_NOT_FOUND", dto.getRoleLoad()));
 
             ProjectRolesEntity projectRole = new ProjectRolesEntity();
             projectRole.setAmountWorkersRole(dto.getAmountWorkersRole());
@@ -173,11 +173,11 @@ public class ProjectStructureServiceImpl implements IProjectStructureService {
 
         return dto.getTechCompetences().stream().map(tcDto -> {
             CompetenceEntity competence = competenceRepository.findById(tcDto.getCompetenceId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Competence not found with ID: " + tcDto.getCompetenceId()));
+                    .orElseThrow(() -> new ResourceNotFoundException("ERR_COMPETENCE_NOT_FOUND", tcDto.getCompetenceId()));
             CompetenceImportanceEntity importance = competenceImportanceRepository.findById(tcDto.getCompetenceImportanceId())
-                    .orElseThrow(() -> new ResourceNotFoundException("CompetenceImportance not found with ID: " + tcDto.getCompetenceImportanceId()));
+                    .orElseThrow(() -> new ResourceNotFoundException("ERR_COMP_IMPORTANCE_NOT_FOUND", tcDto.getCompetenceImportanceId()));
             LevelsEntity level = levelsRepository.findById(tcDto.getLevelId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Level not found with ID: " + tcDto.getLevelId()));
+                    .orElseThrow(() -> new ResourceNotFoundException("ERR_LEVELS_NOT_FOUND", tcDto.getLevelId()));
 
             ProjectTechCompetenceEntity ptc = new ProjectTechCompetenceEntity();
             ptc.setCompetence(competence);

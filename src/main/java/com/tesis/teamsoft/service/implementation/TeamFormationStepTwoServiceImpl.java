@@ -1,5 +1,6 @@
 package com.tesis.teamsoft.service.implementation;
 
+import com.tesis.teamsoft.exception.BusinessRuleException;
 import com.tesis.teamsoft.exception.ResourceNotFoundException;
 import com.tesis.teamsoft.metaheuristics.auxiliary.*;
 import com.tesis.teamsoft.metaheuristics.operator.TeamBuilder;
@@ -36,14 +37,14 @@ public class TeamFormationStepTwoServiceImpl implements ITeamFormationStepTwoSer
         TeamFormationParameters parameters = request.getTeamFormationParameters();
 
         if (!stepThreeService.ensureGeneralFactorWeightSummatory(parameters)) {
-            throw new IllegalArgumentException("La suma de los pesos de las funciones objetivo debe ser 1.");
+            throw new IllegalArgumentException("ERR_TEAM_FORMATION_WEIGHTS_SUM_MUST_BE_ONE");
         }
 
         stepThreeService.hydrateFixedWorkers(parameters);
 
         List<ProjectEntity> projects = projectRepository.findAllById(request.getProjectIDs());
         if (projects.isEmpty()) {
-            throw new ResourceNotFoundException("No se encontraron proyectos con los IDs proporcionados.");
+            throw new ResourceNotFoundException("ERR_TEAM_FORMATION_PROJECTS_NOT_FOUND");
         }
         List<ProjectRoleCompetenceTemplate> formatedProjects = stepThreeService.formatProjects(projects);
         parameters.setProjects(formatedProjects);
@@ -67,13 +68,13 @@ public class TeamFormationStepTwoServiceImpl implements ITeamFormationStepTwoSer
                     .filter(RoleEntity::isBoss)
                     .findFirst()
                     .orElseThrow(() -> new ResourceNotFoundException(
-                            "No se encontró un rol de jefe en la estructura del proyecto " + project.getId()));
+                            "ERR_ROLE_BOSS_NOT_FOUND",project.getId()));
 
             List<BossProposalDTO.BossCandidateDTO> candidates =
                     evaluateCandidatesForRole(project, bossRole, parameters, searchArea);
             if (candidates.isEmpty()) {
-                throw new IllegalArgumentException(
-                        "No se pudo generar ninguna propuesta de jefe para el proyecto " + project.getProjectName());
+                throw new BusinessRuleException(
+                        "ERR_TEAM_FORMATION_NO_BOSS_PROPOSAL", project.getProjectName());
             }
 
             BossProposalDTO.ProjectBossDTO projectBoss = new BossProposalDTO.ProjectBossDTO();
@@ -92,16 +93,16 @@ public class TeamFormationStepTwoServiceImpl implements ITeamFormationStepTwoSer
 
         // 1. Validar pesos
         if (!stepThreeService.ensureGeneralFactorWeightSummatory(parameters)) {
-            throw new IllegalArgumentException("La suma de los pesos de las funciones objetivo debe ser 1.");
+            throw new IllegalArgumentException("ERR_TEAM_FORMATION_WEIGHTS_SUM_MUST_BE_ONE");
         }
 
         stepThreeService.hydrateFixedWorkers(parameters);
 
         // 2. Cargar el proyecto y el rol
         ProjectEntity project = projectRepository.findById(request.getProjectId())
-                .orElseThrow(() -> new ResourceNotFoundException("Proyecto no encontrado con ID: " + request.getProjectId()));
+                .orElseThrow(() -> new ResourceNotFoundException("ERR_PROJECT_NOT_FOUND", request.getProjectId()));
         RoleEntity role = roleRepository.findById(request.getRoleId())
-                .orElseThrow(() -> new ResourceNotFoundException("Rol no encontrado con ID: " + request.getRoleId()));
+                .orElseThrow(() -> new ResourceNotFoundException("ERR_ROLE_NOT_FOUND", request.getRoleId()));
 
         // 3. Formatear solo este proyecto (para tener sus competencias)
         List<ProjectRoleCompetenceTemplate> formatedProjects = stepThreeService.formatProjects(Collections.singletonList(project));
@@ -121,7 +122,7 @@ public class TeamFormationStepTwoServiceImpl implements ITeamFormationStepTwoSer
         List<MembersProposalDTO.MemberCandidateDTO> candidates =
                 evaluateCandidatesForMemberRole(project, role, parameters, searchArea);
         if (candidates.isEmpty()) {
-            throw new IllegalArgumentException("No se pudo generar ninguna propuesta de miembro para el rol dado.");
+            throw new IllegalArgumentException("ERR_TEAM_FORMATION_NO_MEMBER_PROPOSAL");
         }
 
         MembersProposalDTO.MemberProposalResponseDTO response = new MembersProposalDTO.MemberProposalResponseDTO();

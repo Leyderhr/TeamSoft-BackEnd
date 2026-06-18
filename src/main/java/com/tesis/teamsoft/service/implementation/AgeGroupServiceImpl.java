@@ -41,7 +41,7 @@ public class AgeGroupServiceImpl implements IAgeGroupService {
     @Transactional
     public AgeGroupDTO.AgeGroupResponseDTO updateAgeGroup(AgeGroupDTO.AgeGroupCreateDTO ageGroupDTO, Long id){
         AgeGroupEntity updatedAgeGroup = ageGroupRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Age group not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("ERR_AGE_GROUP_NOT_FOUND", id));
 
         boolean isSameAgeRange = checkAgeRangeChange(updatedAgeGroup, ageGroupDTO.getMinAge(), ageGroupDTO.getMaxAge());
 
@@ -57,14 +57,14 @@ public class AgeGroupServiceImpl implements IAgeGroupService {
     @Transactional
     public String deleteAgeGroup(Long id){
         AgeGroupEntity ageGroup = ageGroupRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Age group not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("ERR_AGE_GROUP_NOT_FOUND", id));
 
         if (ageGroup.getPersonList() != null && !ageGroup.getPersonList().isEmpty()) {
-            throw new BusinessRuleException("Cannot delete age group because it has associated persons");
+            throw new BusinessRuleException("ERR_AGE_GROUP_CANT_BE_DELETED");
         }
 
         ageGroupRepository.deleteById(id);
-        return "Age group deleted";
+        return "AGE_GROUP_SUCCESSFULLY_DELETED";
     }
 
     @Override
@@ -89,7 +89,7 @@ public class AgeGroupServiceImpl implements IAgeGroupService {
     @Transactional(readOnly = true)
     public AgeGroupDTO.AgeGroupResponseDTO findAgeGroupById(Long id){
         AgeGroupEntity ageGroup = ageGroupRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Age group not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("ERR_AGE_GROUP_NOT_FOUND", id));
 
         return modelMapper.map(ageGroup, AgeGroupDTO.AgeGroupResponseDTO.class);
     }
@@ -102,9 +102,7 @@ public class AgeGroupServiceImpl implements IAgeGroupService {
         );
 
         if (existsOverlap) {
-            throw new DuplicateResourceException("The age range (" + ageGroup.getMinAge() +
-                    "-" + ageGroup.getMaxAge() +
-                    ") overlaps with an existing age group");
+            throw new DuplicateResourceException("ERR_AGE_GROUP_OVERLAP");
         }
     }
 

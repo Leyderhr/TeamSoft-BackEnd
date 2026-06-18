@@ -31,7 +31,7 @@ public class LevelsServiceImpl implements ILevelsService {
     @Transactional
     public LevelsDTO.LevelsResponseDTO updateLevels(LevelsDTO.LevelsCreateDTO levelsDTO, Long id) {
         if (!levelsRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Levels not found with ID: " + id);
+            throw new ResourceNotFoundException("ERR_LEVELS_NOT_FOUND", id);
         }
         LevelsEntity updatedLevels = modelMapper.map(levelsDTO, LevelsEntity.class);
         updatedLevels.setId(id);
@@ -42,17 +42,17 @@ public class LevelsServiceImpl implements ILevelsService {
     @Transactional
     public String deleteLevels(Long id) {
         LevelsEntity levels = levelsRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Levels not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("ERR_LEVELS_NOT_FOUND", id));
 
         if ((levels.getRoleCompetitionList() != null && !levels.getRoleCompetitionList().isEmpty()) ||
                 (levels.getProjectTechCompetenceList() != null && !levels.getProjectTechCompetenceList().isEmpty()) ||
                 (levels.getCompetenceValueList() != null && !levels.getCompetenceValueList().isEmpty()) ||
                 (levels.getCompetenceDimensionList() != null && !levels.getCompetenceDimensionList().isEmpty())) {
-            throw new BusinessRuleException("Cannot delete levels because it has associated relations");
+            throw new BusinessRuleException("ERR_LEVELS_CANT_BE_DELETED");
         }
 
         levelsRepository.deleteById(id);
-        return "Levels deleted successfully";
+        return "LEVELS_SUCCESSFULLY_DELETED";
     }
 
     @Override
@@ -77,7 +77,7 @@ public class LevelsServiceImpl implements ILevelsService {
     @Transactional(readOnly = true)
     public LevelsDTO.LevelsResponseDTO findLevelsById(Long id) {
         LevelsEntity levels = levelsRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Levels not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("ERR_LEVELS_NOT_FOUND", id));
         return modelMapper.map(levels, LevelsDTO.LevelsResponseDTO.class);
     }
 }

@@ -109,48 +109,48 @@ public class TeamFormationStepThreeImpl implements ITeamFormationStepThreeServic
                         case 1:
                             teamProposal = buildTeamProposalTree(applyHillClimbing(initialVoidSolution, problem), parameters);
                             if (teamProposal.isEmpty()) {
-                                throw new IllegalArgumentException("impossible_get_proposal");
+                                throw new IllegalArgumentException("ERR_TEAM_FORMATION_IMPOSSIBLE_GET_PROPOSAL");
                             }
                             break;
                         case 2:
                             teamProposal = buildTeamProposalTree(applyHillClimbingRestart(initialVoidSolution, problem), parameters);
                             if (teamProposal.isEmpty()) {
-                                throw new IllegalArgumentException("impossible_get_proposal");
+                                throw new IllegalArgumentException("ERR_TEAM_FORMATION_IMPOSSIBLE_GET_PROPOSAL");
                             }
                             break;
                         case 3:
                             teamProposal = buildTeamProposalTree(applyRandomSearch(initialVoidSolution, problem), parameters);
                             if (teamProposal.isEmpty()) {
-                                throw new IllegalArgumentException("impossible_get_proposal");
+                                throw new IllegalArgumentException("ERR_TEAM_FORMATION_IMPOSSIBLE_GET_PROPOSAL");
                             }
                             break;
                         case 4:
                             teamProposal = buildTeamProposalTree(applyTabuSearch(initialVoidSolution, problem), parameters);
                             if (teamProposal.isEmpty()) {
-                                throw new IllegalArgumentException("impossible_get_proposal");
+                                throw new IllegalArgumentException("ERR_TEAM_FORMATION_IMPOSSIBLE_GET_PROPOSAL");
                             }
                             break;
                         case 5:
                             teamProposal = buildTeamProposalTree(applyAlgorithmsBriefcase(initialVoidSolution, problem), parameters);
                             if (teamProposal.isEmpty()) {
-                                throw new IllegalArgumentException("impossible_get_proposal");
+                                throw new IllegalArgumentException("ERR_TEAM_FORMATION_IMPOSSIBLE_GET_PROPOSAL");
                             }
                             break;
                         case 6:
                             teamProposal = buildTeamProposalTree(GA(initialVoidSolution, problem), parameters);
                             if (teamProposal.isEmpty()) {
-                                throw new IllegalArgumentException("impossible_get_proposal");
+                                throw new IllegalArgumentException("ERR_TEAM_FORMATION_IMPOSSIBLE_GET_PROPOSAL");
                             }
                             break;
                         case 7:
                             teamProposal = buildTeamProposalTree(applySimulatedAnnealing(initialVoidSolution, problem), parameters);
                             if (teamProposal.isEmpty()) {
-                                throw new IllegalArgumentException("impossible_get_proposal");
+                                throw new IllegalArgumentException("ERR_TEAM_FORMATION_IMPOSSIBLE_GET_PROPOSAL");
                             }
                             break;
                     }
                 } else {
-                    throw new IllegalArgumentException("fo_weights_most_sum_one");
+                    throw new IllegalArgumentException("ERR_TEAM_FORMATION_WEIGHTS_SUM_MUST_BE_ONE");
                 }
             }
             break;
@@ -162,59 +162,59 @@ public class TeamFormationStepThreeImpl implements ITeamFormationStepThreeServic
                     case 1:
                         teamProposal = buildTeamProposalTree(applyMultiobjectiveStochasticHC(initialVoidSolution, problem), parameters);
                         if (teamProposal.isEmpty()) {
-                            throw new IllegalArgumentException("impossible_get_proposal");
+                            throw new IllegalArgumentException("ERR_TEAM_FORMATION_IMPOSSIBLE_GET_PROPOSAL");
                         }
                         break;
 
                     case 2:
                         teamProposal = buildTeamProposalTree(applyMultiobjectiveHCRestart(initialVoidSolution, problem), parameters);
                         if (teamProposal.isEmpty()) {
-                            throw new IllegalArgumentException("impossible_get_proposal");
+                            throw new IllegalArgumentException("ERR_TEAM_FORMATION_IMPOSSIBLE_GET_PROPOSAL");
                         }
                         break;
 
                     case 3:
                         teamProposal = buildTeamProposalTree(applyMultiobjectiveHCDistance(initialVoidSolution, problem), parameters);
                         if (teamProposal.isEmpty()) {
-                            throw new IllegalArgumentException("impossible_get_proposal");
+                            throw new IllegalArgumentException("ERR_TEAM_FORMATION_IMPOSSIBLE_GET_PROPOSAL");
                         }
                         break;
 
                     case 4:
                         teamProposal = buildTeamProposalTree(applyMultiobjectiveTabuSearch(initialVoidSolution, problem), parameters);
                         if (teamProposal.isEmpty()) {
-                            throw new IllegalArgumentException("impossible_get_proposal");
+                            throw new IllegalArgumentException("ERR_TEAM_FORMATION_IMPOSSIBLE_GET_PROPOSAL");
                         }
                         break;
 
                     case 5:
                         teamProposal = buildTeamProposalTree(applyMultiobjectiveAlgorithmsBriefcase(initialVoidSolution, problem), parameters);
                         if (teamProposal.isEmpty()) {
-                            throw new IllegalArgumentException("impossible_get_proposal");
+                            throw new IllegalArgumentException("ERR_TEAM_FORMATION_IMPOSSIBLE_GET_PROPOSAL");
                         }
                         break;
                     case 6:
                         teamProposal = buildTeamProposalTree(applyMOGA(initialVoidSolution, problem), parameters);
                         if (teamProposal.isEmpty()) {
-                            throw new IllegalArgumentException("impossible_get_proposal");
+                            throw new IllegalArgumentException("ERR_TEAM_FORMATION_IMPOSSIBLE_GET_PROPOSAL");
                         }
                         break;
                     case 7:
                         teamProposal = buildTeamProposalTree(applyUMOSA(initialVoidSolution, problem), parameters);
                         if (teamProposal.isEmpty()) {
-                            throw new IllegalArgumentException("impossible_get_proposal");
+                            throw new IllegalArgumentException("ERR_TEAM_FORMATION_IMPOSSIBLE_GET_PROPOSAL");
                         }
                         break;
                     case 8:
                         teamProposal = buildTeamProposalTree(applyMCMOSA(initialVoidSolution, problem), parameters);
                         if (teamProposal.isEmpty()) {
-                            throw new IllegalArgumentException("impossible_get_proposal");
+                            throw new IllegalArgumentException("ERR_TEAM_FORMATION_IMPOSSIBLE_GET_PROPOSAL");
                         }
                         break;
                     case 9:
                         teamProposal = buildTeamProposalTree(applyNSGAII(initialVoidSolution, problem), parameters);
                         if (teamProposal.isEmpty()) {
-                            throw new IllegalArgumentException("impossible_get_proposal");
+                            throw new IllegalArgumentException("ERR_TEAM_FORMATION_IMPOSSIBLE_GET_PROPOSAL");
                         }
                         break;
                 }
@@ -241,17 +241,17 @@ public class TeamFormationStepThreeImpl implements ITeamFormationStepThreeServic
             if (fixedWorker.getBoss() != null && fixedWorker.getBoss().getId() != null) {
                 Long personId = fixedWorker.getBoss().getId();
                 fixedWorker.setBoss(personRepository.findById(personId)
-                        .orElseThrow(() -> new ResourceNotFoundException("Person not found with id: " + personId)));
+                        .orElseThrow(() -> new ResourceNotFoundException("ERR_PERSON_NOT_FOUND", personId)));
             }
             if (fixedWorker.getRole() != null && fixedWorker.getRole().getId() != null) {
                 Long roleId = fixedWorker.getRole().getId();
                 fixedWorker.setRole(roleRepository.findById(roleId)
-                        .orElseThrow(() -> new ResourceNotFoundException("Role not found with id: " + roleId)));
+                        .orElseThrow(() -> new ResourceNotFoundException("ERR_ROLE_NOT_FOUND", roleId)));
             }
             if (fixedWorker.getProject() != null && fixedWorker.getProject().getId() != null) {
                 Long projectId = fixedWorker.getProject().getId();
                 fixedWorker.setProject(projectRepository.findById(projectId)
-                        .orElseThrow(() -> new ResourceNotFoundException("Project not found with id: " + projectId)));
+                        .orElseThrow(() -> new ResourceNotFoundException("ERR_PROJECT_NOT_FOUND", projectId)));
             }
         }
     }
@@ -264,10 +264,10 @@ public class TeamFormationStepThreeImpl implements ITeamFormationStepThreeServic
                 ProjectRole projectRole = new ProjectRole();
 
                 ProjectEntity project = projectRepository.findById(projectProposal.getProject().getId())
-                        .orElseThrow(() -> new ResourceNotFoundException("Project not found with ID: " + projectProposal.getProject().getId()));
+                        .orElseThrow(() -> new ResourceNotFoundException("ERR_PROJECT_NOT_FOUND", projectProposal.getProject().getId()));
 
                 if(project.getState() != ProjectState.CREATED)
-                    throw new BusinessRuleException("You can only save projects with the status CREATED");
+                    throw new BusinessRuleException("ERR_TEAM_FORMATION_SAVE_INVALID_STATE");
 
                 projectRole.setProject(project);
                 List<RoleWorker> roleWorkers = new ArrayList<>();
@@ -276,13 +276,13 @@ public class TeamFormationStepThreeImpl implements ITeamFormationStepThreeServic
                     RoleWorker roleWorker = new RoleWorker();
 
                     RoleEntity role = roleRepository.findById(assignedRole.getRole().getId())
-                            .orElseThrow(() -> new ResourceNotFoundException("Role not found with id: " + assignedRole.getRole().getId()));
+                            .orElseThrow(() -> new ResourceNotFoundException("ERR_ROLE_NOT_FOUND", assignedRole.getRole().getId()));
                     roleWorker.setRole(role);
 
                     List<PersonEntity> workers = new ArrayList<>();
                     for (PersonDTO.PersonMinimalDTO personMinimal : assignedRole.getPersons()) {
                         PersonEntity person = personRepository.findById(personMinimal.getId())
-                                .orElseThrow(() -> new ResourceNotFoundException("Person not found with id: " + personMinimal.getId()));
+                                .orElseThrow(() -> new ResourceNotFoundException("ERR_PERSON_NOT_FOUND", personMinimal.getId()));
                         workers.add(person);
                     }
                     roleWorker.setWorkers(workers);
@@ -298,7 +298,7 @@ public class TeamFormationStepThreeImpl implements ITeamFormationStepThreeServic
     @Transactional
     public TeamProposalDTO saveTeamProposal(TeamProposalDTO teamProposalDTO){
         if (teamProposalDTO == null) {
-            throw new IllegalArgumentException("Team proposal is null");
+            throw new IllegalArgumentException("ERR_TEAM_FORMATION_PROPOSAL_NULL");
         }
 
         List<ProjectRole> projectRoles = getProjectRolesForSaveTeam(teamProposalDTO);
@@ -335,12 +335,12 @@ public class TeamFormationStepThreeImpl implements ITeamFormationStepThreeServic
 
     private PersonEntity updatePersonWorkloadForRole(CycleEntity lastCycle, RoleEntity role, PersonEntity person) {
         if (lastCycle == null) {
-            throw new ResourceNotFoundException("Project does not have an active cycle");
+            throw new ResourceNotFoundException("ERR_TEAM_FORMATION_NO_ACTIVE_CYCLE");
         }
 
         ProjectStructureEntity projectStructure = lastCycle.getProjectStructure();
         if (projectStructure == null) {
-            throw new ResourceNotFoundException("Project cycle has no associated structure");
+            throw new ResourceNotFoundException("ERR_TEAM_FORMATION_CYCLE_NO_STRUCTURE");
         }
 
         Float roleLoadValue = projectStructure.getProjectRolesList().stream()
@@ -535,9 +535,9 @@ public class TeamFormationStepThreeImpl implements ITeamFormationStepThreeServic
         
         for(Long projectsID : projectsIDs) {
             ProjectEntity project = projectRepository.findById(projectsID)
-                    .orElseThrow(() -> new ResourceNotFoundException("Project not found with ID: " + projectsID));
+                    .orElseThrow(() -> new ResourceNotFoundException("ERR_PROJECT_NOT_FOUND", projectsID));
             if(project.getState() != ProjectState.CREATED)
-                throw new BusinessRuleException("Project with ID: " + projectsID + " is not in CREATED state");
+                throw new BusinessRuleException("ERR_TEAM_FORMATION_PROJECT_NOT_CREATED", projectsID);
 
             projects.add(project);
         }
@@ -638,7 +638,7 @@ public class TeamFormationStepThreeImpl implements ITeamFormationStepThreeServic
 
         for (Long id : groupsIDs) {
             PersonGroupEntity group = iPersonGroupRepository.findById(id).
-                    orElseThrow(() -> new RuntimeException("No group found with id " + id));
+                    orElseThrow(() -> new ResourceNotFoundException("ERR_PERSON_GROUP_NOT_FOUND", id));
 
             groups.add(group);
         }
@@ -1654,4 +1654,7 @@ public class TeamFormationStepThreeImpl implements ITeamFormationStepThreeServic
         }
     }
 }
+
+
+
 

@@ -23,7 +23,7 @@ public class AlgorithmConfigServiceImpl{
             properties.load(input);
         } catch (IOException e) {
             log.error("Failed to read configuration file: {}", filePath, e);
-            throw new BusinessRuleException("Unable to read current configuration: " + e.getMessage());
+            throw new BusinessRuleException("ERR_ALGO_CONFIG_UNABLE_READ");
         }
 
         updatePropertiesFromDTO(properties, configDTO);
@@ -34,7 +34,7 @@ public class AlgorithmConfigServiceImpl{
             log.info("Configuration saved to: {}", filePath);
         } catch (IOException e) {
             log.error("Failed to write configuration file: {}", filePath, e);
-            throw new BusinessRuleException("Unable to save configuration: " + e.getMessage());
+            throw new BusinessRuleException("ERR_ALGO_CONFIG_UNABLE_SAVE");
         }
 
         AlgorithmConfig.reload();

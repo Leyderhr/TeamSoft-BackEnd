@@ -31,7 +31,7 @@ public class CountyServiceImpl implements ICountyService {
     @Transactional
     public CountyDTO.CountyResponseDTO updateCounty(CountyDTO.CountyCreateDTO countyDTO, Long id) {
         if (!countyRepository.existsById(id)) {
-            throw new ResourceNotFoundException("County not found with ID: " + id);
+            throw new ResourceNotFoundException("ERR_COUNTY_NOT_FOUND", id);
         }
         CountyEntity updatedCounty = modelMapper.map(countyDTO, CountyEntity.class);
         updatedCounty.setId(id);
@@ -42,17 +42,17 @@ public class CountyServiceImpl implements ICountyService {
     @Transactional
     public String deleteCounty(Long id) {
         CountyEntity county = countyRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("County not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("ERR_COUNTY_NOT_FOUND", id));
 
         if (county.getProjectList() != null && !county.getProjectList().isEmpty()
                 || county.getPersonList() != null && !county.getPersonList().isEmpty()
                 || (county.getCostDistanceListA() != null && !county.getCostDistanceListA().isEmpty())
                 || (county.getCostDistanceListB() != null && !county.getCostDistanceListB().isEmpty())) {
-            throw new BusinessRuleException("Cannot delete County because it has associated relations");
+            throw new BusinessRuleException("ERR_COUNTY_CANT_BE_DELETED");
         }
 
         countyRepository.deleteById(id);
-        return "County deleted successfully";
+        return "COUNTY_SUCCESSFULLY_DELETED";
     }
 
     @Override
@@ -77,7 +77,7 @@ public class CountyServiceImpl implements ICountyService {
     @Transactional(readOnly = true)
     public CountyDTO.CountyResponseDTO findCountyById(Long id) {
         CountyEntity county = countyRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("County not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("ERR_COUNTY_NOT_FOUND", id));
         return modelMapper.map(county, CountyDTO.CountyResponseDTO.class);
     }
 }

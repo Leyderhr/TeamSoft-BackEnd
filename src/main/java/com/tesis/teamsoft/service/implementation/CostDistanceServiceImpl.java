@@ -38,7 +38,7 @@ public class CostDistanceServiceImpl implements ICostDistanceService {
     @Transactional
     public CostDistanceDTO.CostDistanceResponseDTO updateCostDistance(CostDistanceDTO.CostDistanceCreateDTO costDistanceDTO, Long id) {
         if (!costDistanceRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Cost distance not found with ID: " + id);
+            throw new ResourceNotFoundException("ERR_COST_DISTANCE_NOT_FOUND", id);
         }
 
         CostDistanceEntity updatedCostDistance = initializeCostDistance(costDistanceDTO);
@@ -52,10 +52,10 @@ public class CostDistanceServiceImpl implements ICostDistanceService {
     @Transactional
     public String deleteCostDistance(Long id) {
         if (!costDistanceRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Cost distance not found with ID: " + id);
+            throw new ResourceNotFoundException("ERR_COST_DISTANCE_NOT_FOUND", id);
         }
         costDistanceRepository.deleteById(id);
-        return "Cost distance deleted successfully";
+        return "COST_DISTANCE_SUCCESSFULLY_DELETED";
     }
 
     @Override
@@ -80,20 +80,20 @@ public class CostDistanceServiceImpl implements ICostDistanceService {
     @Transactional(readOnly = true)
     public CostDistanceDTO.CostDistanceResponseDTO findCostDistanceById(Long id) {
         CostDistanceEntity costDistance = costDistanceRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Cost distance not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("ERR_COST_DISTANCE_NOT_FOUND", id));
         return convertToResponseDTO(costDistance);
     }
 
 
     private CostDistanceEntity initializeCostDistance(CostDistanceDTO.CostDistanceCreateDTO costDistanceDTO) {
         CountyEntity countyA = countyRepository.findById(costDistanceDTO.getCountyAId())
-                .orElseThrow(() -> new ResourceNotFoundException("County A not found with ID: " + costDistanceDTO.getCountyAId()));
+                .orElseThrow(() -> new ResourceNotFoundException("ERR_COUNTY_NOT_FOUND", costDistanceDTO.getCountyAId()));
 
         CountyEntity countyB = countyRepository.findById(costDistanceDTO.getCountyBId())
-                .orElseThrow(() -> new ResourceNotFoundException("County B not found with ID: " + costDistanceDTO.getCountyBId()));
+                .orElseThrow(() -> new ResourceNotFoundException("ERR_COUNTY_NOT_FOUND", costDistanceDTO.getCountyBId()));
 
         if (countyA.getId().equals(countyB.getId())) {
-            throw new BusinessRuleException("County A and County B cannot be the same");
+            throw new BusinessRuleException("ERR_COST_DISTANCE_SAME_COUNTIES");
         }
 
         return new CostDistanceEntity(null, costDistanceDTO.getCostDistance(), countyA, countyB);
@@ -107,7 +107,7 @@ public class CostDistanceServiceImpl implements ICostDistanceService {
         );
 
         if (exist) {
-            throw new BusinessRuleException("Cost distance already exists between these counties");
+            throw new BusinessRuleException("ERR_COST_DISTANCE_ALREADY_EXISTS");
         }
     }
     

@@ -74,7 +74,7 @@ public class PasswordResetTokenServiceImpl {
         resetToken.setUsed(true);
         tokenRepository.save(resetToken);
 
-        //log.info("Password reset successfully for user: {}", user.getUsername());
+        log.info("Password reset successfully for user: {}", user.getUsername());
     }
 
     @Scheduled(cron = "0 0 2 * * ?") // Ejecutar cada día a las 2 AM
@@ -82,6 +82,6 @@ public class PasswordResetTokenServiceImpl {
     public void cleanupExpiredTokens() {
         LocalDateTime cutoff = LocalDateTime.now().minusDays(1);
         tokenRepository.deleteByExpiryDateBefore(cutoff);
-        //log.debug("Cleaned up expired password reset tokens");
+        log.debug("Cleaned up expired password reset tokens");
     }
 }

@@ -36,7 +36,7 @@ public class RoleLoadServiceImpl implements IRoleLoadService {
     @Transactional
     public RoleLoadDTO.RoleLoadResponseDTO updateRoleLoad(RoleLoadDTO.RoleLoadCreateDTO roleLoadDTO, Long id) {
         RoleLoadEntity existing = roleLoadRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Role load not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("ERR_ROLE_LOAD_NOT_FOUND", id));
 
         if (existing.getValue() != roleLoadDTO.getValue()) {
             validateRoleLoadNotInActiveProjects(existing);}
@@ -51,13 +51,13 @@ public class RoleLoadServiceImpl implements IRoleLoadService {
     @Transactional
     public String deleteRoleLoad(Long id) {
         RoleLoadEntity roleLoad = roleLoadRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Role load not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("ERR_ROLE_LOAD_NOT_FOUND", id));
 
         if (roleLoad.getProjectRolesList() != null && !roleLoad.getProjectRolesList().isEmpty())
-            throw new BusinessRuleException("Cannot delete role load because it has associated project roles");
+            throw new BusinessRuleException("ERR_ROLE_LOAD_CANT_BE_DELETED");
 
         roleLoadRepository.deleteById(id);
-        return "Role load deleted successfully";
+        return "ROLE_LOAD_SUCCESSFULLY_DELETED";
     }
 
     @Override
@@ -82,7 +82,7 @@ public class RoleLoadServiceImpl implements IRoleLoadService {
     @Transactional(readOnly = true)
     public RoleLoadDTO.RoleLoadResponseDTO findRoleLoadById(Long id) {
         RoleLoadEntity roleLoad = roleLoadRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Role load not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("ERR_ROLE_LOAD_NOT_FOUND", id));
 
         return modelMapper.map(roleLoad, RoleLoadDTO.RoleLoadResponseDTO.class);
     }
@@ -108,12 +108,7 @@ public class RoleLoadServiceImpl implements IRoleLoadService {
                 .findFirst();                 // 5. Tomar el primero que cumpla (si existe)
         // Si se encontró algún proyecto infractor, lanzar excepción con detalles
         offendingProject.ifPresent(project -> {
-            throw new BusinessRuleException(String.format(
-                    "Cannot update the load value because it is being used in project '%s' (ID: %d) with state %s",
-                    project.getProjectName(),
-                    project.getId(),
-                    project.getState()
-            ));
+            throw new BusinessRuleException("ERR_ROLE_LOAD_CANT_BE_UPDATED", project.getId());
         });
     }
 }

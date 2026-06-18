@@ -31,7 +31,7 @@ public class NacionalityServiceImpl implements INacionalityService {
     @Transactional
     public NationalityDTO.NacionalityResponseDTO updateNacionality(NationalityDTO.NacionalityCreateDTO nacionalityDTO, Long id) {
         if (!nacionalityRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Nationality not found with ID: " + id);
+            throw new ResourceNotFoundException("ERR_NATIONALITY_NOT_FOUND", id);
         }
         NacionalityEntity updatedNacionality = modelMapper.map(nacionalityDTO, NacionalityEntity.class);
         updatedNacionality.setId(id);
@@ -42,14 +42,14 @@ public class NacionalityServiceImpl implements INacionalityService {
     @Transactional
     public String deleteNacionality(Long id) {
         NacionalityEntity nacionality = nacionalityRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Nationality not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("ERR_NATIONALITY_NOT_FOUND", id));
 
         if (nacionality.getPersonList() != null && !nacionality.getPersonList().isEmpty()) {
-            throw new BusinessRuleException("Cannot delete nationality because it has associated persons");
+            throw new BusinessRuleException("ERR_NATIONALITY_CANT_BE_DELETED");
         }
 
         nacionalityRepository.deleteById(id);
-        return "Nationality deleted successfully";
+        return "NATIONALITY_SUCCESSFULLY_DELETED";
     }
 
     @Override
@@ -74,7 +74,7 @@ public class NacionalityServiceImpl implements INacionalityService {
     @Transactional(readOnly = true)
     public NationalityDTO.NacionalityResponseDTO findNacionalityById(Long id) {
         NacionalityEntity nacionality = nacionalityRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Nationality not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("ERR_NATIONALITY_NOT_FOUND", id));
         return modelMapper.map(nacionality, NationalityDTO.NacionalityResponseDTO.class);
     }
 }

@@ -32,7 +32,7 @@ public class ClientServiceImpl implements IClientService {
     @Transactional
     public ClientDTO.ClientResponseDTO updateClient(ClientDTO.ClientCreateDTO clientDTO, Long id) {
         if (!clientRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Client not found with ID: " + id);
+            throw new ResourceNotFoundException("ERR_CLIENT_NOT_FOUND", id);
         }
 
         ClientEntity updatedClient = modelMapper.map(clientDTO, ClientEntity.class);
@@ -44,14 +44,14 @@ public class ClientServiceImpl implements IClientService {
     @Transactional
     public String deleteClient(Long id) {
         ClientEntity client = clientRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Client not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("ERR_CLIENT_NOT_FOUND", id));
 
         if (client.getProjectList() != null && !client.getProjectList().isEmpty()) {
-            throw new BusinessRuleException("Cannot delete client because it has associated projects");
+            throw new BusinessRuleException("ERR_CLIENT_CANT_BE_DELETED");
         }
 
         clientRepository.deleteById(id);
-        return "Client deleted successfully";
+        return "CLIENT_SUCCESSFULLY_DELETED";
     }
 
     @Override
@@ -76,7 +76,7 @@ public class ClientServiceImpl implements IClientService {
     @Transactional(readOnly = true)
     public ClientDTO.ClientResponseDTO findClientById(Long id) {
         ClientEntity client = clientRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Client not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("ERR_CLIENT_NOT_FOUND", id));
         return modelMapper.map(client, ClientDTO.ClientResponseDTO.class);
     }
 }

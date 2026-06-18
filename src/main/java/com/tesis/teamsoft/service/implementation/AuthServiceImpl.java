@@ -69,7 +69,7 @@ public class AuthServiceImpl implements IAuthService {
                     .build();
         } catch (BadCredentialsException e) {
             log.warn("Login failed for user: {} - Invalid credentials", loginDTO.getUsername());
-            throw new BadCredentialsException("Invalid credentials or password");
+            throw new BadCredentialsException("ERR_AUTH_INVALID_CREDENTIALS");
         }
     }
 
@@ -80,7 +80,7 @@ public class AuthServiceImpl implements IAuthService {
         if (authentication != null && authentication.isAuthenticated()) {
             String username = authentication.getName();
             UserEntity user = userRepository.findByUsername(username)
-                    .orElseThrow(() -> new ResourceNotFoundException("User not found " + username));
+                    .orElseThrow(() -> new ResourceNotFoundException("ERR_USER_NAME_NOT_FOUD", username));
             refreshTokenService.deleteByUserId(user.getId());
             log.info("All refresh tokens revoked for user: {}", username);
         }
@@ -111,7 +111,7 @@ public class AuthServiceImpl implements IAuthService {
                     
         } catch (Exception e) {
             log.error("Error refreshing token: {}", e.getMessage());
-            throw new TokenRefreshException("Invalid or expired refresh token");
+            throw new TokenRefreshException("ERR_REFRESH_TOKEN_INVALID");
         }
     }
 
@@ -132,14 +132,14 @@ public class AuthServiceImpl implements IAuthService {
     public void changePassword(String username, String currentPassword, String newPassword) {
 
         UserEntity user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with username: " + username));
+                .orElseThrow(() -> new UsernameNotFoundException("ERR_USER_NAME_NOT_FOUD"));
 
         if(!passwordEncoder.matches(currentPassword, user.getPassword())) {
-            throw new BadCredentialsException("Current password is incorrect");
+            throw new BadCredentialsException("ERR_AUTH_CURRENT_PASSWORD_INCORRECT");
         }
 
         if (passwordEncoder.matches(newPassword, user.getPassword())) {
-            throw new BusinessRuleException("New password cannot be the same as current password");
+            throw new BusinessRuleException("ERR_AUTH_NEW_PASSWORD_INCORRECT");
         }
 
         user.setPassword(passwordEncoder.encode(newPassword));

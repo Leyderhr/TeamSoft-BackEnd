@@ -32,7 +32,7 @@ public class ConflictIndexServiceImpl implements IConflictIndexService {
     @Transactional
     public ConflictIndexDTO.ConflictIndexResponseDTO updateConflictIndex(ConflictIndexDTO.ConflictIndexCreateDTO conflictIndexDTO, Long id) {
         if (!conflictIndexRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Conflict index not found with ID: " + id);
+            throw new ResourceNotFoundException("ERR_CONFLICT_INDEX_NOT_FOUND", id);
         }
 
         ConflictIndexEntity updatedConflictIndex = modelMapper.map(conflictIndexDTO, ConflictIndexEntity.class);
@@ -44,14 +44,14 @@ public class ConflictIndexServiceImpl implements IConflictIndexService {
     @Transactional
     public String deleteConflictIndex(Long id) {
         ConflictIndexEntity conflictIndex = conflictIndexRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Conflict index not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("ERR_CONFLICT_INDEX_NOT_FOUND", id));
 
         if (conflictIndex.getPersonConflictList() != null && !conflictIndex.getPersonConflictList().isEmpty()) {
-            throw new BusinessRuleException("Cannot delete conflict index because it has associated person conflicts");
+            throw new BusinessRuleException("ERR_CONFLICT_INDEX_CANT_BE_DELETED");
         }
 
         conflictIndexRepository.deleteById(id);
-        return "Conflict index deleted successfully";
+        return "CONFLICT_INDEX_SUCCESSFULLY_DELETED";
     }
 
     @Override
@@ -76,7 +76,7 @@ public class ConflictIndexServiceImpl implements IConflictIndexService {
     @Transactional(readOnly = true)
     public ConflictIndexDTO.ConflictIndexResponseDTO findConflictIndexById(Long id) {
         ConflictIndexEntity conflictIndex = conflictIndexRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Conflict index not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("ERR_CONFLICT_INDEX_NOT_FOUND", id));
         return modelMapper.map(conflictIndex, ConflictIndexDTO.ConflictIndexResponseDTO.class);
     }
 }

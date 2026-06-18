@@ -33,7 +33,7 @@ public class ReligionServiceImpl implements IReligionService {
     @Transactional
     public ReligionDTO.ReligionResponseDTO updateReligion(ReligionDTO.ReligionCreateDTO religionDTO, Long id) {
         if (!religionRepository.existsById(id))
-            throw new ResourceNotFoundException("Religion not found with ID: " + id);
+            throw new ResourceNotFoundException("ERR_RELIGION_NOT_FOUND", id);
 
         ReligionEntity savedReligion = modelMapper.map(religionDTO, ReligionEntity.class);
         savedReligion.setId(id);
@@ -45,13 +45,13 @@ public class ReligionServiceImpl implements IReligionService {
     @Transactional
     public String deleteReligion(Long id) {
         ReligionEntity religion = religionRepository.findById(id)
-                .orElseThrow(() -> new BusinessRuleException("Religion not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("ERR_RELIGION_NOT_FOUND", id));
 
         if(religion.getPersonList() != null && !religion.getPersonList().isEmpty())
-            throw new BusinessRuleException("Cannot delete religion because it has associated persons");
+            throw new BusinessRuleException("ERR_RELIGION_CANT_BE_DELETED");
 
         religionRepository.deleteById(id);
-        return "Religion deleted";
+        return "RELIGION_SUCCESSFULLY_DELETED";
     }
 
     @Override
@@ -76,7 +76,7 @@ public class ReligionServiceImpl implements IReligionService {
     @Transactional(readOnly = true)
     public ReligionDTO.ReligionResponseDTO findReligionById(Long id) {
         ReligionEntity religion = religionRepository.findById(id).
-                orElseThrow(() -> new ResourceNotFoundException("Religion not found with ID: " + id));
+                orElseThrow(() -> new ResourceNotFoundException("ERR_RELIGION_NOT_FOUND", id));
 
         return modelMapper.map(religion, ReligionDTO.ReligionResponseDTO.class);
     }
