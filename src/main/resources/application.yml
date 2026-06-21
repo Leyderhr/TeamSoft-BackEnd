@@ -2,6 +2,11 @@ spring:
   application:
     name: TeamSoft
 
+  servlet:
+    multipart:
+      max-file-size: ${IMPORT_MAX_FILE_SIZE:10MB}
+      max-request-size: ${IMPORT_MAX_REQUEST_SIZE:10MB}
+
   jpa:
     hibernate:
       ddl-auto: ${HIBERNATE_DDL_AUTO:validate}

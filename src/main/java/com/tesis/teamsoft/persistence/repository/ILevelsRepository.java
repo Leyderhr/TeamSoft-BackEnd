@@ -11,6 +11,8 @@ public interface ILevelsRepository extends JpaRepository<LevelsEntity, Long> {
 
     List<LevelsEntity> findAllByOrderByIdAsc();
 
+    List<LevelsEntity> findAllByOrderByLevelsAsc();
+
     LevelsEntity findFirstByOrderByLevelsDesc();
 
     LevelsEntity findFirstByOrderByLevelsAsc();

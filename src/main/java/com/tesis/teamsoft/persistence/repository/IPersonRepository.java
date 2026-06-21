@@ -9,12 +9,18 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Repository
 public interface IPersonRepository extends JpaRepository<PersonEntity, Long>, IPersonRepositoryCustom {
     List<PersonEntity> findAllByOrderByIdAsc();
     List<PersonEntity> findByGroup_IdInAndStatus(Set<Long> groupIds, Status status);
+
+    // Importación CSV: existencia por nombre + experiencia + grupo (réplica de existePersona)
+    Optional<PersonEntity> findFirstByPersonNameAndExperienceAndGroup_Id(String personName, Integer experience, Long groupId);
+    boolean existsByEmail(String email);
+    boolean existsByCard(String card);
 
     @Query("SELECT p FROM PersonEntity p WHERE p.ageGroup IS NULL AND p.birthDate >= :startDate AND p.birthDate <= :endDate")
     List<PersonEntity> findByAgeGroupIsNullAndBirthDateBetween(
