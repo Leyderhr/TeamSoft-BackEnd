@@ -427,11 +427,23 @@ public class PersonServiceImpl implements IPersonService {
 
         responseDTO.setAge(person.getAge());
 
-        responseDTO.setCounty(modelMapper.map(person.getCounty(), CountyDTO.CountyResponseDTO.class));
-        responseDTO.setRace(modelMapper.map(person.getRace(), RaceDTO.RaceResponseDTO.class));
-        responseDTO.setGroup(modelMapper.map(person.getGroup(), PersonGroupDTO.PersonGroupResponseDTO.class));
-        responseDTO.setNacionality(modelMapper.map(person.getNacionality(), NationalityDTO.NacionalityResponseDTO.class));
-        responseDTO.setReligion(modelMapper.map(person.getReligion(), ReligionDTO.ReligionResponseDTO.class));
+        // Relaciones opcionales (pueden ser null, p. ej. en personas importadas):
+        // ModelMapper lanza "source cannot be null" si se le pasa null, por eso se protegen.
+        if (person.getCounty() != null) {
+            responseDTO.setCounty(modelMapper.map(person.getCounty(), CountyDTO.CountyResponseDTO.class));
+        }
+        if (person.getRace() != null) {
+            responseDTO.setRace(modelMapper.map(person.getRace(), RaceDTO.RaceResponseDTO.class));
+        }
+        if (person.getGroup() != null) {
+            responseDTO.setGroup(modelMapper.map(person.getGroup(), PersonGroupDTO.PersonGroupResponseDTO.class));
+        }
+        if (person.getNacionality() != null) {
+            responseDTO.setNacionality(modelMapper.map(person.getNacionality(), NationalityDTO.NacionalityResponseDTO.class));
+        }
+        if (person.getReligion() != null) {
+            responseDTO.setReligion(modelMapper.map(person.getReligion(), ReligionDTO.ReligionResponseDTO.class));
+        }
         if (person.getAgeGroup() != null) {
             responseDTO.setAgeGroup(modelMapper.map(person.getAgeGroup(), AgeGroupDTO.AgeGroupResponseDTO.class));
         }

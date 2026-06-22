@@ -133,7 +133,7 @@ public class ImportServiceImpl implements IImportService {
                             columnMax, counties, usedEmails, usedCards, result);
                 } catch (Exception e) {
                     result.setErrors(result.getErrors() + 1);
-                    result.getErrorMessages().add(name + ": " + e.getMessage());
+                    result.getErrorMessages().add(toRowError(name, e));
                 }
             }
             return result;
@@ -341,6 +341,18 @@ public class ImportServiceImpl implements IImportService {
         }
         pi.setPreference(preference);
         personalInterestsRepository.save(pi);
+    }
+
+    /** Convierte una excepción de fila en un error estructurado (código + parámetros) para i18n en el front. */
+    private ImportResultDTO.RowError toRowError(String name, Exception e) {
+        if (e instanceof BusinessRuleException bre) {
+            return new ImportResultDTO.RowError(name, bre.getMessage(), Arrays.asList(bre.getParameters()));
+        }
+        if (e instanceof ResourceNotFoundException rnf) {
+            return new ImportResultDTO.RowError(name, rnf.getMessage(), Arrays.asList(rnf.getParameters()));
+        }
+        return new ImportResultDTO.RowError(name, "ERR_IMPORT_ROW_FAILED",
+                List.of(String.valueOf(e.getMessage())));
     }
 
     private PersonGroupEntity findOrCreateGroup(String groupName) {
