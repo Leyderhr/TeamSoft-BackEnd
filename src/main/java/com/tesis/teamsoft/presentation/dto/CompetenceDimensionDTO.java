@@ -14,7 +14,7 @@ public class CompetenceDimensionDTO {
     @Data
     public static class CompetenceDimensionCreateDTO{
         @NotBlank(message = "ERR_VAL_COMP_DIMENSION_NAME")
-        @Pattern(regexp = "^[\\p{L}\\s]+$", message = "ERR_VAL_COMP_DIMENSION_NAME")
+        @Pattern(regexp = "^[\\p{L}\\p{N}\\s]+$", message = "ERR_VAL_COMP_DIMENSION_NAME")
         private String name;
 
         @NotNull(message = "ERR_VAL_LEVEL_REQUIRED")

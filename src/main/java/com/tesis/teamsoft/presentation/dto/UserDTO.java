@@ -14,11 +14,11 @@ public class UserDTO {
     @Data
     public static class UserCreateDTO {
         @NotBlank(message = "ERR_VAL_USER_PERSON_NAME")
-        @Size(min = 1, message = "ERR_VAL_USER_PERSON_NAME")
+        @Pattern(regexp = "^[\\p{L}\\s]+$", message = "ERR_VAL_USER_PERSON_NAME")
         private String personName;
 
         @NotBlank(message = "ERR_VAL_USER_SURNAME")
-        @Size(min = 1, message = "ERR_VAL_USER_SURNAME")
+        @Pattern(regexp = "^[\\p{L}\\s]+$", message = "ERR_VAL_USER_PERSON_SURNAME")
         private String surname;
 
         @NotBlank(message = "ERR_VAL_USER_ID_CARD")
