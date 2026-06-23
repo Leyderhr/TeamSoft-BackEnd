@@ -36,7 +36,7 @@ build/
 .env
 .env.local
 .env.*.local
-
+/.kiro
 ### Application Properties with Sensitive Data ###
 src/main/resources/application.yml
 application-local.yml
