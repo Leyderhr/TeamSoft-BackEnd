@@ -24,6 +24,7 @@ public class PersonGroupDTO {
     public static class PersonGroupResponseDTO {
         private Long id;
         private String name;
+        private Long parentGroupId;
         private String father;
     }
 }

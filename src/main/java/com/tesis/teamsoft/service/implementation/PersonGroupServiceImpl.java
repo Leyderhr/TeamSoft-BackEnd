@@ -90,7 +90,7 @@ public class PersonGroupServiceImpl implements IPersonGroupService {
     public List<PersonGroupDTO.PersonGroupResponseDTO> findAllByOrderByIdAsc() {
         return personGroupRepository.findAllByOrderByIdAsc()
                 .stream()
-                .map(personGroupEntity -> modelMapper.map(personGroupEntity, PersonGroupDTO.PersonGroupResponseDTO.class))
+                .map(personGroupEntity -> convertToResponseDTO(personGroupRepository.save(personGroupEntity)))
                 .toList();
     }
 
@@ -99,7 +99,7 @@ public class PersonGroupServiceImpl implements IPersonGroupService {
     public PersonGroupDTO.PersonGroupResponseDTO findPersonGroupById(Long id) {
         PersonGroupEntity personGroup = personGroupRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("ERR_PERSON_GROUP_NOT_FOUND", id));
-        return modelMapper.map(personGroup, PersonGroupDTO.PersonGroupResponseDTO.class);
+        return convertToResponseDTO(personGroupRepository.save(personGroup));
     }
 
     private void validateNoCircularReference(PersonGroupEntity parentGroup, Long currentGroupId) {
