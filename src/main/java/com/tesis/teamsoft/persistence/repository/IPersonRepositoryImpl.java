@@ -133,26 +133,25 @@ public class IPersonRepositoryImpl implements IPersonRepositoryCustom {
 
     private void addAgeFilter(CriteriaBuilder cb, Root<PersonEntity> root,
                               List<Predicate> predicates, FilterDTO.AgeFilterDTO ageFilter) {
-        if (ageFilter.getMinAge() != null || ageFilter.getMaxAge() != null) {
-            LocalDate now = LocalDate.now();
-            Date minDate = null;
-            Date maxDate = null;
 
-            if (ageFilter.getMaxAge() != null) {
-                LocalDate minBirth = now.minusYears(ageFilter.getMaxAge());
-                minDate = Date.from(minBirth.atStartOfDay(ZoneId.systemDefault()).toInstant());
-            }
-            if (ageFilter.getMinAge() != null) {
-                LocalDate maxBirth = now.minusYears(ageFilter.getMinAge()).minusDays(1);
-                maxDate = Date.from(maxBirth.atStartOfDay(ZoneId.systemDefault()).toInstant());
-            }
+        if (ageFilter.getMinAge() == null && ageFilter.getMaxAge() == null) {
+            return;
+        }
 
-            if (minDate != null) {
-                predicates.add(cb.greaterThanOrEqualTo(root.get("birthDate"), minDate));
-            }
-            if (maxDate != null) {
-                predicates.add(cb.lessThanOrEqualTo(root.get("birthDate"), maxDate));
-            }
+        LocalDate now = LocalDate.now();
+
+        if (ageFilter.getMaxAge() != null) {
+            // Límite inferior: Quien tiene 'maxAge' pudo haber nacido hasta hace (maxAge + 1) años menos un día.
+            LocalDate minBirth = now.minusYears(ageFilter.getMaxAge() + 1).plusDays(1);
+            Date minDate = Date.from(minBirth.atStartOfDay(ZoneId.systemDefault()).toInstant());
+            predicates.add(cb.greaterThanOrEqualTo(root.get("birthDate"), minDate));
+        }
+
+        if (ageFilter.getMinAge() != null) {
+            // Límite superior: Quien tiene 'minAge' debió nacer como máximo exactamente hoy hace 'minAge' años.
+            LocalDate maxBirth = now.minusYears(ageFilter.getMinAge());
+            Date maxDate = Date.from(maxBirth.atStartOfDay(ZoneId.systemDefault()).toInstant());
+            predicates.add(cb.lessThanOrEqualTo(root.get("birthDate"), maxDate));
         }
     }
 }
