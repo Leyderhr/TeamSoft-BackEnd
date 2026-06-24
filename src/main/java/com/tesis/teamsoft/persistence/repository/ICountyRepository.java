@@ -10,4 +10,8 @@ import java.util.List;
 public interface ICountyRepository extends JpaRepository<CountyEntity, Long> {
 
     List<CountyEntity> findAllByOrderByIdAsc();
+    boolean existsByCountyName(String countyName);
+    boolean existsByCountyNameAndIdNot(String countyName, Long id);
+    boolean existsByCode(String code);
+    boolean existsByCodeAndIdNot(String code, Long id);
 }

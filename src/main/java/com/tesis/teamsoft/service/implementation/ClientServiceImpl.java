@@ -1,6 +1,7 @@
 package com.tesis.teamsoft.service.implementation;
 
 import com.tesis.teamsoft.exception.BusinessRuleException;
+import com.tesis.teamsoft.exception.DuplicateResourceException;
 import com.tesis.teamsoft.exception.ResourceNotFoundException;
 import com.tesis.teamsoft.persistence.entity.ClientEntity;
 import com.tesis.teamsoft.persistence.repository.IClientRepository;
@@ -25,6 +26,7 @@ public class ClientServiceImpl implements IClientService {
     @Transactional
     public ClientDTO.ClientResponseDTO saveClient(ClientDTO.ClientCreateDTO clientDTO) {
         ClientEntity savedClient = modelMapper.map(clientDTO, ClientEntity.class);
+        validateUniqueEntityName(savedClient, null);
         return modelMapper.map(clientRepository.save(savedClient), ClientDTO.ClientResponseDTO.class);
     }
 
@@ -37,6 +39,7 @@ public class ClientServiceImpl implements IClientService {
 
         ClientEntity updatedClient = modelMapper.map(clientDTO, ClientEntity.class);
         updatedClient.setId(id);
+        validateUniqueEntityName(updatedClient, id);
         return modelMapper.map(clientRepository.save(updatedClient), ClientDTO.ClientResponseDTO.class);
     }
 
@@ -78,5 +81,15 @@ public class ClientServiceImpl implements IClientService {
         ClientEntity client = clientRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("ERR_CLIENT_NOT_FOUND", id));
         return modelMapper.map(client, ClientDTO.ClientResponseDTO.class);
+    }
+
+    private void validateUniqueEntityName(ClientEntity entity, Long id) {
+        boolean existName = (id == null)?
+                clientRepository.existsByEntityName(entity.getEntityName()) :
+                clientRepository.existsByEntityNameAndIdNot(entity.getEntityName(), id);
+
+        if (existName) {
+            throw new DuplicateResourceException("ERR_CLIENT_ENTITY_NAME_DUPLICATE");
+        }
     }
 }

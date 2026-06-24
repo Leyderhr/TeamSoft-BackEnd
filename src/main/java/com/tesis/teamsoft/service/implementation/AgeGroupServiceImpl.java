@@ -33,6 +33,7 @@ public class AgeGroupServiceImpl implements IAgeGroupService {
     @Transactional
     public AgeGroupDTO.AgeGroupResponseDTO saveAgeGroup(AgeGroupDTO.AgeGroupCreateDTO ageGroupDTO) {
         AgeGroupEntity savedAgeGroup = modelMapper.map(ageGroupDTO, AgeGroupEntity.class);
+        validateUniqueAgeGroupName(savedAgeGroup, null);
         validateNonOverlappingAgeRange(savedAgeGroup);
 
         return modelMapper.map(ageGroupRepository.save(savedAgeGroup), AgeGroupDTO.AgeGroupResponseDTO.class);
@@ -48,6 +49,7 @@ public class AgeGroupServiceImpl implements IAgeGroupService {
 
         updatedAgeGroup = modelMapper.map(ageGroupDTO, AgeGroupEntity.class);
         updatedAgeGroup.setId(id);
+        validateUniqueAgeGroupName(updatedAgeGroup, id);
         validateNonOverlappingAgeRange(updatedAgeGroup);
         if(!isSameAgeRange) reassignAgeGroupForUpdate(updatedAgeGroup);
 
@@ -132,5 +134,14 @@ public class AgeGroupServiceImpl implements IAgeGroupService {
 
     private boolean checkAgeRangeChange(AgeGroupEntity updatedAgeGroup, int newMinAge, int newMaxAge){
         return updatedAgeGroup.getMinAge() == newMinAge && updatedAgeGroup.getMaxAge() == newMaxAge;
+    }
+
+    private void validateUniqueAgeGroupName(AgeGroupEntity entity, Long id) {
+        boolean existName = (id == null) ?
+                ageGroupRepository.existsByAgeGroupName(entity.getAgeGroupName()) :
+                ageGroupRepository.existsByAgeGroupNameAndIdNot(entity.getAgeGroupName(), id);
+        if (existName) {
+            throw new DuplicateResourceException("ERR_AGE_GROUP_NAME_DUPLICATE");
+        }
     }
 }

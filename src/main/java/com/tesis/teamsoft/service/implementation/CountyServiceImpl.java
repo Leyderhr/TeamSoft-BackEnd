@@ -1,6 +1,7 @@
 package com.tesis.teamsoft.service.implementation;
 
 import com.tesis.teamsoft.exception.BusinessRuleException;
+import com.tesis.teamsoft.exception.DuplicateResourceException;
 import com.tesis.teamsoft.exception.ResourceNotFoundException;
 import com.tesis.teamsoft.persistence.entity.CountyEntity;
 import com.tesis.teamsoft.persistence.repository.ICountyRepository;
@@ -24,6 +25,7 @@ public class CountyServiceImpl implements ICountyService {
     @Transactional
     public CountyDTO.CountyResponseDTO saveCounty(CountyDTO.CountyCreateDTO countyDTO) {
         CountyEntity savedCounty = modelMapper.map(countyDTO, CountyEntity.class);
+        validateUniqueAttributes(countyDTO, null);
         return modelMapper.map(countyRepository.save(savedCounty), CountyDTO.CountyResponseDTO.class);
     }
 
@@ -35,6 +37,7 @@ public class CountyServiceImpl implements ICountyService {
         }
         CountyEntity updatedCounty = modelMapper.map(countyDTO, CountyEntity.class);
         updatedCounty.setId(id);
+        validateUniqueAttributes(countyDTO, id);
         return modelMapper.map(countyRepository.save(updatedCounty), CountyDTO.CountyResponseDTO.class);
     }
 
@@ -79,5 +82,21 @@ public class CountyServiceImpl implements ICountyService {
         CountyEntity county = countyRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("ERR_COUNTY_NOT_FOUND", id));
         return modelMapper.map(county, CountyDTO.CountyResponseDTO.class);
+    }
+
+    private void validateUniqueAttributes(CountyDTO.CountyCreateDTO dto, Long id) {
+        boolean nameExists = (id == null) ?
+                countyRepository.existsByCountyName(dto.getCountyName()) :
+                countyRepository.existsByCountyNameAndIdNot(dto.getCountyName(), id);
+        if (nameExists) {
+            throw new DuplicateResourceException("ERR_COUNTY_NAME_ALREADY_EXISTS");
+        }
+
+        boolean codeExists = (id == null) ?
+                countyRepository.existsByCode(dto.getCode()) :
+                countyRepository.existsByCodeAndIdNot(dto.getCode(), id);
+        if (codeExists) {
+            throw new DuplicateResourceException("ERR_COUNTY_CODE_ALREADY_EXISTS");
+        }
     }
 }

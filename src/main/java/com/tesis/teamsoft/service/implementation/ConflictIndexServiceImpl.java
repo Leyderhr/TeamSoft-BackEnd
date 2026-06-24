@@ -1,6 +1,7 @@
 package com.tesis.teamsoft.service.implementation;
 
 import com.tesis.teamsoft.exception.BusinessRuleException;
+import com.tesis.teamsoft.exception.DuplicateResourceException;
 import com.tesis.teamsoft.exception.ResourceNotFoundException;
 import com.tesis.teamsoft.persistence.entity.ConflictIndexEntity;
 import com.tesis.teamsoft.persistence.repository.IConflictIndexRepository;
@@ -25,6 +26,7 @@ public class ConflictIndexServiceImpl implements IConflictIndexService {
     @Transactional
     public ConflictIndexDTO.ConflictIndexResponseDTO saveConflictIndex(ConflictIndexDTO.ConflictIndexCreateDTO conflictIndexDTO) {
         ConflictIndexEntity savedConflictIndex = modelMapper.map(conflictIndexDTO, ConflictIndexEntity.class);
+        validateUniqueAttributes(conflictIndexDTO, null);
         return modelMapper.map(conflictIndexRepository.save(savedConflictIndex), ConflictIndexDTO.ConflictIndexResponseDTO.class);
     }
 
@@ -37,6 +39,7 @@ public class ConflictIndexServiceImpl implements IConflictIndexService {
 
         ConflictIndexEntity updatedConflictIndex = modelMapper.map(conflictIndexDTO, ConflictIndexEntity.class);
         updatedConflictIndex.setId(id);
+        validateUniqueAttributes(conflictIndexDTO, id);
         return modelMapper.map(conflictIndexRepository.save(updatedConflictIndex), ConflictIndexDTO.ConflictIndexResponseDTO.class);
     }
 
@@ -78,5 +81,23 @@ public class ConflictIndexServiceImpl implements IConflictIndexService {
         ConflictIndexEntity conflictIndex = conflictIndexRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("ERR_CONFLICT_INDEX_NOT_FOUND", id));
         return modelMapper.map(conflictIndex, ConflictIndexDTO.ConflictIndexResponseDTO.class);
+    }
+
+    private void validateUniqueAttributes(ConflictIndexDTO.ConflictIndexCreateDTO dto, Long id) {
+        boolean descriptionExists = (id == null) ?
+                conflictIndexRepository.existsByDescription(dto.getDescription()) :
+                conflictIndexRepository.existsByDescriptionAndIdNot(dto.getDescription(), id);
+
+        if (descriptionExists) {
+            throw new DuplicateResourceException("ERR_CONFLICT_INDEX_DESCRIPTION_ALREADY_EXISTS");
+        }
+
+        boolean weightExists = (id == null) ?
+                conflictIndexRepository.existsByWeight(dto.getWeight()) :
+                conflictIndexRepository.existsByWeightAndIdNot(dto.getWeight(), id);
+
+        if (weightExists) {
+            throw new DuplicateResourceException("ERR_CONFLICT_INDEX_WEIGHT_ALREADY_EXISTS");
+        }
     }
 }

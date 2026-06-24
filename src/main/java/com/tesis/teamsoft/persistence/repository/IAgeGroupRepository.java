@@ -12,6 +12,8 @@ import java.util.List;
 public interface IAgeGroupRepository extends JpaRepository<AgeGroupEntity, Long> {
 
     List<AgeGroupEntity> findAllByOrderByIdAsc();
+    boolean existsByAgeGroupName(String ageGroupName);
+    boolean existsByAgeGroupNameAndIdNot(String ageGroupName, Long id);
 
     @Query("SELECT COUNT(ag) > 0 FROM AgeGroupEntity ag WHERE " +
             "(:minAge BETWEEN ag.minAge AND ag.maxAge OR " +

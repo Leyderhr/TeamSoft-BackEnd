@@ -10,5 +10,9 @@ import java.util.List;
 public interface ICompetenceImportanceRepository extends JpaRepository<CompetenceImportanceEntity, Long> {
 
     List<CompetenceImportanceEntity> findAllByOrderByIdAsc();
+    boolean existsByLevels(long levels);
+    boolean existsByLevelsAndIdNot(long levels, Long id);
+    boolean existsBySignificance(String significance);
+    boolean existsBySignificanceAndIdNot(String significance, Long id);
 
 }

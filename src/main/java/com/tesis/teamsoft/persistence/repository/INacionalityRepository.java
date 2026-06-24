@@ -10,4 +10,8 @@ import java.util.List;
 public interface INacionalityRepository extends JpaRepository<NacionalityEntity, Long> {
 
     List<NacionalityEntity> findAllByOrderByIdAsc();
+    boolean existsByPaisNac(String paisNac);
+    boolean existsByPaisNacAndIdNot(String paisNac, Long id);
+    boolean existsByGentilicioNac(String gentilicioNac);
+    boolean existsByGentilicioNacAndIdNot(String gentilicioNac, Long id);
 }
