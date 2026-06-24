@@ -1,6 +1,7 @@
 package com.tesis.teamsoft.service.implementation;
 
 import com.tesis.teamsoft.exception.BusinessRuleException;
+import com.tesis.teamsoft.exception.DuplicateResourceException;
 import com.tesis.teamsoft.exception.ResourceNotFoundException;
 import com.tesis.teamsoft.persistence.entity.CountyEntity;
 import com.tesis.teamsoft.persistence.repository.ICountyRepository;
@@ -12,7 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +25,7 @@ public class CountyServiceImpl implements ICountyService {
     @Transactional
     public CountyDTO.CountyResponseDTO saveCounty(CountyDTO.CountyCreateDTO countyDTO) {
         CountyEntity savedCounty = modelMapper.map(countyDTO, CountyEntity.class);
+        validateUniqueAttributes(countyDTO, null);
         return modelMapper.map(countyRepository.save(savedCounty), CountyDTO.CountyResponseDTO.class);
     }
 
@@ -32,10 +33,11 @@ public class CountyServiceImpl implements ICountyService {
     @Transactional
     public CountyDTO.CountyResponseDTO updateCounty(CountyDTO.CountyCreateDTO countyDTO, Long id) {
         if (!countyRepository.existsById(id)) {
-            throw new ResourceNotFoundException("County not found with ID: " + id);
+            throw new ResourceNotFoundException("ERR_COUNTY_NOT_FOUND", id);
         }
         CountyEntity updatedCounty = modelMapper.map(countyDTO, CountyEntity.class);
         updatedCounty.setId(id);
+        validateUniqueAttributes(countyDTO, id);
         return modelMapper.map(countyRepository.save(updatedCounty), CountyDTO.CountyResponseDTO.class);
     }
 
@@ -43,15 +45,17 @@ public class CountyServiceImpl implements ICountyService {
     @Transactional
     public String deleteCounty(Long id) {
         CountyEntity county = countyRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("County not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("ERR_COUNTY_NOT_FOUND", id));
 
-        StringBuilder errorMessage = canByDeleted(county);
-        if (!errorMessage.isEmpty()) {
-            throw new BusinessRuleException(errorMessage.toString().trim());
+        if (county.getProjectList() != null && !county.getProjectList().isEmpty()
+                || county.getPersonList() != null && !county.getPersonList().isEmpty()
+                || (county.getCostDistanceListA() != null && !county.getCostDistanceListA().isEmpty())
+                || (county.getCostDistanceListB() != null && !county.getCostDistanceListB().isEmpty())) {
+            throw new BusinessRuleException("ERR_COUNTY_CANT_BE_DELETED");
         }
 
         countyRepository.deleteById(id);
-        return "County deleted successfully";
+        return "COUNTY_SUCCESSFULLY_DELETED";
     }
 
     @Override
@@ -76,26 +80,23 @@ public class CountyServiceImpl implements ICountyService {
     @Transactional(readOnly = true)
     public CountyDTO.CountyResponseDTO findCountyById(Long id) {
         CountyEntity county = countyRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("County not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("ERR_COUNTY_NOT_FOUND", id));
         return modelMapper.map(county, CountyDTO.CountyResponseDTO.class);
     }
 
-    private StringBuilder canByDeleted(CountyEntity county){
-        StringBuilder errorMessage = new StringBuilder();
-
-        if (county.getProjectList() != null && !county.getProjectList().isEmpty()) {
-            errorMessage.append("Cannot delete county because it has associated projects. ");
+    private void validateUniqueAttributes(CountyDTO.CountyCreateDTO dto, Long id) {
+        boolean nameExists = (id == null) ?
+                countyRepository.existsByCountyName(dto.getCountyName()) :
+                countyRepository.existsByCountyNameAndIdNot(dto.getCountyName(), id);
+        if (nameExists) {
+            throw new DuplicateResourceException("ERR_COUNTY_NAME_ALREADY_EXISTS");
         }
 
-        if (county.getPersonList() != null && !county.getPersonList().isEmpty()) {
-            errorMessage.append("Cannot delete county because it has associated persons. ");
+        boolean codeExists = (id == null) ?
+                countyRepository.existsByCode(dto.getCode()) :
+                countyRepository.existsByCodeAndIdNot(dto.getCode(), id);
+        if (codeExists) {
+            throw new DuplicateResourceException("ERR_COUNTY_CODE_ALREADY_EXISTS");
         }
-
-        if ((county.getCostDistanceListA() != null && !county.getCostDistanceListA().isEmpty())
-                || (county.getCostDistanceListB() != null && !county.getCostDistanceListB().isEmpty())) {
-            errorMessage.append("Cannot delete county because it has associated cost distances");
-        }
-
-        return errorMessage;
     }
 }

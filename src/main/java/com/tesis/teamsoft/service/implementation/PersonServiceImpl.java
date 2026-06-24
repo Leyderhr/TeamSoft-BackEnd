@@ -67,7 +67,7 @@ public class PersonServiceImpl implements IPersonService {
     @Transactional
     public PersonDTO.PersonResponseDTO updatePerson(PersonDTO.PersonCreateDTO personDTO, Long id) {
         PersonEntity existingPerson = personRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Person not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("ERR_PERSON_NOT_FOUND", id));
 
         mapBasicFields(existingPerson, personDTO, id);
         processSimpleRelations(personDTO, existingPerson);
@@ -115,14 +115,14 @@ public class PersonServiceImpl implements IPersonService {
     @Transactional
     public String deletePerson(Long id) {
         PersonEntity person = personRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Person not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("ERR_PERSON_NOT_FOUND", id));
 
         if((person.getAssignedRoleList() != null && !person.getAssignedRoleList().isEmpty()) ||
                 (person.getRoleEvaluationList() != null && !person.getRoleEvaluationList().isEmpty()))
-            throw new BusinessRuleException("Cannot delete person because it has associated relations");
+            throw new BusinessRuleException("ERR_PERSON_CANT_BE_DELETED");
 
         personRepository.deleteById(id);
-        return "Person deleted successfully";
+        return "PERSON_SUCCESSFULLY_DELETED";
     }
 
     @Override
@@ -145,14 +145,14 @@ public class PersonServiceImpl implements IPersonService {
     @Transactional(readOnly = true)
     public PersonDTO.PersonResponseDTO findPersonById(Long id) {
         PersonEntity person = personRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Person not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("ERR_PERSON_NOT_FOUND", id));
         return convertToResponseDTO(person);
     }
 
     @Transactional
     public PersonDTO.PersonResponseDTO patchCompetencesAndConflicts(PersonDTO.PersonCompetenceConflictPatchDTO patchDTO, Long id) {
         PersonEntity existingPerson = personRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Person not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("ERR_PERSON_NOT_FOUND", id));
 
         if (patchDTO.getCompetenceValues() != null) {
             List<CompetenceValueEntity> validatedCompetenceValues = processCompetenceValues(patchDTO.getCompetenceValues(), existingPerson);
@@ -174,7 +174,7 @@ public class PersonServiceImpl implements IPersonService {
     @Transactional(readOnly = true)
     public PersonReportDTO getPersonReport(Long id) {
         PersonEntity person = personRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Person not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("ERR_PERSON_NOT_FOUND", id));
 
         PersonReportDTO dto = new PersonReportDTO();
         dto.setPerson(convertToResponseDTO(person));
@@ -215,23 +215,23 @@ public class PersonServiceImpl implements IPersonService {
     private void processSimpleRelations(PersonDTO.PersonCreateDTO personDTO, PersonEntity person) {
 
         person.setGroup(personGroupRepository.findById(personDTO.getGroup())
-                .orElseThrow(() -> new ResourceNotFoundException("Person group not found with ID: " + personDTO.getGroup())));
+                .orElseThrow(() -> new ResourceNotFoundException("ERR_PERSON_GROUP_NOT_FOUND", personDTO.getGroup())));
 
         if(personDTO.getCounty() != null){
             person.setCounty(countyRepository.findById(personDTO.getCounty())
-                    .orElseThrow(() -> new ResourceNotFoundException("County not found with ID: " + personDTO.getCounty())));}
+                    .orElseThrow(() -> new ResourceNotFoundException("ERR_COUNTY_NOT_FOUND", personDTO.getCounty())));}
 
         if(personDTO.getRace() != null){
             person.setRace(raceRepository.findById(personDTO.getRace())
-                    .orElseThrow(() -> new ResourceNotFoundException("Race not found with ID: " + personDTO.getRace())));}
+                    .orElseThrow(() -> new ResourceNotFoundException("ERR_RACE_NOT_FOUND", personDTO.getRace())));}
 
         if(personDTO.getNacionality() != null){
             person.setNacionality(nacionalityRepository.findById(personDTO.getNacionality())
-                    .orElseThrow(() -> new ResourceNotFoundException("Nacionality not found with ID: " + personDTO.getNacionality())));}
+                    .orElseThrow(() -> new ResourceNotFoundException("ERR_NATIONALITY_NOT_FOUND", personDTO.getNacionality())));}
 
         if(personDTO.getReligion() != null){
             person.setReligion(religionRepository.findById(personDTO.getReligion())
-                    .orElseThrow(() -> new ResourceNotFoundException("Religion not found with ID: " + personDTO.getReligion())));}
+                    .orElseThrow(() -> new ResourceNotFoundException("ERR_RELIGION_NOT_FOUND", personDTO.getReligion())));}
     }
 
     private void processAgeGroup(PersonDTO.PersonCreateDTO personDTO, PersonEntity person) {
@@ -249,12 +249,12 @@ public class PersonServiceImpl implements IPersonService {
 
         return competenceValuesDTO.stream().map(dto -> {
             if (!processedCompetenceIds.add(dto.getCompetenceId()))
-                throw new BusinessRuleException("Duplicate competence ID: " + dto.getCompetenceId());
+                throw new BusinessRuleException("ERR_PERSON_DUPLICATE_COMPETENCE", dto.getCompetenceId());
 
             CompetenceEntity competence = competenceRepository.findById(dto.getCompetenceId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Competence not found with ID: " + dto.getCompetenceId()));
+                    .orElseThrow(() -> new ResourceNotFoundException("ERR_COMPETENCE_NOT_FOUND", dto.getCompetenceId()));
             LevelsEntity level = levelsRepository.findById(dto.getLevelsId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Levels not found with ID: " + dto.getLevelsId()));
+                    .orElseThrow(() -> new ResourceNotFoundException("ERR_LEVELS_NOT_FOUND", dto.getLevelsId()));
 
             CompetenceValueEntity cv = new CompetenceValueEntity();
             cv.setCompetence(competence);
@@ -289,10 +289,10 @@ public class PersonServiceImpl implements IPersonService {
 
         return personalInterestsDTO.stream().map(dto -> {
             if (!processedRoleIds.add(dto.getRoleId()))
-                throw new BusinessRuleException("Duplicate role ID: " + dto.getRoleId());
+                throw new BusinessRuleException("ERR_PERSON_DUPLICATE_ROLE", dto.getRoleId());
 
             RoleEntity role = roleRepository.findById(dto.getRoleId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Role not found with ID: " + dto.getRoleId()));
+                    .orElseThrow(() -> new ResourceNotFoundException("ERR_ROLE_NOT_FOUND", dto.getRoleId()));
 
             PersonalInterestsEntity pi = new PersonalInterestsEntity();
             pi.setRole(role);
@@ -326,10 +326,10 @@ public class PersonServiceImpl implements IPersonService {
 
         return projectInterestsDTO.stream().map(dto -> {
             if (!processedProjectIds.add(dto.getProjectId()))
-                throw new BusinessRuleException("Duplicate project ID: " + dto.getProjectId());
+                throw new BusinessRuleException("ERR_PERSON_DUPLICATE_PROJECT", dto.getProjectId());
 
             ProjectEntity project = projectRepository.findById(dto.getProjectId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Project not found with ID: " + dto.getProjectId()));
+                    .orElseThrow(() -> new ResourceNotFoundException("ERR_PROJECT_NOT_FOUND", dto.getProjectId()));
 
             PersonalProjectInterestsEntity ppi = new PersonalProjectInterestsEntity();
             ppi.setProject(project);
@@ -370,15 +370,15 @@ public class PersonServiceImpl implements IPersonService {
 
         return personConflictsDTO.stream().map(dto -> {
             if (!processedConflictKeys.add(dto.getPersonConflictId()))
-                throw new BusinessRuleException("Duplicate person conflict: person " + dto.getPersonConflictId() + " with index " + dto.getConflictIndexId());
+                throw new BusinessRuleException("ERR_PERSON_DUPLICATE_CONFLICT");
 
             if (dto.getPersonConflictId().equals(person.getId()))
-                throw new BusinessRuleException("Person cannot have conflict with itself");
+                throw new BusinessRuleException("ERR_PERSON_SELF_CONFLICT");
 
             ConflictIndexEntity conflictIndex = conflictIndexRepository.findById(dto.getConflictIndexId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Conflict index not found with ID: " + dto.getConflictIndexId()));
+                    .orElseThrow(() -> new ResourceNotFoundException("ERR_CONFLICT_INDEX_NOT_FOUND", dto.getConflictIndexId()));
             PersonEntity otherPerson = personRepository.findById(dto.getPersonConflictId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Person conflict not found with ID: " + dto.getPersonConflictId()));
+                    .orElseThrow(() -> new ResourceNotFoundException("ERR_PERSON_NOT_FOUND", dto.getPersonConflictId()));
 
             PersonConflictEntity pc = new PersonConflictEntity();
             pc.setIndex(conflictIndex);
@@ -427,11 +427,23 @@ public class PersonServiceImpl implements IPersonService {
 
         responseDTO.setAge(person.getAge());
 
-        responseDTO.setCounty(modelMapper.map(person.getCounty(), CountyDTO.CountyResponseDTO.class));
-        responseDTO.setRace(modelMapper.map(person.getRace(), RaceDTO.RaceResponseDTO.class));
-        responseDTO.setGroup(modelMapper.map(person.getGroup(), PersonGroupDTO.PersonGroupResponseDTO.class));
-        responseDTO.setNacionality(modelMapper.map(person.getNacionality(), NationalityDTO.NacionalityResponseDTO.class));
-        responseDTO.setReligion(modelMapper.map(person.getReligion(), ReligionDTO.ReligionResponseDTO.class));
+        // Relaciones opcionales (pueden ser null, p. ej. en personas importadas):
+        // ModelMapper lanza "source cannot be null" si se le pasa null, por eso se protegen.
+        if (person.getCounty() != null) {
+            responseDTO.setCounty(modelMapper.map(person.getCounty(), CountyDTO.CountyResponseDTO.class));
+        }
+        if (person.getRace() != null) {
+            responseDTO.setRace(modelMapper.map(person.getRace(), RaceDTO.RaceResponseDTO.class));
+        }
+        if (person.getGroup() != null) {
+            responseDTO.setGroup(modelMapper.map(person.getGroup(), PersonGroupDTO.PersonGroupResponseDTO.class));
+        }
+        if (person.getNacionality() != null) {
+            responseDTO.setNacionality(modelMapper.map(person.getNacionality(), NationalityDTO.NacionalityResponseDTO.class));
+        }
+        if (person.getReligion() != null) {
+            responseDTO.setReligion(modelMapper.map(person.getReligion(), ReligionDTO.ReligionResponseDTO.class));
+        }
         if (person.getAgeGroup() != null) {
             responseDTO.setAgeGroup(modelMapper.map(person.getAgeGroup(), AgeGroupDTO.AgeGroupResponseDTO.class));
         }

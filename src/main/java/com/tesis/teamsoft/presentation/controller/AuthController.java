@@ -48,17 +48,17 @@ public class AuthController {
 
     @PostMapping("/change-password")
     public ResponseEntity<Void> changePassword(
-            @AuthenticationPrincipal UserDetails userDetails,
+            @AuthenticationPrincipal String username,
             @Valid @RequestBody ChangePasswordDTO request) {
 
         if (!request.getNewPassword().equals(request.getConfirmPassword())) {
             throw new IllegalArgumentException("New password and confirm password do not match");
         }
 
-        if(userDetails == null)
+        if(username == null)
             throw new IllegalArgumentException("You need to provide the user's information");
 
-        authService.changePassword(userDetails.getUsername(), request.getCurrentPassword(), request.getNewPassword());
+        authService.changePassword(username, request.getCurrentPassword(), request.getNewPassword());
         return ResponseEntity.ok().build();
     }
 

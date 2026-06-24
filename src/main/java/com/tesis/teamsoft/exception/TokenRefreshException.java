@@ -1,7 +1,15 @@
 package com.tesis.teamsoft.exception;
 
+import lombok.Getter;
+
+@Getter
 public class TokenRefreshException extends RuntimeException {
-    public TokenRefreshException(String message) {
-        super(message);
+
+    private final transient Object[] parameters;
+
+    public TokenRefreshException(String errorCode, Object... parameters) {
+        super(errorCode);
+        this.parameters = parameters != null ? parameters : new Object[0];
     }
+
 }

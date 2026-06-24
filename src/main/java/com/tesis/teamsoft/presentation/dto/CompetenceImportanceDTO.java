@@ -15,12 +15,12 @@ public class CompetenceImportanceDTO {
     @Data
     public static class CompetenceImportanceCreateDTO {
 
-        @NotNull(message = "Level is required")
-        @Min(value = 0, message = "Level must be at least 0")
+        @NotNull(message = "ERR_VAL_COMP_IMPORTANCE_LEVEL")
+        @Min(value = 0, message = "ERR_VAL_COMP_IMPORTANCE_LEVEL")
         private Long levels;
 
-        @NotBlank(message = "Significance is required")
-        @Pattern(regexp = "^[\\p{L}\\s]+$", message = "Only letters and spaces are allowed")
+        @NotBlank(message = "ERR_VAL_COMP_IMPORTANCE_SIGNIFICANCE")
+        @Pattern(regexp = "^[\\p{L}\\p{N}\\s]+$", message = "ERR_VAL_COMP_IMPORTANCE_SIGNIFICANCE")
         private String significance;
     }
 

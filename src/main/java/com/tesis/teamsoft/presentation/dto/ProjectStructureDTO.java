@@ -17,13 +17,13 @@ public class ProjectStructureDTO {
 
     @Data
     public static class ProjectStructureCreateDTO {
-        @NotBlank(message = "Name is required")
-        @Pattern(regexp = "^[\\p{L}\\s]+$", message = "Only letters and spaces are allowed")
+        @NotBlank(message = "ERR_VAL_PROJECT_STRUCTURE_NAME")
+        @Pattern(regexp = "^[\\p{L}\\s]+$", message = "ERR_VAL_PROJECT_STRUCTURE_NAME")
         private String name;
 
         @Valid
-        @NotNull(message = "Project roles are required")
-        @Size(min = 1, message = "At least one project role is required")
+        @NotNull(message = "ERR_VAL_PROJECT_STRUCTURE_ROLES")
+        @Size(min = 1, message = "ERR_VAL_PROJECT_STRUCTURE_ROLES")
         private List<ProjectRoleDTO.ProjectRoleCreateDTO> projectRoles;
     }
 

@@ -12,10 +12,10 @@ import lombok.Data;
 @Data
 public class CloseProjectDTO {
 
-    @NotNull(message = "Project role evaluation id is required")
+    @NotNull(message = "ERR_VAL_CLOSE_PROJECT_ROLE_EVAL_ID")
     private Long roleEvaluation;
 
     @Valid
-    @NotNull(message = "Boss evaluation is required")
+    @NotNull(message = "ERR_VAL_CLOSE_PROJECT_BOSS_EVAL")
     private RolePersonEvaluationDTO bossEvaluation;
 }

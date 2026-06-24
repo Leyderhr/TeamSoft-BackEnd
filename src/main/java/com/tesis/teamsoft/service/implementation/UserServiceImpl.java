@@ -49,7 +49,7 @@ public class UserServiceImpl implements IUserService {
             Set<UserRoleEntity> roles = new HashSet<>(userRoleRepository.findAllById(userDTO.getRoleIds()));
 
             if (roles.size() != userDTO.getRoleIds().size())
-                throw new BusinessRuleException("One or more roles not found");
+                throw new BusinessRuleException("ERR_USER_ROLES_NOT_FOUND");
 
             userEntity.setRoles(roles);
 
@@ -61,7 +61,7 @@ public class UserServiceImpl implements IUserService {
     @Transactional
     public UserDTO.UserResponseDTO updateUser(UserDTO.UserCreateDTO userDTO, Long id) {
         UserEntity existingUser = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("ERR_USER_NOT_FOUND", id));
 
         existingUser.setPersonName(userDTO.getPersonName());
         existingUser.setSurname(userDTO.getSurname());
@@ -71,7 +71,7 @@ public class UserServiceImpl implements IUserService {
         Set<UserRoleEntity> newRoles = new HashSet<>(userRoleRepository.findAllById(userDTO.getRoleIds()));
 
         if (newRoles.size() != userDTO.getRoleIds().size())
-            throw new BusinessRuleException("One or more roles not found");
+            throw new BusinessRuleException("ERR_USER_ROLES_NOT_FOUND");
 
         existingUser.setRoles(newRoles);
 
@@ -83,10 +83,10 @@ public class UserServiceImpl implements IUserService {
     @Transactional
     public String deleteUser(Long id) {
             UserEntity user = userRepository.findById(id)
-                    .orElseThrow(() -> new RuntimeException("User not found with ID: " + id));
+                    .orElseThrow(() -> new ResourceNotFoundException("ERR_USER_NOT_FOUND", id));
 
             userRepository.delete(user);
-            return "User deleted successfully";
+            return "USER_SUCCESSFULLY_DELETED";
     }
 
     @Override
@@ -111,7 +111,7 @@ public class UserServiceImpl implements IUserService {
     @Transactional(readOnly = true)
     public UserDTO.UserResponseDTO findUserById(Long id) {
         UserEntity user = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("ERR_USER_NOT_FOUND", id));
         return convertToResponseDTO(user);
     }
 
@@ -126,7 +126,7 @@ public class UserServiceImpl implements IUserService {
     @Transactional
     public String resetPasswordToDefault(Long userId) {
         UserEntity user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
+                .orElseThrow(() -> new ResourceNotFoundException("ERR_USER_NOT_FOUND", userId));
 
         String defaultPassword = generatePassword(user.getCard());
         user.setPassword(passwordEncoder.encode(defaultPassword));
@@ -134,7 +134,7 @@ public class UserServiceImpl implements IUserService {
         refreshTokenService.deleteByUserId(userId);
 
         log.info("Password reset to default for user: {} (ID: {})", user.getUsername(), userId);
-        return "Password reset successfully to system default";
+        return "USER_PASSWORD_RESET";
     }
 
     private String generateUsername(String personName, String surname) {
@@ -143,7 +143,7 @@ public class UserServiceImpl implements IUserService {
         String normalizedSurname = normalizeString((surname !=null && !surname.trim().isEmpty()) ? surname : "");
 
         if (normalizedName.isEmpty() || normalizedSurname.isEmpty()) {
-            throw new BusinessRuleException("Name and surname must have at least one part");
+            throw new BusinessRuleException("ERR_USER_INVALID_NAME_OR_SURNAME");
         }
 
         String[] lastname = extractFirstSurname(normalizedSurname);

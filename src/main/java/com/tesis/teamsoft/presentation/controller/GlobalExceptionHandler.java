@@ -3,8 +3,10 @@ package com.tesis.teamsoft.presentation.controller;
 import com.tesis.teamsoft.exception.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSourceResolvable;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
@@ -24,101 +26,98 @@ import java.util.Map;
 @RestControllerAdvice(basePackages = "com.tesis.teamsoft.presentation.controller")
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, Object>> handleValidation(MethodArgumentNotValidException ex) {
-        Map<String, String> fieldErrors = new HashMap<>();
-        ex.getBindingResult().getFieldErrors().forEach(error ->
-                fieldErrors.put(error.getField(), error.getDefaultMessage())
-        );
+    /**
+     * MÉTODO CENTRALIZADO (Helper)
+     * Construye la estructura exacta del JSON de error requerido para el Enfoque 1.
+     */
+    private ResponseEntity<Map<String, Object>> buildErrorResponse(HttpStatus status, String errorCode, Object parameters) {
         Map<String, Object> response = new HashMap<>();
-        response.put("status", HttpStatus.BAD_REQUEST.value());
-        response.put("error", "Validation failed");
-        response.put("fieldErrors", fieldErrors);
-        return ResponseEntity.badRequest().body(response);
+        response.put("status", status.value());
+        response.put("errorCode", errorCode);
+        response.put("parameters", parameters != null ? parameters : new Object[0]);
+        response.put("timestamp", LocalDateTime.now()); // Jackson lo serializará en formato ISO
+
+        return ResponseEntity
+                .status(status)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(response);
     }
 
-    @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<Map<String, Object>> handleJsonParseError(HttpMessageNotReadableException ex) {
-        Map<String, Object> response = new HashMap<>();
-        response.put("status", HttpStatus.BAD_REQUEST.value());
-        response.put("error", "Malformed JSON request");
-        response.put("message", "The request body contains invalid JSON. Please check syntax (e.g., missing braces, commas, or quotes).");
-        response.put("details", ex.getMostSpecificCause().getMessage());
-
-        return ResponseEntity.badRequest().body(response);
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Map<String, Object>> handleValidation(MethodArgumentNotValidException ex) {
+        List<String> errorMessages = ex.getBindingResult().getFieldErrors().stream()
+                .map(DefaultMessageSourceResolvable::getDefaultMessage)
+                .toList();
+        // Enviamos el mapa de errores en los campos dentro de la propiedad 'parameters'
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, "VALIDATION_FAILED", errorMessages);
     }
 
     @ExceptionHandler(HandlerMethodValidationException.class)
     public ResponseEntity<Map<String, Object>> handleHandlerMethodValidation(HandlerMethodValidationException ex) {
-        List<String> errors = ex.getParameterValidationResults()  // ← no deprecated
+        List<String> errors = ex.getParameterValidationResults()
                 .stream()
                 .flatMap(result -> result.getResolvableErrors().stream())
-                .map(MessageSourceResolvable::getDefaultMessage)   // ← usa la interfaz, no la clase concreta
+                .map(MessageSourceResolvable::getDefaultMessage)
                 .toList();
 
-        Map<String, Object> response = new HashMap<>();
-        response.put("status", HttpStatus.BAD_REQUEST.value());
-        response.put("error", "Validation failed");
-        response.put("messages", errors);
-        return ResponseEntity.badRequest().body(response);
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, "VALIDATION_FAILED", errors);
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<Map<String, Object>> handleNotFound(ResourceNotFoundException ex) {
-        Map<String, Object> response = new HashMap<>();
-        response.put("status", HttpStatus.NOT_FOUND.value());
-        response.put("error", ex.getMessage());
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        // ex.getMessage() contiene el código abstract (ej: "ERR_COMP_IMPORTANCE_NOT_FOUND")
+        return buildErrorResponse(HttpStatus.NOT_FOUND, ex.getMessage(), ex.getParameters());
     }
 
     @ExceptionHandler({BusinessRuleException.class, DuplicateResourceException.class, IllegalArgumentException.class, DataIntegrityViolationException.class})
     public ResponseEntity<Map<String, Object>> handleBusinessRule(RuntimeException ex) {
-        Map<String, Object> response = new HashMap<>();
-        response.put("status", HttpStatus.BAD_REQUEST.value());
-        response.put("error", ex.getMessage());
-        return ResponseEntity.badRequest().body(response);
+        String errorCode = ex.getMessage();
+        Object[] parameters;
+
+        switch (ex) {
+            case BusinessRuleException e ->
+                parameters = e.getParameters();
+            case DuplicateResourceException e ->
+                parameters = e.getParameters();
+
+            default -> {
+                errorCode = "ERR_DATA_INTEGRITY_OR_ARGUMENT";
+                parameters = new Object[]{ex.getMessage()};
+            }
+        }
+
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, errorCode, parameters);
     }
 
     @ExceptionHandler(TokenRefreshException.class)
     public ResponseEntity<Map<String, Object>> handleTokenRefresh(TokenRefreshException ex) {
-        Map<String, Object> response = new HashMap<>();
-        response.put("status", HttpStatus.UNAUTHORIZED.value());
-        response.put("error", ex.getMessage());
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        return buildErrorResponse(HttpStatus.UNAUTHORIZED, ex.getMessage(), ex.getParameters());
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<Map<String, Object>> handleJsonParseError(HttpMessageNotReadableException ex) {
+        String details = ex.getMostSpecificCause().getMessage();
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, "ERR_MALFORMED_JSON", new Object[]{details});
     }
 
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<Map<String, Object>> handleBadCredentials(BadCredentialsException ex) {
-        Map<String, Object> response = new HashMap<>();
-        response.put("status", HttpStatus.UNAUTHORIZED.value());
-        response.put("error", "Invalid credentials");
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        return buildErrorResponse(HttpStatus.UNAUTHORIZED, "ERR_INVALID_CREDENTIALS", new Object[0]);
     }
 
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<Map<String, Object>> handleAuthenticationException(AuthenticationException ex) {
-        Map<String, Object> response = new HashMap<>();
-        response.put("status", HttpStatus.UNAUTHORIZED.value());
-        response.put("error", "Authentication failed: " + ex.getMessage());
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        return buildErrorResponse(HttpStatus.UNAUTHORIZED, "ERR_AUTHENTICATION_FAILED", new Object[]{ex.getMessage()});
     }
 
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<Map<String, Object>> handleAccessDeniedException(AccessDeniedException ex) {
-        Map<String, Object> response = new HashMap<>();
-        response.put("status", HttpStatus.FORBIDDEN.value());
-        response.put("error", "Access denied");
-        response.put("message", "You don't have permission to access this resource");
-        response.put("timestamp", LocalDateTime.now());
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+        return buildErrorResponse(HttpStatus.FORBIDDEN, "ERR_ACCESS_DENIED", new Object[]{"You don't have permission to access this resource"});
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleGeneric(Exception ex) {
         log.error("Unexpected error", ex);
-        Map<String, Object> response = new HashMap<>();
-        response.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
-        response.put("error", "An unexpected error occurred");
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "ERR_INTERNAL_SERVER_ERROR", new Object[0]);
     }
 }

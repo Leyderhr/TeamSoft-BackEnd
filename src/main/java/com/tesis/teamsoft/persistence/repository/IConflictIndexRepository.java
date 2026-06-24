@@ -12,4 +12,8 @@ public interface IConflictIndexRepository extends JpaRepository<ConflictIndexEnt
     List<ConflictIndexEntity> findAllByOrderByIdAsc();
 
     ConflictIndexEntity findFirstByOrderByWeightDesc();
+    boolean existsByDescription(String description);
+    boolean existsByDescriptionAndIdNot(String description, Long id);
+    boolean existsByWeight(long weight);
+    boolean existsByWeightAndIdNot(long weight, Long id);
 }

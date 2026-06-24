@@ -11,10 +11,10 @@ public class PersonalProjectInterestDTO {
 
     @Data
     public static class PersonalProjectInterestCreateDTO {
-        @NotNull(message = "Project ID is required")
+        @NotNull(message = "ERR_VAL_PERSONAL_PROJECT_ID")
         private Long projectId;
 
-        @NotNull(message = "Preference is required")
+        @NotNull(message = "ERR_VAL_PERSONAL_PROJECT_PREFERENCE")
         private Boolean preference;
     }
 

@@ -11,10 +11,10 @@ public class CompetenceValueDTO {
 
     @Data
     public static class CompetenceValueCreateDTO {
-        @NotNull(message = "Competence ID is required")
+        @NotNull(message = "ERR_VAL_COMPETENCE_REQUIRED")
         private Long competenceId;
 
-        @NotNull(message = "Levels ID is required")
+        @NotNull(message = "ERR_VAL_LEVEL_REQUIRED")
         private Long levelsId;
     }
 

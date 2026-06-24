@@ -11,12 +11,12 @@ public class RoleEvaluationDTO {
 
     @Data
     public static class RoleEvaluationCreateDTO {
-        @NotNull(message = "Levels is required")
-        @Min(value = 0, message = "Levels must be at least 0")
+        @NotNull(message = "ERR_VAL_ROLE_EVAL_LEVEL")
+        @Min(value = 0, message = "ERR_VAL_ROLE_EVAL_LEVEL")
         private Float levels;
 
-        @NotBlank(message = "Significance is required")
-        @Pattern(regexp = "^[\\p{L}\\s]+$", message = "Only letters and spaces are allowed")
+        @NotBlank(message = "ERR_VAL_ROLE_EVAL_SIGNIFICANCE")
+        @Pattern(regexp = "^[\\p{L}\\p{N}\\s]+$", message = "ERR_VAL_ROLE_EVAL_SIGNIFICANCE")
         private String significance;
     }
 

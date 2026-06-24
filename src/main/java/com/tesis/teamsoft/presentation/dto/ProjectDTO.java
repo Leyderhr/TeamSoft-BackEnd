@@ -17,21 +17,21 @@ public class ProjectDTO {
 
     @Data
     public static class ProjectCreateDTO {
-        @NotBlank(message = "Project name is required")
-        @Size(max = 1024, message = "Project name max length is 1024")
-        @Pattern(regexp = "^[\\p{L}\\p{N}\\s]+$", message = "Only letters, spaces and digits are allowed")
+        @NotBlank(message = "ERR_VAL_PROJECT_NAME")
+        @Size(max = 1024, message = "ERR_VAL_PROJECT_NAME")
+        @Pattern(regexp = "^[\\p{L}\\p{N}\\s]+$", message = "ERR_VAL_PROJECT_NAME")
         private String projectName;
 
-        @NotNull(message = "Initial date is required")
+        @NotNull(message = "ERR_VAL_PROJECT_INITIAL_DATE")
         private Date initialDate;
 
-        @NotNull(message = "Client ID is required")
+        @NotNull(message = "ERR_VAL_PROJECT_CLIENT_ID")
         private Long client;
 
-        @NotNull(message = "Province ID is required")
+        @NotNull(message = "ERR_VAL_PROJECT_PROVINCE_ID")
         private Long province;
 
-        @NotNull(message = "Project structure ID is required (for cycle creation)")
+        @NotNull(message = "ERR_VAL_PROJECT_STRUCTURE_ID")
         private Long projectStructure;
     }
 

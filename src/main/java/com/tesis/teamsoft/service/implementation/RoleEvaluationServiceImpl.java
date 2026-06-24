@@ -32,7 +32,7 @@ public class RoleEvaluationServiceImpl implements IRoleEvaluationService {
     @Transactional
     public RoleEvaluationDTO.RoleEvaluationResponseDTO updateRoleEvaluation(RoleEvaluationDTO.RoleEvaluationCreateDTO roleEvaluationDTO, Long id) {
         if (!roleEvaluationRepository.existsById(id))
-            throw new ResourceNotFoundException("Role evaluation not found with ID: " + id);
+            throw new ResourceNotFoundException("ERR_ROLE_EVALUATION_NOT_FOUND", id);
 
         RoleEvaluationEntity updatedRoleEvaluation = modelMapper.map(roleEvaluationDTO, RoleEvaluationEntity.class);
         updatedRoleEvaluation.setId(id);
@@ -43,15 +43,15 @@ public class RoleEvaluationServiceImpl implements IRoleEvaluationService {
     @Transactional
     public String deleteRoleEvaluation(Long id) {
         RoleEvaluationEntity roleEvaluation = roleEvaluationRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Role evaluation not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("ERR_ROLE_EVALUATION_NOT_FOUND", id));
 
         if ((roleEvaluation.getProjectsList() != null && !roleEvaluation.getProjectsList().isEmpty()) ||
                 (roleEvaluation.getRoleEvaluationList() != null && !roleEvaluation.getRoleEvaluationList().isEmpty())) {
-            throw new BusinessRuleException("Cannot delete role evaluation because it has associated relations");
+            throw new BusinessRuleException("ERR_ROLE_EVALUATION_CANT_BE_DELETED");
         }
 
         roleEvaluationRepository.deleteById(id);
-        return "Role evaluation deleted successfully";
+        return "ROLE_EVALUATION_SUCCESSFULLY_DELETED";
     }
 
     @Override
@@ -76,7 +76,7 @@ public class RoleEvaluationServiceImpl implements IRoleEvaluationService {
     @Transactional(readOnly = true)
     public RoleEvaluationDTO.RoleEvaluationResponseDTO findRoleEvaluationById(Long id) {
         RoleEvaluationEntity roleEvaluation = roleEvaluationRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Role evaluation not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("ERR_ROLE_EVALUATION_NOT_FOUND", id));
 
         return modelMapper.map(roleEvaluation, RoleEvaluationDTO.RoleEvaluationResponseDTO.class);
     }

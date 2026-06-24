@@ -24,7 +24,7 @@ public class CompetenceDimensionEntity implements Serializable {
     private Long id;
 
     @NotNull(message = "Name is required")
-    @Column(name = "name", nullable = false, unique = true)
+    @Column(name = "name", nullable = false)
     private String name;
 
     @NotNull(message = "Competence is required")

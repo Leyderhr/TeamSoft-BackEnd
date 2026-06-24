@@ -1,6 +1,7 @@
 package com.tesis.teamsoft.service.implementation;
 
 import com.tesis.teamsoft.exception.BusinessRuleException;
+import com.tesis.teamsoft.exception.DuplicateResourceException;
 import com.tesis.teamsoft.exception.ResourceNotFoundException;
 import com.tesis.teamsoft.persistence.entity.ConflictIndexEntity;
 import com.tesis.teamsoft.persistence.repository.IConflictIndexRepository;
@@ -25,6 +26,7 @@ public class ConflictIndexServiceImpl implements IConflictIndexService {
     @Transactional
     public ConflictIndexDTO.ConflictIndexResponseDTO saveConflictIndex(ConflictIndexDTO.ConflictIndexCreateDTO conflictIndexDTO) {
         ConflictIndexEntity savedConflictIndex = modelMapper.map(conflictIndexDTO, ConflictIndexEntity.class);
+        validateUniqueAttributes(conflictIndexDTO, null);
         return modelMapper.map(conflictIndexRepository.save(savedConflictIndex), ConflictIndexDTO.ConflictIndexResponseDTO.class);
     }
 
@@ -32,11 +34,12 @@ public class ConflictIndexServiceImpl implements IConflictIndexService {
     @Transactional
     public ConflictIndexDTO.ConflictIndexResponseDTO updateConflictIndex(ConflictIndexDTO.ConflictIndexCreateDTO conflictIndexDTO, Long id) {
         if (!conflictIndexRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Conflict index not found with ID: " + id);
+            throw new ResourceNotFoundException("ERR_CONFLICT_INDEX_NOT_FOUND", id);
         }
 
         ConflictIndexEntity updatedConflictIndex = modelMapper.map(conflictIndexDTO, ConflictIndexEntity.class);
         updatedConflictIndex.setId(id);
+        validateUniqueAttributes(conflictIndexDTO, id);
         return modelMapper.map(conflictIndexRepository.save(updatedConflictIndex), ConflictIndexDTO.ConflictIndexResponseDTO.class);
     }
 
@@ -44,14 +47,14 @@ public class ConflictIndexServiceImpl implements IConflictIndexService {
     @Transactional
     public String deleteConflictIndex(Long id) {
         ConflictIndexEntity conflictIndex = conflictIndexRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Conflict index not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("ERR_CONFLICT_INDEX_NOT_FOUND", id));
 
         if (conflictIndex.getPersonConflictList() != null && !conflictIndex.getPersonConflictList().isEmpty()) {
-            throw new BusinessRuleException("Cannot delete conflict index because it has associated person conflicts");
+            throw new BusinessRuleException("ERR_CONFLICT_INDEX_CANT_BE_DELETED");
         }
 
         conflictIndexRepository.deleteById(id);
-        return "Conflict index deleted successfully";
+        return "CONFLICT_INDEX_SUCCESSFULLY_DELETED";
     }
 
     @Override
@@ -76,7 +79,25 @@ public class ConflictIndexServiceImpl implements IConflictIndexService {
     @Transactional(readOnly = true)
     public ConflictIndexDTO.ConflictIndexResponseDTO findConflictIndexById(Long id) {
         ConflictIndexEntity conflictIndex = conflictIndexRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Conflict index not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("ERR_CONFLICT_INDEX_NOT_FOUND", id));
         return modelMapper.map(conflictIndex, ConflictIndexDTO.ConflictIndexResponseDTO.class);
+    }
+
+    private void validateUniqueAttributes(ConflictIndexDTO.ConflictIndexCreateDTO dto, Long id) {
+        boolean descriptionExists = (id == null) ?
+                conflictIndexRepository.existsByDescription(dto.getDescription()) :
+                conflictIndexRepository.existsByDescriptionAndIdNot(dto.getDescription(), id);
+
+        if (descriptionExists) {
+            throw new DuplicateResourceException("ERR_CONFLICT_INDEX_DESCRIPTION_ALREADY_EXISTS");
+        }
+
+        boolean weightExists = (id == null) ?
+                conflictIndexRepository.existsByWeight(dto.getWeight()) :
+                conflictIndexRepository.existsByWeightAndIdNot(dto.getWeight(), id);
+
+        if (weightExists) {
+            throw new DuplicateResourceException("ERR_CONFLICT_INDEX_WEIGHT_ALREADY_EXISTS");
+        }
     }
 }

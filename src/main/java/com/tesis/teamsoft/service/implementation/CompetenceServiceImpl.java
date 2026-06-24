@@ -53,7 +53,7 @@ public class CompetenceServiceImpl implements ICompetenceService {
     @Transactional
     public CompetenceDTO.CompetenceResponseDTO updateCompetence(CompetenceDTO.CompetenceCreateDTO competenceDTO, Long id){
         if(!competenceRepository.existsById(id)){
-            throw new ResourceNotFoundException("Competence not found with ID: " + id);
+            throw new ResourceNotFoundException("ERR_COMPETENCE_NOT_FOUND", id);
         }
 
         CompetenceEntity savedCompetence = modelMapper.map(competenceDTO, CompetenceEntity.class);
@@ -68,16 +68,16 @@ public class CompetenceServiceImpl implements ICompetenceService {
     @Transactional
     public String deleteCompetence(Long id){
         CompetenceEntity competence = competenceRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Competence not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("ERR_COMPETENCE_NOT_FOUND", id));
 
         if ((competence.getRoleCompetitionList() != null && !competence.getRoleCompetitionList().isEmpty()) ||
                 (competence.getProjectTechCompetenceList() != null && !competence.getProjectTechCompetenceList().isEmpty()) ||
                 (competence.getCompetenceValueList() != null && !competence.getCompetenceValueList().isEmpty())) {
-            throw new BusinessRuleException("Cannot delete competence because it has associated relations");
+            throw new BusinessRuleException("ERR_COMPETENCE_CANT_BE_DELETED");
         }
 
         competenceRepository.deleteById(id);
-        return "Competence deleted successfully";
+        return "COMPETENCE_SUCCESSFULLY_DELETED";
     }
 
     @Override
@@ -110,7 +110,7 @@ public class CompetenceServiceImpl implements ICompetenceService {
     @Transactional(readOnly = true)
     public CompetenceDTO.CompetenceResponseDTO findCompetenceById(Long id){
         CompetenceEntity competence = competenceRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Competence not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("ERR_COMPETENCE_NOT_FOUND", id));
         return convertToResponseDTO(competence);
     }
 
@@ -154,11 +154,10 @@ public class CompetenceServiceImpl implements ICompetenceService {
                     }
                 } catch (Exception e) {
                     result.setErrors(result.getErrors() + 1);
-                    result.getErrorMessages().add("Error en fila con nombre '" + row.getCompetitionName() + "': " + e.getMessage());
                 }
             }
         } catch (IOException e) {
-            throw new RuntimeException("Error leyendo el archivo", e);
+            throw new RuntimeException("ERR_FILE_READ_ERROR", e);
         }
         return result;
     }
@@ -187,7 +186,7 @@ public class CompetenceServiceImpl implements ICompetenceService {
             writer.flush();
             return new ByteArrayInputStream(baos.toByteArray());
         } catch (IOException | CsvDataTypeMismatchException | CsvRequiredFieldEmptyException e) {
-            throw new RuntimeException("Error generando el archivo CSV", e);
+            throw new RuntimeException("ERR_CSV_GENERATION", e);
         }
     }
 
@@ -195,6 +194,9 @@ public class CompetenceServiceImpl implements ICompetenceService {
     private List<CompetenceDimensionEntity> assingCompetenceDimension(
             List<CompetenceDimensionDTO.CompetenceDimensionCreateDTO> dimensionsDTOList,
             CompetenceEntity savedCompetence) {
+
+        validateUniqueDimensionNames(dimensionsDTOList);
+
         Map<Long, LevelsEntity> levelsMap = levelsRepository.findAll()
                 .stream()
                 .collect(Collectors.toMap(LevelsEntity::getId, Function.identity()));
@@ -206,18 +208,17 @@ public class CompetenceServiceImpl implements ICompetenceService {
             LevelsEntity level = levelsMap.get(dimensionDTO.getLevelsID());
 
             if (level == null)
-                throw new ResourceNotFoundException("Levels not found with ID: " + dimensionDTO.getLevelsID());
+                throw new ResourceNotFoundException("ERR_LEVELS_NOT_FOUND", dimensionDTO.getLevelsID());
 
             if (!processedLevelIds.add(dimensionDTO.getLevelsID()))
-                throw new BusinessRuleException("Duplicate level ID: " + dimensionDTO.getLevelsID());
+                throw new BusinessRuleException("ERR_COMPETENCE_DUPLICATE_LEVEL_ID", dimensionDTO.getLevelsID());
 
             CompetenceDimensionEntity dimension = new CompetenceDimensionEntity(
                     null, dimensionDTO.getName(), savedCompetence, level);
             dimensionList.add(dimension);
         }
         if (levelsMap.size() != processedLevelIds.size())
-            throw new BusinessRuleException(
-                    "Level descriptions must be configured for all competency levels before submission. ");
+            throw new BusinessRuleException("ERR_COMPETENCE_DIMENSION_ALL_LEVELS");
 
         return dimensionList;
     }
@@ -252,5 +253,14 @@ public class CompetenceServiceImpl implements ICompetenceService {
         }
         responseDTO.setDimensionList(dimensionDTOList);
         return responseDTO;
+    }
+
+    private void validateUniqueDimensionNames(List<CompetenceDimensionDTO.CompetenceDimensionCreateDTO> dimensionsDTOList) {
+        Set<String> names = new HashSet<>();
+        for (CompetenceDimensionDTO.CompetenceDimensionCreateDTO dto : dimensionsDTOList) {
+            if (!names.add(dto.getName())) {
+                throw new BusinessRuleException("ERR_DUPLICATE_COMPETENCE_DIMENSION_NAME", dto.getName());
+            }
+        }
     }
 }

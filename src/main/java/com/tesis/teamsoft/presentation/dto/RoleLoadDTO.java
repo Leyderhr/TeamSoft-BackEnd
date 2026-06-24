@@ -1,5 +1,6 @@
 package com.tesis.teamsoft.presentation.dto;
 
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -13,11 +14,12 @@ public class RoleLoadDTO {
 
     @Data
     public static class RoleLoadCreateDTO {
-        @NotNull(message = "Value is required")
+        @NotNull(message = "ERR_VAL_ROLE_LOAD_VALUE")
+        @Min(value = 0, message = "ERR_VAL_ROLE_LOAD_VALUE")
         private Float value;
 
-        @NotBlank(message = "Significance is required")
-        @Pattern(regexp = "^[\\p{L}\\s]+$", message = "Only letters and spaces are allowed")
+        @NotBlank(message = "ERR_VAL_ROLE_LOAD_SIGNIFICANCE")
+        @Pattern(regexp = "^[\\p{L}\\p{N}\\s]+$", message = "ERR_VAL_ROLE_LOAD_SIGNIFICANCE")
         private String significance;
     }
 

@@ -1,11 +1,8 @@
 package com.tesis.teamsoft.presentation.dto;
 
-
-import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -16,8 +13,8 @@ public class ReligionDTO {
 
     @Data
     public static class ReligionCreateDTO {
-        @NotBlank(message = "Religion name is required")
-        @Pattern(regexp = "^[\\p{L}\\s]+$", message = "Only letters and spaces are allowed")
+        @NotBlank(message = "ERR_VAL_RELIGION_NAME")
+        @Pattern(regexp = "^[\\p{L}\\s]+$", message = "ERR_VAL_RELIGION_NAME")
         private String religionName;
 
     }

@@ -15,48 +15,48 @@ public class PersonTestDTO {
 
     @Data
     public static class PersonTestCreateDTO {
-        @NotNull(message = "ES is required")
+        @NotNull(message = "ERR_VAL_PERSON_TEST_BELBIN_ES")
         @JsonProperty("e_S")
         private Character eS;
 
-        @NotNull(message = "ID is required")
+        @NotNull(message = "ERR_VAL_PERSON_TEST_BELBIN_ID")
         @JsonProperty("i_M")
         private Character iM;
 
-        @NotNull(message = "CO is required")
+        @NotNull(message = "ERR_VAL_PERSON_TEST_BELBIN_CO")
         @JsonProperty("c_O")
         private Character cO;
 
-        @NotNull(message = "IS is required")
+        @NotNull(message = "ERR_VAL_PERSON_TEST_BELBIN_IS")
         @JsonProperty("i_S")
         private Character iS;
 
-        @NotNull(message = "CE is required")
+        @NotNull(message = "ERR_VAL_PERSON_TEST_BELBIN_CE")
         @JsonProperty("c_E")
         private Character cE;
 
-        @NotNull(message = "IR is required")
+        @NotNull(message = "ERR_VAL_PERSON_TEST_BELBIN_IR")
         @JsonProperty("i_R")
         private Character iR;
 
-        @NotNull(message = "ME is required")
+        @NotNull(message = "ERR_VAL_PERSON_TEST_BELBIN_ME")
         @JsonProperty("m_E")
         private Character mE;
 
-        @NotNull(message = "CH is required")
+        @NotNull(message = "ERR_VAL_PERSON_TEST_BELBIN_CH")
         @JsonProperty("c_H")
         private Character cH;
 
-        @NotNull(message = "IF is required")
+        @NotNull(message = "ERR_VAL_PERSON_TEST_BELBIN_IF")
         @JsonProperty("i_F")
         private Character iF;
 
-        @NotBlank(message = "MBTI test result is required")
+        @NotBlank(message = "ERR_VAL_PERSON_TEST_MBTI_RESULT")
         @Pattern(regexp = "^(E|I)(N|S)(F|T)(J|P)$",
-                message = "Must be a valid MBTI type like 'ENFJ'")
+                message = "ERR_VAL_PERSON_TEST_MBTI_RESULT")
         private String mbtiType;
 
-        @AssertTrue(message = "Belbin roles only admit P, E, or I – nothing else is allowed.")
+        @AssertTrue(message = "ERR_VAL_PERSON_TEST_BELBIN_ROLE_VALUE")
         public boolean isBelbinRolesValid() {
             return ((eS == 'P' || eS == 'E' || eS == 'I') &&
                     (iM == 'P' || iM == 'E' || iM == 'I') &&

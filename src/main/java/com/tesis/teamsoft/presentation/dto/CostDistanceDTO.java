@@ -13,17 +13,17 @@ public class CostDistanceDTO {
 
     @Data
     public static class CostDistanceCreateDTO {
-        @NotNull(message = "Cost distance is required")
-        @Min(value = 0, message = "Cost distance must be at least 0")
+        @NotNull(message = "ERR_VAL_COST_DISTANCE_")
+        @Min(value = 0, message = "ERR_VAL_COST_DISTANCE_")
         private Float costDistance;
 
-        @NotNull(message = "County A is required")
+        @NotNull(message = "ERR_VAL_COST_DISTANCE_COUNTY_A_REQUIRED")
         private Long countyAId;
 
-        @NotNull(message = "County B is required")
+        @NotNull(message = "ERR_VAL_COST_DISTANCE_COUNTY_B_REQUIRED")
         private Long countyBId;
 
-        @AssertTrue(message = "County A and County B must be different")
+        @AssertTrue(message = "ERR_VAL_COST_DISTANCE_COUNTIES_SAME")
         public boolean isCountiesDifferent() {
             return countyAId != null && countyBId != null && !countyAId.equals(countyBId);
         }

@@ -10,4 +10,6 @@ import java.util.List;
 public interface IClientRepository extends JpaRepository<ClientEntity, Long> {
 
     List<ClientEntity> findAllByOrderByIdAsc();
+    boolean existsByEntityName(String entityName);
+    boolean existsByEntityNameAndIdNot(String entityName, Long id);
 }

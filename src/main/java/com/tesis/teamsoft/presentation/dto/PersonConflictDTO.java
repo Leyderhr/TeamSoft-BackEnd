@@ -11,10 +11,10 @@ public class PersonConflictDTO {
 
     @Data
     public static class PersonConflictCreateDTO {
-        @NotNull(message = "Conflict index ID is required")
+        @NotNull(message = "ERR_VAL_PERSON_CONFLICT_INDEX_ID")
         private Long conflictIndexId;
 
-        @NotNull(message = "Person conflict ID is required")
+        @NotNull(message = "ERR_VAL_PERSON_CONFLICT_TARGET_ID")
         private Long personConflictId;
     }
 

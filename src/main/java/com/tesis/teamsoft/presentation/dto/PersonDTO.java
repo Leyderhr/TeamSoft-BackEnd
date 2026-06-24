@@ -16,45 +16,46 @@ public class PersonDTO {
 
     @Data
     public static class PersonCreateDTO {
-        @NotBlank(message = "Person name is required")
-        @Pattern(regexp = "^[\\p{L}\\s]+$", message = "Only letters and spaces are allowed")
+        @NotBlank(message = "ERR_VAL_PERSON_NAME")
+        @Pattern(regexp = "^[\\p{L}\\s]+$", message = "ERR_VAL_PERSON_NAME")
         private String personName;
 
-        @NotBlank(message = "ID card is required")
-        @Pattern(regexp = "^\\d{8,}$", message = "Card must contain at least 8 digits")
+        @NotBlank(message = "ERR_VAL_PERSON_ID_CARD")
+        @Pattern(regexp = "^\\d+$", message = "ERR_VAL_PERSON_ID_CARD")
         private String card;
 
-        @NotBlank(message = "Surname is required")
-        @Pattern(regexp = "^[\\p{L}\\s]+$", message = "Only letters and spaces are allowed")
+        @NotBlank(message = "ERR_VAL_PERSON_SURNAME")
+        @Pattern(regexp = "^[\\p{L}\\s]+$", message = "ERR_VAL_PERSON_SURNAME")
         private String surName;
 
-        @NotBlank(message = "Address is required")
+        @NotBlank(message = "ERR_VAL_PERSON_ADDRESS")
         private String address;
 
-        @NotBlank(message = "Phone is required")
-        @Pattern(regexp = "^\\d{8,}$", message = "Phone must contain at least 8 digits")
+        @NotBlank(message = "ERR_VAL_PERSON_PHONE")
+        @Pattern(regexp = "^(?=(?:\\D*\\d){8})[\\d+\\-\\s]+$",
+                message = "ERR_VAL_PERSON_PHONE")
         private String phone;
 
         private Character sex;
 
-        @NotNull(message = "Status is required")
+        @NotNull(message = "ERR_VAL_PERSON_STATUS")
         private Status status;
 
-        @NotBlank(message = "Email is required")
-        @Email(message = "Email should be valid")
+        @NotBlank(message = "ERR_VAL_PERSON_EMAIL")
+        @Email(message = "ERR_VAL_PERSON_EMAIL")
         private String email;
 
-        @NotNull(message = "In date is required")
+        @NotNull(message = "ERR_VAL_PERSON_IN_DATE")
         private Date inDate;
 
-        @NotNull(message = "Experience is required")
+        @NotNull(message = "ERR_VAL_PERSON_EXPERIENCE")
         private Integer experience;
 
-        @NotNull(message = "Birth date is required")
-        @Past(message = "Birth date must be in the past")
+        @NotNull(message = "ERR_VAL_PERSON_BIRTH_DATE")
+        @Past(message = "ERR_VAL_PERSON_BIRTH_DATE")
         private Date birthDate;
 
-        @NotNull(message = "Person group ID is required")
+        @NotNull(message = "ERR_VAL_PERSON_GROUP_ID")
         private Long group;
 
         private Long county;
@@ -72,13 +73,13 @@ public class PersonDTO {
         private List<PersonalProjectInterestDTO.PersonalProjectInterestCreateDTO> personalProjectInterests;
 
         @Valid
-        @NotNull(message = "Person test is required")
+        @NotNull(message = "ERR_VAL_PERSON_TEST")
         private PersonTestDTO.PersonTestCreateDTO personTest;
 
         @Valid
         private List<PersonConflictDTO.PersonConflictCreateDTO> personConflicts;
 
-        @AssertTrue(message = "Sex must be 'M' or 'F'")
+        @AssertTrue(message = "ERR_VAL_PERSON_SEX")
         public boolean isSexValid() {
             if(sex == null)
                 return true;

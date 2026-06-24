@@ -54,7 +54,7 @@ public class ProjectServiceImpl implements IProjectService {
     @Override
     public ProjectDTO.ProjectResponseDTO updateProject(ProjectDTO.ProjectCreateDTO projectDTO, Long id) {
         ProjectEntity updatedProject = projectRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Project not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("ERR_PROJECT_NOT_FOUND", id));
 
         updatedProject.setProjectName(projectDTO.getProjectName());
         updatedProject.setInitialDate(projectDTO.getInitialDate());
@@ -63,25 +63,18 @@ public class ProjectServiceImpl implements IProjectService {
         return convertToResponseDTO(projectRepository.save(updatedProject));
     }
 
-    public ProjectDTO.ProjectResponseDTO closeProject(Long id){
-        ProjectEntity updatedProject = projectRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Project not found with ID: " + id));
-
-        return convertToResponseDTO(projectRepository.save(updatedProject));
-    }
-
     @Override
     public String deleteProject(Long id) {
         ProjectEntity project = projectRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Project not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("ERR_PROJECT_NOT_FOUND", id));
 
         if ((project.getPersonalProjectInterestsList() != null && !project.getPersonalProjectInterestsList().isEmpty()) ||
                 (isCycleWithDependencies(project.getCycleList()))) {
-            throw new BusinessRuleException("Cannot delete project because it has associated datas");
+            throw new BusinessRuleException("ERR_PROJECT_CANT_BE_DELETED");
         }
 
         projectRepository.delete(project);
-        return "Person deleted successfully";
+        return "PROJECT_SUCCESSFULLY_DELETED";
     }
 
     @Override
@@ -95,7 +88,7 @@ public class ProjectServiceImpl implements IProjectService {
     @Override
     public ProjectDTO.ProjectResponseDTO findProjectById(Long id) {
         ProjectEntity project = projectRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Project not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("ERR_PROJECT_NOT_FOUND", id));
 
         return convertToResponseDTO(project);
     }
@@ -118,7 +111,7 @@ public class ProjectServiceImpl implements IProjectService {
                     .map(ProjectRolesEntity::getRole)
                     .filter(role -> role != null && role.isBoss())
                     .findFirst()
-                    .orElseThrow(() -> new BusinessRuleException("No boss role found in project structure for project ID: " + projectId));
+                    .orElseThrow(() -> new BusinessRuleException("ERR_PROJECT_NOT_BOSS_FOUND", projectId));
 
             List<RoleDTO.RoleCompetitionResponseDTO> technical = new ArrayList<>();
             List<RoleDTO.RoleCompetitionResponseDTO> nonTechnical = new ArrayList<>();
@@ -128,7 +121,7 @@ public class ProjectServiceImpl implements IProjectService {
                 if (rc.getCompetence() != null)
                     isTechnical = rc.getCompetence().getTechnical();
                 else
-                    throw new BusinessRuleException("Competence is null in role competition");
+                    throw new BusinessRuleException("ERR_PROJECT_ROLE_COMPETENCE_NULL");
 
                 if(isTechnical)
                     technical.add(toRoleCompetitionResponseDTO(rc));
@@ -173,10 +166,10 @@ public class ProjectServiceImpl implements IProjectService {
     @Transactional(readOnly = true)
     public List<AssignedRoleDTO> findNonBossAssignedRoles(Long projectId) {
         ProjectEntity project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new ResourceNotFoundException("Project not found with ID: " + projectId));
+                .orElseThrow(() -> new ResourceNotFoundException("ERR_PROJECT_NOT_FOUND", projectId));
 
         if (project.getCycleList() == null || project.getCycleList().isEmpty())
-            throw new BusinessRuleException("Project with ID " + projectId + " has no cycle defined");
+            throw new BusinessRuleException("ERR_PROJECT_NO_CYCLE_DEFINED", projectId);
 
         CycleEntity cycle = project.getCycleList().getFirst();
         Map<Long, AssignedRoleDTO> byRole = new LinkedHashMap<>();
@@ -205,10 +198,10 @@ public class ProjectServiceImpl implements IProjectService {
     @Transactional(readOnly = true)
     public AssignedRoleDTO findBossAssignedRole(Long projectId) {
         ProjectEntity project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new ResourceNotFoundException("Project not found with ID: " + projectId));
+                .orElseThrow(() -> new ResourceNotFoundException("ERR_PROJECT_NOT_FOUND", projectId));
 
         if (project.getCycleList() == null || project.getCycleList().isEmpty())
-            throw new BusinessRuleException("Project with ID " + projectId + " has no cycle defined");
+            throw new BusinessRuleException("ERR_PROJECT_NO_CYCLE_DEFINED", projectId);
 
         CycleEntity cycle = project.getCycleList().getFirst();
         AssignedRoleDTO dto = null;
@@ -238,17 +231,17 @@ public class ProjectServiceImpl implements IProjectService {
     @Transactional
     public ProjectDTO.ProjectResponseDTO closeProject(Long id, CloseProjectDTO dto) {
         ProjectEntity project = projectRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Project not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("ERR_PROJECT_NOT_FOUND", id));
 
         if (project.getState() != ProjectState.FINALIZED)
-            throw new BusinessRuleException("Only projects in FINALIZED state can be closed. Current state: " + project.getState());
+            throw new BusinessRuleException("ERR_PROJECT_CLOSE_INVALID_STATE");
 
         if (project.getCycleList() == null || project.getCycleList().isEmpty())
-            throw new BusinessRuleException("Project with ID " + id + " has no cycle defined");
+            throw new BusinessRuleException("ERR_PROJECT_NO_CYCLE_DEFINED", id);
 
         CycleEntity cycle = project.getCycleList().getFirst();
         if (cycle == null)
-            throw new BusinessRuleException("Project with ID " + id + " has no cycle defined");
+            throw new BusinessRuleException("ERR_PROJECT_NO_CYCLE_DEFINED", id);
 
         // Evaluación del jefe -> se agrega a las evaluaciones del ciclo (sin borrar las de los miembros)
         if (cycle.getRoleEvaluationList() == null)
@@ -258,7 +251,7 @@ public class ProjectServiceImpl implements IProjectService {
 
         // Evaluación del proyecto
         RoleEvaluationEntity projectEvaluation = roleEvaluationRepository.findById(dto.getRoleEvaluation())
-                .orElseThrow(() -> new ResourceNotFoundException("Role evaluation not found with ID: " + dto.getRoleEvaluation()));
+                .orElseThrow(() -> new ResourceNotFoundException("ERR_ROLE_EVAL_NOT_FOUND", dto.getRoleEvaluation()));
         project.setRoleEvaluation(projectEvaluation);
 
         project.setStateToNext(); // FINALIZED -> CLOSED
@@ -273,17 +266,17 @@ public class ProjectServiceImpl implements IProjectService {
     @Transactional
     public ProjectDTO.ProjectResponseDTO finalizeProject(Long id, List<RolePersonEvaluationDTO> evaluations) {
         ProjectEntity project = projectRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Project not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("ERR_PROJECT_NOT_FOUND", id));
 
         if (project.getState() != ProjectState.FORMED)
-            throw new BusinessRuleException("Only projects in FORMED state can be finalized. Current state: " + project.getState());
+            throw new BusinessRuleException("ERR_PROJECT_FINALIZE_INVALID_STATE");
 
         if (project.getCycleList() == null || project.getCycleList().isEmpty())
-            throw new BusinessRuleException("Project with ID " + id + " has no cycle defined");
+            throw new BusinessRuleException("ERR_PROJECT_NO_CYCLE_DEFINED", id);
 
         CycleEntity cycle = project.getCycleList().getFirst();
         if (cycle == null)
-            throw new BusinessRuleException("Project with ID " + id + " has no cycle defined");
+            throw new BusinessRuleException("ERR_PROJECT_NO_CYCLE_DEFINED", id);
 
         List<RolePersonEvalEntity> roleEvaluations = buildRolePersonEvaluations(evaluations, cycle);
 
@@ -324,15 +317,13 @@ public class ProjectServiceImpl implements IProjectService {
     private Float getRoleLoadValueForCycle(CycleEntity cycle, RoleEntity role) {
         ProjectStructureEntity projectStructure = cycle.getProjectStructure();
         if (projectStructure == null) {
-            throw new BusinessRuleException("Cycle has no associated project structure");
+            throw new BusinessRuleException("ERR_PROJECT_CYCLE_NO_STRUCTURE");
         }
         return projectStructure.getProjectRolesList().stream()
                 .filter(pr -> pr.getRole().equals(role))
                 .findFirst()
                 .map(pr -> pr.getRoleLoad().getValue())
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Role load not found for role '" + role.getRoleName() +
-                                "' in project structure of project '" + cycle.getProject().getProjectName() + "'"));
+                .orElseThrow(() -> new ResourceNotFoundException("ERR_PROJECT_ROLE_NOT_FOUND_STRUCTURE"));
     }
 
 
@@ -344,11 +335,11 @@ public class ProjectServiceImpl implements IProjectService {
 
         for (RolePersonEvaluationDTO dto : evaluations) {
             PersonEntity person = personRepository.findById(dto.getPerson())
-                    .orElseThrow(() -> new ResourceNotFoundException("Person not found with ID: " + dto.getPerson()));
+                    .orElseThrow(() -> new ResourceNotFoundException("ERR_PERSON_NOT_FOUND", dto.getPerson()));
             RoleEntity role = roleRepository.findById(dto.getRole())
-                    .orElseThrow(() -> new ResourceNotFoundException("Role not found with ID: " + dto.getRole()));
+                    .orElseThrow(() -> new ResourceNotFoundException("ERR_ROLE_NOT_FOUND", dto.getRole()));
             RoleEvaluationEntity roleEvaluation = roleEvaluationRepository.findById(dto.getRoleEvaluation())
-                    .orElseThrow(() -> new ResourceNotFoundException("Role evaluation not found with ID: " + dto.getRoleEvaluation()));
+                    .orElseThrow(() -> new ResourceNotFoundException("ERR_ROLE_EVAL_NOT_FOUND", dto.getRoleEvaluation()));
 
             RolePersonEvalEntity entity = new RolePersonEvalEntity();
             entity.setCycles(cycle);
@@ -368,7 +359,7 @@ public class ProjectServiceImpl implements IProjectService {
     @Transactional(readOnly = true)
     public ProjectReportDTO getProjectReport(Long id) {
         ProjectEntity project = projectRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Project not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("ERR_PROJECT_NOT_FOUND", id));
 
         ProjectReportDTO dto = new ProjectReportDTO();
         dto.setId(project.getId());
@@ -408,25 +399,25 @@ public class ProjectServiceImpl implements IProjectService {
         Set<String> namesInBatch = new HashSet<>();
         List<String> duplicateNamesInBatch = projectDTOs.stream().map(dto -> {
                     if(projectRepository.existsByProjectName(dto.getProjectName()))
-                        throw new BusinessRuleException("Project name already exists: " + dto.getProjectName());
+                        throw new BusinessRuleException("ERR_PROJECT_NAME_ALREADY_EXISTS", dto.getProjectName());
 
                     return dto.getProjectName();
                 }).filter(name -> !namesInBatch.add(name))
                 .toList();
 
         if (!duplicateNamesInBatch.isEmpty()) {
-            throw new BusinessRuleException("Duplicate project names in the same request: " + duplicateNamesInBatch);
+            throw new BusinessRuleException("ERR_PROJECT_BATCH_DUPLICATE_NAMES");
         }
     }
 
     private ProjectStructureEntity processSimpleRelations(ProjectDTO.ProjectCreateDTO projectDTO, ProjectEntity project) {
         project.setClient(clientRepository.findById(projectDTO.getClient())
-                .orElseThrow(() -> new ResourceNotFoundException("Client not found with ID: " + projectDTO.getClient())));
+                .orElseThrow(() -> new ResourceNotFoundException("ERR_CLIENT_NOT_FOUND", projectDTO.getClient())));
         project.setProvince(countyRepository.findById(projectDTO.getProvince())
-                .orElseThrow(()-> new ResourceNotFoundException("Province not found with id: " + projectDTO.getProvince())));
+                .orElseThrow(()-> new ResourceNotFoundException("ERR_COUNTY_NOT_FOUND", projectDTO.getProvince())));
 
         return projectStructureRepository.findById(projectDTO.getProjectStructure())
-                .orElseThrow(() -> new ResourceNotFoundException("Project structure not found with id: " + projectDTO.getProjectStructure()));
+                .orElseThrow(() -> new ResourceNotFoundException("ERR_PROJECT_STRUCTURE_NOT_FOUND", projectDTO.getProjectStructure()));
     }
 
     private boolean isCycleWithDependencies(List<CycleEntity> cycles) {
@@ -460,14 +451,14 @@ public class ProjectServiceImpl implements IProjectService {
 
     private ProjectStructureInfo findProjectStructureInfo(Long projectId){
         ProjectEntity project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new ResourceNotFoundException("Project not found with ID: " + projectId));
+                .orElseThrow(() -> new ResourceNotFoundException("ERR_PROJECT_NOT_FOUND", projectId));
 
         if (project.getCycleList() == null || project.getCycleList().isEmpty())
-            throw new BusinessRuleException("Project with ID " + projectId + " has no cycles defined");
+            throw new BusinessRuleException("ERR_PROJECT_NO_CYCLE_DEFINED", projectId);
 
         ProjectStructureEntity structure = project.getCycleList().getFirst().getProjectStructure();
         if (structure == null || structure.getProjectRolesList() == null)
-            throw new BusinessRuleException("Project structure or roles not found for project ID: " + projectId);
+            throw new BusinessRuleException("ERR_PROJECT_STRUCTURE_OR_ROLES_NOT_FOUND", projectId);
 
         return new ProjectStructureInfo(project, structure);
     }

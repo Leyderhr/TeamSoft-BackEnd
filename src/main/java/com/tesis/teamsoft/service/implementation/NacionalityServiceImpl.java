@@ -1,6 +1,7 @@
 package com.tesis.teamsoft.service.implementation;
 
 import com.tesis.teamsoft.exception.BusinessRuleException;
+import com.tesis.teamsoft.exception.DuplicateResourceException;
 import com.tesis.teamsoft.exception.ResourceNotFoundException;
 import com.tesis.teamsoft.persistence.entity.NacionalityEntity;
 import com.tesis.teamsoft.persistence.repository.INacionalityRepository;
@@ -24,6 +25,7 @@ public class NacionalityServiceImpl implements INacionalityService {
     @Transactional
     public NationalityDTO.NacionalityResponseDTO saveNacionality(NationalityDTO.NacionalityCreateDTO nacionalityDTO) {
         NacionalityEntity savedNacionality = modelMapper.map(nacionalityDTO, NacionalityEntity.class);
+        validateUniqueAttributes(nacionalityDTO, null);
         return modelMapper.map(nacionalityRepository.save(savedNacionality), NationalityDTO.NacionalityResponseDTO.class);
     }
 
@@ -31,10 +33,11 @@ public class NacionalityServiceImpl implements INacionalityService {
     @Transactional
     public NationalityDTO.NacionalityResponseDTO updateNacionality(NationalityDTO.NacionalityCreateDTO nacionalityDTO, Long id) {
         if (!nacionalityRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Nationality not found with ID: " + id);
+            throw new ResourceNotFoundException("ERR_NATIONALITY_NOT_FOUND", id);
         }
         NacionalityEntity updatedNacionality = modelMapper.map(nacionalityDTO, NacionalityEntity.class);
         updatedNacionality.setId(id);
+        validateUniqueAttributes(nacionalityDTO, id);
         return modelMapper.map(nacionalityRepository.save(updatedNacionality), NationalityDTO.NacionalityResponseDTO.class);
     }
 
@@ -42,14 +45,14 @@ public class NacionalityServiceImpl implements INacionalityService {
     @Transactional
     public String deleteNacionality(Long id) {
         NacionalityEntity nacionality = nacionalityRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Nationality not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("ERR_NATIONALITY_NOT_FOUND", id));
 
         if (nacionality.getPersonList() != null && !nacionality.getPersonList().isEmpty()) {
-            throw new BusinessRuleException("Cannot delete nationality because it has associated persons");
+            throw new BusinessRuleException("ERR_NATIONALITY_CANT_BE_DELETED");
         }
 
         nacionalityRepository.deleteById(id);
-        return "Nationality deleted successfully";
+        return "NATIONALITY_SUCCESSFULLY_DELETED";
     }
 
     @Override
@@ -74,7 +77,23 @@ public class NacionalityServiceImpl implements INacionalityService {
     @Transactional(readOnly = true)
     public NationalityDTO.NacionalityResponseDTO findNacionalityById(Long id) {
         NacionalityEntity nacionality = nacionalityRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Nationality not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("ERR_NATIONALITY_NOT_FOUND", id));
         return modelMapper.map(nacionality, NationalityDTO.NacionalityResponseDTO.class);
+    }
+
+    private void validateUniqueAttributes(NationalityDTO.NacionalityCreateDTO dto, Long id) {
+        boolean paisExists = (id == null) ?
+                nacionalityRepository.existsByPaisNac(dto.getPaisNac()) :
+                nacionalityRepository.existsByPaisNacAndIdNot(dto.getPaisNac(), id);
+        if (paisExists) {
+            throw new DuplicateResourceException("ERR_NATIONALITY_COUNTRY_ALREADY_EXISTS");
+        }
+
+        boolean gentilicioExists = (id == null) ?
+                nacionalityRepository.existsByGentilicioNac(dto.getGentilicioNac()) :
+                nacionalityRepository.existsByGentilicioNacAndIdNot(dto.getGentilicioNac(), id);
+        if (gentilicioExists) {
+            throw new DuplicateResourceException("ERR_NATIONALITY_DEMONYM_ALREADY_EXISTS");
+        }
     }
 }

@@ -17,15 +17,15 @@ public class CompetenceDTO {
 
     @Data
     public static class CompetenceCreateDTO{
-        @NotBlank(message = "Competence name is required")
-        @Pattern(regexp = "^[\\p{L}\\s]+$", message = "Only letters and spaces are allowed")
+        @NotBlank(message = "ERR_VAL_COMPETENCE_NAME")
+        @Pattern(regexp = "^[\\p{L}\\p{N}\\s]+$", message = "ERR_VAL_COMPETENCE_NAME")
         private String competitionName;
 
-        @NotBlank(message = "Competence description is required")
-        @Pattern(regexp = "^[\\p{L}\\s]+$", message = "Only letters and spaces are allowed")
+        @NotBlank(message = "ERR_VAL_COMPETENCE_DESCRIPTION")
+        @Pattern(regexp = "^[\\p{L}\\p{N}\\s]+$", message = "ERR_VAL_COMPETENCE_DESCRIPTION")
         private String description;
 
-        @NotNull(message = "Define if technical competency")
+        @NotNull(message = "ERR_VAL_COMPETENCE_IS_TECHNICAL")
         private Boolean technical;
 
         @Valid

@@ -13,12 +13,12 @@ public class NationalityDTO {
 
     @Data
     public static class NacionalityCreateDTO {
-        @NotBlank(message = "Country name is required")
-        @Pattern(regexp = "^[\\p{L}\\s]+$", message = "Only letters and spaces are allowed")
+        @NotBlank(message = "ERR_VAL_NATIONALITY_NAME")
+        @Pattern(regexp = "^[\\p{L}\\s]+$", message = "ERR_VAL_NATIONALITY_NAME")
         private String paisNac;
 
-        @NotBlank(message = "Demonym is required")
-        @Pattern(regexp = "^[\\p{L}\\s]+$", message = "Only letters and spaces are allowed")
+        @NotBlank(message = "ERR_VAL_NATIONALITY_GENTILICIO")
+        @Pattern(regexp = "^[\\p{L}\\s]+$", message = "ERR_VAL_NATIONALITY_GENTILICIO")
         private String gentilicioNac;
     }
 

@@ -29,7 +29,7 @@ public class PersonGroupServiceImpl implements IPersonGroupService {
 
         if (personGroupDTO.getParentGroupId() != null) {
             PersonGroupEntity parentGroup = personGroupRepository.findById(personGroupDTO.getParentGroupId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Parent group not found with ID: " + personGroupDTO.getParentGroupId()));
+                    .orElseThrow(() -> new ResourceNotFoundException("ERR_PARENT_GROUP_NOT_FOUND", personGroupDTO.getParentGroupId()));
 
             validateNoCircularReference(parentGroup, null);
             personGroup.setParentGroup(parentGroup);
@@ -42,14 +42,14 @@ public class PersonGroupServiceImpl implements IPersonGroupService {
     @Transactional
     public PersonGroupDTO.PersonGroupResponseDTO updatePersonGroup(PersonGroupDTO.PersonGroupCreateDTO personGroupDTO, Long id) {
         if (!personGroupRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Person group not found with ID: " + id);
+            throw new ResourceNotFoundException("ERR_PERSON_GROUP_NOT_FOUND", id);
         }
         PersonGroupEntity updatedPersonGroup = modelMapper.map(personGroupDTO, PersonGroupEntity.class);
         updatedPersonGroup.setId(id);
 
         if (personGroupDTO.getParentGroupId() != null) {
             PersonGroupEntity parentGroup = personGroupRepository.findById(personGroupDTO.getParentGroupId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Parent group not found with ID: " + personGroupDTO.getParentGroupId()));
+                    .orElseThrow(() -> new ResourceNotFoundException("ERR_PARENT_GROUP_NOT_FOUND", personGroupDTO.getParentGroupId()));
 
             validateNoCircularReference(parentGroup, id);
             updatedPersonGroup.setParentGroup(parentGroup);
@@ -64,16 +64,16 @@ public class PersonGroupServiceImpl implements IPersonGroupService {
     @Transactional
     public String deletePersonGroup(Long id) {
         PersonGroupEntity personGroup = personGroupRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Person group not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("ERR_PERSON_GROUP_NOT_FOUND", id));
 
         if (personGroup.getPersonList() != null && !personGroup.getPersonList().isEmpty())
-            throw new BusinessRuleException("Cannot delete person group because it has associated persons");
+            throw new BusinessRuleException("ERR_PERSON_GROUP_CANT_BE_DELETED");
 
         if (personGroup.getPersonGroupList() != null && !personGroup.getPersonGroupList().isEmpty())
-            throw new BusinessRuleException("Cannot delete person group because it has associated child groups");
+            throw new BusinessRuleException("ERR_PERSON_GROUP_CANT_BE_DELETED");
 
         personGroupRepository.deleteById(id);
-        return "Person group deleted successfully";
+        return "PERSON_GROUP_SUCCESSFULLY_DELETED";
     }
 
     @Override
@@ -90,7 +90,7 @@ public class PersonGroupServiceImpl implements IPersonGroupService {
     public List<PersonGroupDTO.PersonGroupResponseDTO> findAllByOrderByIdAsc() {
         return personGroupRepository.findAllByOrderByIdAsc()
                 .stream()
-                .map(personGroupEntity -> modelMapper.map(personGroupEntity, PersonGroupDTO.PersonGroupResponseDTO.class))
+                .map(personGroupEntity -> convertToResponseDTO(personGroupRepository.save(personGroupEntity)))
                 .toList();
     }
 
@@ -98,8 +98,8 @@ public class PersonGroupServiceImpl implements IPersonGroupService {
     @Transactional(readOnly = true)
     public PersonGroupDTO.PersonGroupResponseDTO findPersonGroupById(Long id) {
         PersonGroupEntity personGroup = personGroupRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Person group not found with ID: " + id));
-        return modelMapper.map(personGroup, PersonGroupDTO.PersonGroupResponseDTO.class);
+                .orElseThrow(() -> new ResourceNotFoundException("ERR_PERSON_GROUP_NOT_FOUND", id));
+        return convertToResponseDTO(personGroupRepository.save(personGroup));
     }
 
     private void validateNoCircularReference(PersonGroupEntity parentGroup, Long currentGroupId) {
@@ -107,7 +107,7 @@ public class PersonGroupServiceImpl implements IPersonGroupService {
         PersonGroupEntity current = parentGroup;
         while (current != null) {
             if (current.getId().equals(currentGroupId)) {
-                throw new BusinessRuleException("Circular reference detected: cannot assign a child group as parent");
+                throw new BusinessRuleException("ERR_PERSON_GROUP_CIRCULAR_REFERENCE");
             }
             current = current.getParentGroup();
         }

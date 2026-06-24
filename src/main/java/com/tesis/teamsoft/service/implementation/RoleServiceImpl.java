@@ -52,7 +52,7 @@ public class RoleServiceImpl implements IRoleService {
     @Transactional
     public RoleDTO.RoleResponseDTO updateRole(RoleDTO.RoleCreateDTO roleDTO, Long id) {
         RoleEntity existingRole = roleRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Role not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("ERR_ROLE_NOT_FOUND", id));
 
         existingRole.setRoleName(roleDTO.getRoleName());
         existingRole.setRoleDesc(roleDTO.getRoleDesc());
@@ -79,15 +79,15 @@ public class RoleServiceImpl implements IRoleService {
     @Transactional
     public String deleteRole(Long id) {
         RoleEntity role = roleRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Role not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("ERR_ROLE_NOT_FOUND", id));
 
         if((role.getAssignedRoleList() != null && !role.getAssignedRoleList().isEmpty()) ||
                 (role.getRoleExperienceList() != null && !role.getRoleExperienceList().isEmpty()) ||
                 (role.getPersonalInterestsList() != null && !role.getPersonalInterestsList().isEmpty()))
-            throw new BusinessRuleException("Cannot delete role because it has associated relations");
+            throw new BusinessRuleException("ERR_ROLE_CANT_BE_DELETED");
 
         roleRepository.deleteById(id);
-        return "Role deleted successfully";
+        return "ROLE_SUCCESSFULLY_DELETED";
     }
 
     @Override
@@ -110,7 +110,7 @@ public class RoleServiceImpl implements IRoleService {
     @Transactional(readOnly = true)
     public RoleDTO.RoleResponseDTO findRoleById(Long id) {
         RoleEntity role = roleRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Role not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("ERR_ROLE_NOT_FOUND", id));
         return convertToResponseDTO(role);
     }
 
@@ -160,11 +160,10 @@ public class RoleServiceImpl implements IRoleService {
                     }
                 } catch (Exception e) {
                     result.setErrors(result.getErrors() + 1);
-                    result.getErrorMessages().add("Error en fila con nombre '" + row.getRoleName() + "': " + e.getMessage());
                 }
             }
         } catch (IOException e) {
-            throw new RuntimeException("Error leyendo el archivo", e);
+            throw new RuntimeException("ERR_FILE_READ_ERROR", e);
         }
         return result;
     }
@@ -189,7 +188,7 @@ public class RoleServiceImpl implements IRoleService {
             writer.flush();
             return new ByteArrayInputStream(baos.toByteArray());
         } catch (IOException | CsvDataTypeMismatchException | CsvRequiredFieldEmptyException e) {
-            throw new RuntimeException("Error generando el archivo CSV", e);
+            throw new RuntimeException("ERR_CSV_GENERATION", e);
         }
     }
 
@@ -200,13 +199,13 @@ public class RoleServiceImpl implements IRoleService {
         return competitionsDTO.stream().map(dto -> {
             // Validar que existen las entidades (solo por ID)
             CompetenceEntity competence = competenceRepository.findById(dto.getCompetenceId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Competence not found with ID: " + dto.getCompetenceId()));
+                    .orElseThrow(() -> new ResourceNotFoundException("ERR_COMPETENCE_NOT_FOUND", dto.getCompetenceId()));
 
             CompetenceImportanceEntity importance = competenceImportanceRepository.findById(dto.getCompetenceImportanceId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Competence Importance not found with ID: " + dto.getCompetenceImportanceId()));
+                    .orElseThrow(() -> new ResourceNotFoundException("ERR_COMP_IMPORTANCE_NOT_FOUND", dto.getCompetenceImportanceId()));
 
             LevelsEntity level = levelsRepository.findById(dto.getLevelsId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Levels not found with ID: " + dto.getLevelsId()));
+                    .orElseThrow(() -> new ResourceNotFoundException("ERR_LEVELS_NOT_FOUND", dto.getLevelsId()));
 
             RoleCompetitionEntity rc = new RoleCompetitionEntity();
             rc.setCompetence(competence);
@@ -249,12 +248,12 @@ public class RoleServiceImpl implements IRoleService {
         return incompatibleRoleIds.stream()
                 .filter(roleId -> {
                     if (roleId.equals(currentRole.getId())) {
-                        throw new BusinessRuleException("Role cannot be incompatible with itself");
+                        throw new BusinessRuleException("ERR_ROLE_INCOM_SAME_ROLE");
                     }
                     return processedIds.add(roleId);
                 })
                 .map(roleId -> roleRepository.findById(roleId)
-                        .orElseThrow(() -> new ResourceNotFoundException("Incompatible role not found with ID: " + roleId)))
+                        .orElseThrow(() -> new ResourceNotFoundException("ERR_ROLE_NOT_FOUND", roleId)))
                 .collect(Collectors.toList()); //NOSONAR
     }
 

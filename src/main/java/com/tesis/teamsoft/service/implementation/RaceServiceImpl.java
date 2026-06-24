@@ -32,7 +32,7 @@ public class RaceServiceImpl implements IRaceService {
     @Transactional
     public RaceDTO.RaceResponseDTO updateRace(RaceDTO.RaceCreateDTO raceDTO, Long id) {
         if (!raceRepository.existsById(id))
-            throw new ResourceNotFoundException("Race not found with ID: " + id);
+            throw new ResourceNotFoundException("ERR_RACE_NOT_FOUND", id);
 
         RaceEntity updatedRace = modelMapper.map(raceDTO, RaceEntity.class);
         updatedRace.setId(id);
@@ -43,13 +43,13 @@ public class RaceServiceImpl implements IRaceService {
     @Transactional
     public String deleteRace(Long id) {
         RaceEntity race = raceRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Race not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("ERR_RACE_NOT_FOUND", id));
 
         if (race.getPersonList() != null && !race.getPersonList().isEmpty())
-            throw new BusinessRuleException("Cannot delete race because it has associated persons");
+            throw new BusinessRuleException("ERR_RACE_CANT_BE_DELETED");
 
         raceRepository.deleteById(id);
-        return "Race deleted successfully";
+        return "RACE_SUCCESSFULLY_DELETED";
     }
 
     @Override
@@ -74,7 +74,7 @@ public class RaceServiceImpl implements IRaceService {
     @Transactional(readOnly = true)
     public RaceDTO.RaceResponseDTO findRaceById(Long id) {
         RaceEntity race = raceRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Race not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("ERR_RACE_NOT_FOUND", id));
         return modelMapper.map(race, RaceDTO.RaceResponseDTO.class);
     }
 }

@@ -10,4 +10,5 @@ import java.util.List;
 public interface IRaceRepository extends JpaRepository<RaceEntity, Long> {
 
     List<RaceEntity> findAllByOrderByIdAsc();
+    
 }
