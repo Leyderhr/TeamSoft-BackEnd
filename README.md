@@ -348,19 +348,14 @@ Este proyecto está bajo la Licencia MIT - ver el archivo [LICENSE.md](LICENSE.m
 
 ## 👥 Autores
 
-- **Tu Nombre** - *Desarrollo inicial* - [tu-github](https://github.com/tu-usuario)
+- **Leyder Ignacio** - *Desarrollo inicial* - [github](https://github.com/leyderhr)
+- **Dennis Serafín** - *Desarrollo del resto de la aplicación* - [tu-github](https://github.com/DnsSera)
 
 ## 🙏 Agradecimientos
 
 - Universidad por el apoyo en la investigación
 - Comunidad Spring Boot por la documentación
 - Contribuidores del proyecto BiCIAM
-
-## 📞 Contacto
-
-- Email: tu-email@universidad.edu
-- LinkedIn: [tu-perfil](https://linkedin.com/in/tu-perfil)
-- Proyecto: [https://github.com/tu-usuario/TeamSoft-BackEnd](https://github.com/tu-usuario/TeamSoft-BackEnd)
 
 ---
 
